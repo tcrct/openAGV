@@ -3,12 +3,10 @@ package com.openagv.core;
 import cn.hutool.core.util.ReflectUtil;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.openagv.core.interfaces.IHandler;
 import com.openagv.route.Route;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +21,10 @@ public class AgvContext {
     private final static Set<Object> INJECT_OBJECT_SET = new HashSet<>();
     /**路由映射*/
     private final static Map<String, Route> ROUTE_MAP = new HashMap<>();
+    /**在执行Controller前的处理器链*/
+    public static List<IHandler> BEFORE_HEANDLER_LIST = new ArrayList<>();
+    /**在执行Controller后的处理器链*/
+    public static List<IHandler> AFTER_HEANDLER_LIST = new ArrayList<>();
 
     private static Injector injector;
 
@@ -63,5 +65,21 @@ public class AgvContext {
 
     public static Map<String, Route> getRouteMap() {
         return ROUTE_MAP;
+    }
+
+    public static List<IHandler> getBeforeHeandlerList() {
+        return BEFORE_HEANDLER_LIST;
+    }
+
+    public static void setBeforeHeandlerList(List<IHandler> beforeHeandlerList) {
+        BEFORE_HEANDLER_LIST = beforeHeandlerList;
+    }
+
+    public static List<IHandler> getAfterHeandlerList() {
+        return AFTER_HEANDLER_LIST;
+    }
+
+    public static void setAfterHeandlerList(List<IHandler> afterHeandlerList) {
+        AFTER_HEANDLER_LIST = afterHeandlerList;
     }
 }

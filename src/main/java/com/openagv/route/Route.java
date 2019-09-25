@@ -4,26 +4,26 @@ public class Route {
 
     private String key;
     /**执行的控制器类*/
-    private Object injectObj;
+    private Object injectController;
 
-    public Route(String key, Object injectObj) {
+    public Route(String key, Object injectController) {
         this.key = key;
-        this.injectObj = injectObj;
+        this.injectController = injectController;
     }
 
     public String getKey() {
         return key;
     }
 
-    public Object getInjectObj() {
-        return injectObj;
+    public Object getInjectController() {
+        return injectController;
     }
 
     @Override
     public String toString() {
         return "Route{" +
                 "key='" + key + '\'' +
-                ", injectObj=" + injectObj.getClass().getName() +
+                ", injectController=" + injectController.getClass().getName() +
                 '}';
     }
 }
