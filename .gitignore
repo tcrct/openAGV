@@ -28,5 +28,5 @@ hs_err_pid*
 # 不提交上传文件夹
 uploadfiles
 
-App*.java
+#App*.java
 *Test.java
