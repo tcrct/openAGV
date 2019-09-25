@@ -11,6 +11,14 @@ public class Route {
         this.injectObj = injectObj;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public Object getInjectObj() {
+        return injectObj;
+    }
+
     @Override
     public String toString() {
         return "Route{" +
