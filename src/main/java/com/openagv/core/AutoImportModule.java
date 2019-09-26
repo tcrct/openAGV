@@ -36,7 +36,7 @@ public class AutoImportModule extends AbstractModule {
         for(Class clazz : classSet) {
             binder(clazz);
         }
-        AgvContext.getInjectClassSet().addAll(classSet);
+        AppContext.getInjectClassSet().addAll(classSet);
     }
 
     /**

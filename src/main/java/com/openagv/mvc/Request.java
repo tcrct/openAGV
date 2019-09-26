@@ -1,10 +1,9 @@
-package com.openagv.core;
+package com.openagv.mvc;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
 import com.openagv.core.interfaces.IRequest;
+import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
@@ -14,7 +13,7 @@ import java.util.Map;
 /**
  * Created by laotang on 2019/9/25.
  */
-public class AgvRequest implements IRequest {
+public class Request implements IRequest {
 
     private String requestId;
     private Map<String, Object> paramMap = new HashMap<>();
@@ -26,15 +25,15 @@ public class AgvRequest implements IRequest {
         DiskAttribute.baseDirectory = null;
     }
 
-    private AgvRequest(Map<String,Object> paramMap) {
+    private Request(Map<String,Object> paramMap) {
         requestId = IdUtil.objectId();
         if(null != paramMap) {
             this.paramMap.putAll(paramMap);
         }
     }
 
-    public static AgvRequest build(Map<String,Object> paramMap) {
-        return new AgvRequest(paramMap);
+    public static Request build(Map<String,Object> paramMap) {
+        return new Request(paramMap);
     }
 
     @Override
@@ -50,6 +49,15 @@ public class AgvRequest implements IRequest {
     @Override
     public Map<String, Object> getParameterMap() {
         return paramMap;
+    }
+
+    @Override
+    public String getRequestURI() {
+        Object uri = paramMap.get(TELEGRAM_TARGET);
+        if(ToolsKit.isEmpty(uri)) {
+            //
+        }
+        return String.valueOf(uri);
     }
 
     @Override

@@ -1,9 +1,8 @@
 package com.openagv.route;
 
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.openagv.core.AgvContext;
+import com.openagv.core.AppContext;
 import com.openagv.tools.ToolsKit;
 
 import java.util.*;
@@ -14,28 +13,28 @@ public class RouteHelper {
     private final static Log logger = LogFactory.get();
 
     public static Map<String,Route> getRoutes() {
-        if(AgvContext.getInjectClassObjectSet().isEmpty()) {
-            java.util.Objects.requireNonNull(AgvContext.getInjectClassSet(), "要做路由映射的类不能为空");
-            AgvContext.getInjectClassSet().forEach(new Consumer<Class<?>>() {
+        if(AppContext.getInjectClassObjectSet().isEmpty()) {
+            java.util.Objects.requireNonNull(AppContext.getInjectClassSet(), "要做路由映射的类不能为空");
+            AppContext.getInjectClassSet().forEach(new Consumer<Class<?>>() {
                 @Override
                 public void accept(Class<?> clazz) {
                     String key = ToolsKit.getControllerName(clazz);
-                    Object injectObj = AgvContext.getGuiceInjector().getInstance(clazz);
-                    AgvContext.getInjectClassObjectSet().add(injectObj);
-                    AgvContext.getRouteMap().put(key.toLowerCase(), new Route(key, injectObj));
+                    Object injectObj = AppContext.getGuiceInjector().getInstance(clazz);
+                    AppContext.getInjectClassObjectSet().add(injectObj);
+                    AppContext.getRouteMap().put(key.toLowerCase(), new Route(key, injectObj));
                 }
             });
         }
         printRouteKey();
-        return AgvContext.getRouteMap();
+        return AppContext.getRouteMap();
     }
 
     private static void printRouteKey() {
-        List<String> keyList = new ArrayList<>(AgvContext.getRouteMap().keySet());
+        List<String> keyList = new ArrayList<>(AppContext.getRouteMap().keySet());
         Collections.sort(keyList);
         logger.warn("**************** Route Key ****************");
         for (String key : keyList) {
-            Route route = AgvContext.getRouteMap().get(key);
+            Route route = AppContext.getRouteMap().get(key);
             logger.warn(route.toString());
         }
     }

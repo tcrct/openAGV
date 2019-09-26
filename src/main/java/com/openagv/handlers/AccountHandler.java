@@ -1,6 +1,7 @@
 package com.openagv.handlers;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.openagv.mvc.BaseController;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
@@ -23,9 +24,9 @@ public class AccountHandler implements IHandler {
     public void doHandler(String target, IRequest request, IResponse response) {
         Route route = RouteHelper.getRoutes().get(target);
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");
-        Object controllerObj = route.getInjectController();
+        BaseController controllerObj = (BaseController)route.getInjectController();
         Object resultObj = ReflectUtil.invoke(controllerObj, "handle", NULL_ARGS);
-//        controllerObj.getClass().getRender(resultObj).setContext(request, response).render();
+        controllerObj.getRender(resultObj).setContext(request, response).render();
     }
 
 }

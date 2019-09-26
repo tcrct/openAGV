@@ -51,6 +51,22 @@
       <artifactId>guice</artifactId>
       <version>${guice.version}</version>
     </dependency>
+    <!-- i18n-->
+    <dependency>
+      <groupId>org.opentcs.i18n</groupId>
+      <artifactId>opentcs-i18n</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/opentcs-i18n.jar</systemPath>
+    </dependency>
+    <!-- RXTXcomm-->
+    <dependency>
+      <groupId>com.openAGV.seralport</groupId>
+      <artifactId>seralport</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/RXTXcomm.jar</systemPath>
+    </dependency>
   </dependencies>
 
 </project>

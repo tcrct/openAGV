@@ -16,4 +16,7 @@ public class SettingUtils {
         return SETTING.getStr(key, defaultValue);
     }
 
+    public static int getInt(String key, int defaultValue){
+        return SETTING.getInt(key, defaultValue);
+    }
 }

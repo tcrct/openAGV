@@ -4,16 +4,21 @@ import cn.hutool.core.util.ReflectUtil;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.interfaces.IHandler;
+import com.openagv.core.interfaces.ITelegram;
 import com.openagv.route.Route;
+import com.openagv.tools.SettingUtils;
+import com.openagv.tools.ToolsKit;
+import gnu.io.SerialPort;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 /**
+ * 上下文及映射容器
  *
  * @author Laotang
  */
-public class AgvContext {
+public class AppContext {
 
     /**要进行依赖反转的类*/
     private final static Set<Class<?>> INJECT_CLASS_SET = new HashSet<>();
@@ -25,14 +30,14 @@ public class AgvContext {
     public static List<IHandler> BEFORE_HEANDLER_LIST = new ArrayList<>();
     /**在执行Controller后的处理器链*/
     public static List<IHandler> AFTER_HEANDLER_LIST = new ArrayList<>();
-
+    /**guice的injector*/
     private static Injector injector;
-
+    /**injector的Module集合*/
     private final static Set<Module> MODULES = new HashSet<>();
 
 
     public static void setGuiceInjector(Injector injector) {
-        AgvContext.injector = injector;
+        AppContext.injector = injector;
     }
 
     public static Injector getGuiceInjector() {
@@ -52,7 +57,7 @@ public class AgvContext {
             getInjectClassSet().forEach(new Consumer<Class<?>>() {
                 @Override
                 public void accept(Class<?> clazz) {
-                    Object injectObj = AgvContext.getGuiceInjector().getInstance(clazz);
+                    Object injectObj = AppContext.getGuiceInjector().getInstance(clazz);
                     String key ="";
                     ROUTE_MAP.put(key, new Route(key, injectObj));
                     INJECT_OBJECT_SET.add(injectObj);
@@ -81,5 +86,31 @@ public class AgvContext {
 
     public static void setAfterHeandlerList(List<IHandler> afterHeandlerList) {
         AFTER_HEANDLER_LIST = afterHeandlerList;
+    }
+
+    /**
+     * 串口
+     */
+    private static SerialPort serialPort;
+    public static void setSerialPort(SerialPort serialPort) {
+        AppContext.serialPort = serialPort;
+    }
+    public static SerialPort getSerialPort() {
+        return serialPort;
+    }
+
+
+
+    private static final String TELEGRAM_SETTING_FIELD = "telegram.impl";
+    private static ITelegram TELEGRAM;
+    public static ITelegram getTelegram(){
+        if(ToolsKit.isEmpty(TELEGRAM)) {
+            String telegramImpl = SettingUtils.getString(TELEGRAM_SETTING_FIELD);
+            if(ToolsKit.isEmpty(telegramImpl)) {
+                throw new NullPointerException("请先实现"+ ITelegram.class.getName()+"接口，并在app.setting文件里["+TELEGRAM_SETTING_FIELD+"]添加接口的实现类路径");
+            }
+            TELEGRAM = ReflectUtil.newInstance(telegramImpl);
+        }
+        return TELEGRAM;
     }
 }
