@@ -5,10 +5,12 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.ITelegram;
+import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -112,5 +114,30 @@ public class AppContext {
             TELEGRAM = ReflectUtil.newInstance(telegramImpl);
         }
         return TELEGRAM;
+    }
+
+
+    private static Object channelManagerObj;
+    public static void setChannelManager(Object channelManager) {
+        channelManagerObj =channelManager;
+    }
+    // 初始化车辆渠道管理器
+    public static void channelManagerInitialize(){
+        java.util.Objects.requireNonNull(channelManagerObj, "渠道管理对象不能为空");
+        if(channelManagerObj instanceof TcpClientChannelManager) {
+            TcpClientChannelManager channelManager = (TcpClientChannelManager)channelManagerObj;
+            if(!channelManager.isInitialized()) {
+                channelManager.initialize();
+            }
+        }
+        else if(channelManagerObj instanceof UdpServerChannelManager) {
+            UdpServerChannelManager channelManager = (UdpServerChannelManager)channelManagerObj;
+            if(!channelManager.isInitialized()) {
+                channelManager.initialize();
+            }
+        }
+        else {
+
+        }
     }
 }

@@ -7,18 +7,59 @@
   <groupId>com.openagv</groupId>
   <artifactId>openAGV</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>openAGV</name>
   <url>http://www.duangframework.com</url>
+
+  <build>
+    <defaultGoal>compile</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>nexus-aliyun</id>
+      <name>local private nexus</name>
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <junit.version>4.11</junit.version>
     <guice.version>4.2.2</guice.version>
     <hutool.version>4.6.7</hutool.version>
     <netty.version>4.1.21.Final</netty.version>
-    <junit.version>4.11</junit.version>
+    <opentcs.version>4.15.0</opentcs.version>
+    <guava.version>25.1-android</guava.version>
+    <findbugs.version>3.0.1</findbugs.version>
+    <mockito.version>1.9.5</mockito.version>
+    <slf4j.version>1.7.21</slf4j.version>
   </properties>
 
   <dependencies>
@@ -33,7 +74,7 @@
       <artifactId>netty-all</artifactId>
       <version>${netty.version}</version>
     </dependency>
-    <!-- hutool -->
+    <!--hutool-->
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-all</artifactId>
@@ -51,6 +92,12 @@
       <artifactId>guice</artifactId>
       <version>${guice.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
     <!-- i18n-->
     <dependency>
       <groupId>org.opentcs.i18n</groupId>
@@ -66,6 +113,73 @@
       <version>1.0</version>
       <scope>system</scope>
       <systemPath>${project.basedir}/lib/RXTXcomm.jar</systemPath>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.opentcs/opentcs-kernel -->
+    <dependency>
+      <groupId>org.opentcs</groupId>
+      <artifactId>opentcs-kernel</artifactId>
+      <version>${opentcs.version}</version>
+      <!--      <exclusions>-->
+      <!--        <exclusion>-->
+      <!--          <groupId>org.opentcs</groupId>-->
+      <!--          <artifactId>opentcs-commadapter-loopback</artifactId>-->
+      <!--        </exclusion>-->
+      <!--      </exclusions>-->
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.opentcs/opentcs-api-injection -->
+    <dependency>
+      <groupId>org.opentcs</groupId>
+      <artifactId>opentcs-api-injection</artifactId>
+      <version>${opentcs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.opentcs</groupId>
+          <artifactId>opentcs-commadapter-loopback</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.opentcs</groupId>
+      <artifactId>opentcs-kernelcontrolcenter</artifactId>
+      <version>${opentcs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.opentcs</groupId>
+          <artifactId>opentcs-commadapter-loopback</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.opentcs.contrib/opentcs-contrib-tcp-netty -->
+    <dependency>
+      <groupId>org.opentcs.contrib</groupId>
+      <artifactId>opentcs-contrib-tcp-netty</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentcs</groupId>
+      <artifactId>opentcs-plantoverview</artifactId>
+      <version>${opentcs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito.version}</version>
+    </dependency>
+    <!-- slf4j-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
 

@@ -1,6 +1,8 @@
 package com.openagv.core.interfaces;
 
 import com.openagv.core.AgvResult;
+import com.openagv.opentcs.model.ProcessModel;
+import org.opentcs.drivers.vehicle.MovementCommand;
 
 public interface ITelegram {
 
@@ -10,5 +12,7 @@ public interface ITelegram {
      * @return  AgvResult 发送/广播的消息
      */
     AgvResult handle(Object telegramObj);
+
+    AgvResult handle(ProcessModel processModel, MovementCommand cmd);
 
 }

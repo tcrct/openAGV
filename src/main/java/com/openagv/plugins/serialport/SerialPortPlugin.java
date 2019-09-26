@@ -2,10 +2,15 @@ package com.openagv.plugins.serialport;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
+import com.openagv.core.Main;
 import com.openagv.core.interfaces.IPlugin;
+import com.openagv.core.interfaces.IResponse;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
+import gnu.io.SerialPort;
+
 import java.util.List;
 
 /**
@@ -36,31 +41,52 @@ public class SerialPortPlugin implements IPlugin {
         } catch (Exception e) {
             throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"]");
         }
-
-        listener();
         logger.warn("串口[{}]启动成功！波特率为[{}]", serialPortName, baudrate);
+        listener();
     }
 
     private void listener() {
-        SerialPortManager.addListener(AppContext.getSerialPort(), new DataAvailableListener() {
+        final SerialPort serialPort = AppContext.getSerialPort();
+        java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
+        SerialPortManager.addListener(serialPort, new DataAvailableListener() {
             @Override
             public void dataAvailable() {
-                String telegram = readTelegram4SerialPort();
-                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
-                if(ToolsKit.isEmpty(responseTelegram)) {
-                    return;
-                }
+                String telegram = readTelegram(serialPort);
+
+                AgvResult agvResult = AppContext.getTelegram().handle(telegram);
+                IResponse response = agvResult.getResponse();
+                Main.doTask(agvResult.getRequest(), response);
+                String resultString =response.toString();
+
+//                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
+//                if(ToolsKit.isEmpty(responseTelegram)) {
+//                    return;
+//                }
                 logger.info("串口接收到的报文：" + telegram);
-                if(!getTelegramMatcher().tryMatchWithCurrentRequestTelegram(responseTelegram)) {
-                    // 如果不匹配，则忽略该响应或关闭连接
-                    return;
-                }
-                /**检查并更新车辆状态，位置点*/
-                checkForVehiclePositionUpdate(responseTelegram);
-                /**在执行上面更新位置的方法后再检查是否有下一条请求需要发送*/
-                getTelegramMatcher().checkForSendingNextRequest();
+//                if(!getTelegramMatcher().tryMatchWithCurrentRequestTelegram(responseTelegram)) {
+//                    // 如果不匹配，则忽略该响应或关闭连接
+//                    return;
+//                }
+//                /**检查并更新车辆状态，位置点*/
+//                checkForVehiclePositionUpdate(responseTelegram);
+//                /**在执行上面更新位置的方法后再检查是否有下一条请求需要发送*/
+//                getTelegramMatcher().checkForSendingNextRequest();
             }
         });
+    }
+
+    private String readTelegram(SerialPort serialPort) {
+        java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
+        byte[] data = null;
+        try {
+            // 读取串口数据
+            data = SerialPortManager.readFromPort(serialPort);
+            // 以字符串的形式接收数据
+            return new String(data);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return "";
+        }
     }
 
 }

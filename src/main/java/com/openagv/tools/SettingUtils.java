@@ -19,4 +19,10 @@ public class SettingUtils {
     public static int getInt(String key, int defaultValue){
         return SETTING.getInt(key, defaultValue);
     }
+
+    public static boolean getBoolean(String key, boolean defaultValue){
+        return SETTING.getBool(key, defaultValue);
+    }
+
+
 }

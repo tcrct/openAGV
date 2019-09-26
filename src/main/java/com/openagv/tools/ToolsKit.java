@@ -88,6 +88,38 @@ public class ToolsKit {
     }
 
     /**
+     * 取车辆host名称
+     * @return
+     */
+    public static String getVehicleHostName() {
+        return  SettingUtils.getString("vehicle.host.name", "host");
+    }
+
+    /**
+     * 取车辆port名称
+     * @return
+     */
+    public static String getVehiclePortName() {
+        return SettingUtils.getString("vehicle.port.name", "port");
+    }
+
+    /**
+     * 端口最小值
+     * @return
+     */
+    public static int getMinPort(){
+        return SettingUtils.getInt("vehicle.min.port",5050);
+    }
+
+    /**
+     * 端口最大值
+     * @return
+     */
+    public static int getMaxPort(){
+        return SettingUtils.getInt("vehicle.max.port", 6060);
+    }
+
+    /**
      * 取Controller类名，去掉Controller结尾部分
      * 如果@Controller注解有指定value，则优先取value值
      *
