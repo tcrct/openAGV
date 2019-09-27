@@ -11,6 +11,7 @@ import com.openagv.opentcs.OpenTcsConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.route.RouteHelper;
+import com.openagv.tools.ToolsKit;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
@@ -28,8 +29,6 @@ public class Application {
     private final static Log logger = LogFactory.get();
 
     private static Application application;
-    private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
-
 
     public static Application duang() {
         if(application == null) {
@@ -47,7 +46,7 @@ public class Application {
     }
 
     public Application plugins(List<IPlugin> plugins) {
-        PLUGIN_LIST.addAll(plugins);
+        AppContext.getPluginList().addAll(plugins);
         return this;
     }
 
@@ -60,9 +59,14 @@ public class Application {
 
     private void startPlugins() {
         try {
-            for (Iterator<IPlugin> it = PLUGIN_LIST.iterator(); it.hasNext();) {
+            for (Iterator<IPlugin> it = AppContext.getPluginList().iterator(); it.hasNext();) {
                 IPlugin plugin = it.next();
                 plugin.start();
+                Class[] classeArray = plugin.getClass().getInterfaces();
+                if(ToolsKit.isNotEmpty(classeArray) && classeArray.length > 1) {
+                    System.out.println(classeArray[0]);
+                    System.out.println(classeArray[1]);
+                }
                 logger.warn("插件[{}]启动成功!", plugin.getClass().getName());
             }
         } catch (Exception e) {

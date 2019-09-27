@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.openagv.core.AppContext;
 import com.openagv.core.Main;
 import com.openagv.core.command.SendCommand;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
@@ -102,6 +103,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         getProcessModel().getVelocityController().addVelocityListener(getProcessModel());
         // 初始化车辆渠道管理器
+        for(Iterator<IEnable> iterator = AppContext.getPluginList().iterator(); iterator.hasNext();){
+            iterator.next().enable();
+        }
         AppContext.channelManagerInitialize();
         /*
         if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {

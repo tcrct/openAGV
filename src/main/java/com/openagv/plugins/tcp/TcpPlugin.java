@@ -3,6 +3,7 @@ package com.openagv.plugins.tcp;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.openagv.core.AppContext;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -19,11 +20,12 @@ import java.util.function.Supplier;
  *
  * @author Laotang
  */
-public class TcpPlugin implements IPlugin {
+public class TcpPlugin implements IPlugin, IEnable {
 
     private Supplier<List<ChannelHandler>> channelSupplier;
     private int readTimeout;
     private boolean enableLogging;
+    private TcpClientChannelManager tcpClientChannelManager;
     private ConnectionEventListener connectionEventListener;
 
     public TcpPlugin() {
@@ -54,12 +56,19 @@ public class TcpPlugin implements IPlugin {
     // 创建负责与车辆连接的渠道管理器,基于netty
     @Override
     public void start() throws Exception {
-        TcpClientChannelManager tcpClientChannelManager = new TcpClientChannelManager<String, String>(
+        tcpClientChannelManager = new TcpClientChannelManager<String, String>(
                 connectionEventListener,
                 channelSupplier,
                 readTimeout,
                 enableLogging);
 
-        AppContext.setChannelManager(tcpClientChannelManager);
+//        AppContext.setChannelManager(tcpClientChannelManager);
+    }
+
+    @Override
+    public void enable() {
+        if(!tcpClientChannelManager.isInitialized()) {
+            tcpClientChannelManager.initialize();
+        }
     }
 }

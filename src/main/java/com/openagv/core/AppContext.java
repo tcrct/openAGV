@@ -4,6 +4,7 @@ import cn.hutool.core.util.ReflectUtil;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.interfaces.IHandler;
+import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.ITelegram;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.route.Route;
@@ -32,6 +33,8 @@ public class AppContext {
     public static List<IHandler> BEFORE_HEANDLER_LIST = new ArrayList<>();
     /**在执行Controller后的处理器链*/
     public static List<IHandler> AFTER_HEANDLER_LIST = new ArrayList<>();
+    /**插件*/
+    private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
     /**guice的injector*/
     private static Injector injector;
     /**injector的Module集合*/
@@ -86,6 +89,10 @@ public class AppContext {
 
     public static void setAfterHeandlerList(List<IHandler> afterHeandlerList) {
         AFTER_HEANDLER_LIST = afterHeandlerList;
+    }
+
+    public static List<IPlugin> getPluginList() {
+        return PLUGIN_LIST;
     }
 
     /**
