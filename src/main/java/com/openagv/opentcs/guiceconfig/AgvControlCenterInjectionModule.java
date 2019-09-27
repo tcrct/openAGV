@@ -14,7 +14,6 @@ public class AgvControlCenterInjectionModule extends ControlCenterInjectionModul
     protected void configure() {
 
         install(new FactoryModuleBuilder().build(PanelComponentsFactory.class));
-
         commAdapterPanelFactoryBinder().addBinding().to(CommAdapterPanelFactory.class);
 
 

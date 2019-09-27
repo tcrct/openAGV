@@ -26,7 +26,8 @@ public class Main {
             doBeforeHandler(target, request, response);
             AccountHandler.duang().doHandler(target, request, response);
         } catch (Exception e) {
-            logger.error("执行任务[{}]时出错: {} {}", target, e.getMessage(), e);
+            e.printStackTrace();
+            logger.error("执行任务[{}]时出错: {} {}", target, e.getMessage());
             ExceptionController.build().getRender(e.getMessage()).setContext(request, response).render();
         }
         // 另起线程处理

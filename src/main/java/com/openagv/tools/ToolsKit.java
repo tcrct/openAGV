@@ -1,13 +1,18 @@
 package com.openagv.tools;
 
 import com.openagv.core.annotations.Controller;
+import com.openagv.core.annotations.Service;
+import com.openagv.core.command.SendCommand;
+import com.openagv.opentcs.model.Telegram;
 
 import java.util.Collection;
 import java.util.Map;
 
 public class ToolsKit {
 
-    private static final String CONTROLLER_FIELD = "Controller";
+    public static final String CONTROLLER_FIELD = "Controller";
+    public static final String  SERVICE_FIELD = "Service";
+    private static final String  SERVICE_IMPL_FIELD = "ServiceImpl";
 
     /***
      * 判断传入的对象是否为空
@@ -126,16 +131,45 @@ public class ToolsKit {
      * @param clazz 类
      * @return 类名
      */
-    public static String getControllerName(Class<?> clazz) {
+    public static String getInjectClassName(Class<?> annotation, Class<?> clazz) {
         java.util.Objects.requireNonNull(clazz, "Controller类不能为空");
-        Controller controllerAnnon = clazz.getAnnotation(Controller.class);
-        String className = clazz.getSimpleName();
-        if(null == controllerAnnon && className.endsWith(CONTROLLER_FIELD)) {
-            className = className.substring(0, CONTROLLER_FIELD.length());
-        } else {
-            className = controllerAnnon.value();
+        java.util.Objects.requireNonNull(annotation, "["+clazz.getName()+"]注解不能为空");
+        String className = "";
+        if(Controller.class.equals(annotation.getClass())) {
+            Controller classAnnon = clazz.getAnnotation(Controller.class);
+            className = classAnnon.value();
+        }
+        if(Service.class.equals(annotation.getClass())) {
+            Service classAnnon = clazz.getAnnotation(Service.class);
+            className = classAnnon.value();
+        }
+        if(ToolsKit.isEmpty(className)) {
+            className = clazz.getSimpleName();
+            className = className.replace(CONTROLLER_FIELD, "");
+            className = className.replace(SERVICE_IMPL_FIELD, "");
+            className = className.replace(SERVICE_FIELD, "");
         }
         return className;
+    }
+
+
+    public static String sendCommand(Telegram telegram) {
+        return new SendCommand().execute(telegram);
+    }
+
+
+    public static boolean isInjectServiceClass(Class<?> clazz) {
+        return null != clazz && clazz.isAnnotationPresent(Service.class) && clazz.getInterfaces().length >= 1;
+    }
+
+    public static boolean isInjectControllerClass(Class<?> clazz) {
+        return null != clazz && clazz.isAnnotationPresent(Controller.class);
+    }
+
+    public static boolean isInjectClass(Class<?> clazz) {
+        return null != clazz && (
+                clazz.isAnnotationPresent(Controller.class) ||
+                        clazz.isAnnotationPresent(Service.class));
     }
 
 }

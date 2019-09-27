@@ -3,15 +3,15 @@ package com.openagv.opentcs.adapter;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.assistedinject.Assisted;
-import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
 import com.openagv.core.Main;
+import com.openagv.core.command.SendCommand;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
+import com.openagv.opentcs.model.Telegram;
 import com.openagv.tools.ToolsKit;
-import gnu.io.SerialPort;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
@@ -184,13 +184,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         requireNonNull(cmd, "cmd");
-        logger.debug("sendCommand {}", cmd);
+        logger.info("sendCommand {}", cmd);
         singleStepExecutionAllowed = false;
         try {
-            AgvResult agvResult = AppContext.getTelegram().handle(getProcessModel(), cmd);
-            IResponse response = agvResult.getResponse();
-            Main.doTask(agvResult.getRequest(), response);
-            String resultString =response.toString();
+            System.out.println("start: " + System.currentTimeMillis());
+            String resultString = ToolsKit.sendCommand(new Telegram(cmd,getProcessModel()));
+            System.out.println(System.currentTimeMillis() + "#################command result: "+ resultString);
+
+
 
             // 将移动的参数转换为请求参数，这里要根据协议规则生成对应的请求对象
 //            Telegram telegram =  template.builderTelegram(getProcessModel(), cmd);
@@ -200,7 +201,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //            telegramMatcher.enqueueRequestTelegram(telegram);
             logger.debug("{}: 将订单报文提交到消息队列完成", getName());
         } catch (Exception e) {
-            logger.error("{}: 将订单报文提交到消息队列失败 {}", getName(), cmd, e);
+            logger.error("{}: 将订单报文提交到消息队列失败 {}", getName(), cmd);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -303,10 +305,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         boolean canProcess = true;
         String reason = "";
 
+                    return new ExplainedBoolean(canProcess, reason);
+
 //        if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {
 //            return new ExplainedBoolean(canProcess, reason);
 //        }
 
+        /*
         if(!isEnabled()) {
             canProcess = false;
             reason= "通讯适配器没有开启";
@@ -349,6 +354,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         logger.info("canProcess: {}, reason: {}", operations, reason);
         return new ExplainedBoolean(canProcess, reason);
+         */
     }
 
     @Override

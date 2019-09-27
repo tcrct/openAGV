@@ -17,6 +17,10 @@ public interface IRequest {
 
     String getRequestURI();
 
+    void setTarget(String target);
+
+    String getOriginalTelegram();
+
     <T> T asBean(Class<T> clazz);
 
 }

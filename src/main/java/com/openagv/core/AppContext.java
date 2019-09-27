@@ -55,17 +55,19 @@ public class AppContext {
     }
 
     public static Set<Object> getInjectClassObjectSet() {
-        if(INJECT_OBJECT_SET.isEmpty()){
-            getInjectClassSet().forEach(new Consumer<Class<?>>() {
-                @Override
-                public void accept(Class<?> clazz) {
-                    Object injectObj = AppContext.getGuiceInjector().getInstance(clazz);
-                    String key ="";
-                    ROUTE_MAP.put(key, new Route(key, injectObj));
-                    INJECT_OBJECT_SET.add(injectObj);
-                }
-            });
-        }
+//        if(INJECT_OBJECT_SET.isEmpty()){
+//            getInjectClassSet().forEach(new Consumer<Class<?>>() {
+//                @Override
+//                public void accept(Class<?> clazz) {
+//                    if(ToolsKit.isInjectServiceClass(clazz)) {
+//                        Object injectObj = AppContext.getGuiceInjector().getInstance(clazz);
+//    //                    String key =ToolsKit.getControllerName(clazz);
+//    //                    ROUTE_MAP.put(key.toLowerCase(), new Route(key, injectObj));
+//                        INJECT_OBJECT_SET.add(injectObj);
+//                    }
+//                }
+//            });
+//        }
         return INJECT_OBJECT_SET;
     }
 
@@ -76,10 +78,6 @@ public class AppContext {
 
     public static List<IHandler> getBeforeHeandlerList() {
         return BEFORE_HEANDLER_LIST;
-    }
-
-    public static void setBeforeHeandlerList(List<IHandler> beforeHeandlerList) {
-        BEFORE_HEANDLER_LIST = beforeHeandlerList;
     }
 
     public static List<IHandler> getAfterHeandlerList() {
@@ -100,7 +98,6 @@ public class AppContext {
     public static SerialPort getSerialPort() {
         return serialPort;
     }
-
 
 
     private static final String TELEGRAM_SETTING_FIELD = "telegram.impl";
@@ -140,4 +137,14 @@ public class AppContext {
 
         }
     }
+
+
+    private static String INVOKE_CLASS_TYPE ;
+    public static String getInvokeClassType() {
+        if(null == INVOKE_CLASS_TYPE) {
+            INVOKE_CLASS_TYPE = SettingUtils.getString("invoke.class", ToolsKit.SERVICE_FIELD);
+        }
+        return INVOKE_CLASS_TYPE;
+    }
+
 }

@@ -3,11 +3,14 @@ package com.openagv;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.opentcs.OpenTcsConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
+import com.openagv.route.RouteHelper;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
@@ -25,7 +28,6 @@ public class Application {
     private final static Log logger = LogFactory.get();
 
     private static Application application;
-    private static final List<IHandler> HANDLER_LIST = new ArrayList<>();
     private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
 
 
@@ -39,13 +41,13 @@ public class Application {
     private Application(){
     }
 
-    public Application handlers(IHandler handler) {
-        HANDLER_LIST.add(handler);
+    public Application handlers(List<IHandler> handlers) {
+        AppContext.getBeforeHeandlerList().addAll(handlers);
         return this;
     }
 
-    public Application plugins(IPlugin plugin) {
-        PLUGIN_LIST.add(plugin);
+    public Application plugins(List<IPlugin> plugins) {
+        PLUGIN_LIST.addAll(plugins);
         return this;
     }
 
@@ -72,6 +74,10 @@ public class Application {
         OpenTcsConfigure.init();
     }
 
+    private void route() {
+        RouteHelper.getRoutes();
+    }
+
     private void startOpenTcs() throws Exception{
         // 启动内核
         RunKernel.main(null);
@@ -93,6 +99,8 @@ public class Application {
         startPlugins();
         // 依赖注入
         guiceInjector();
+        // 映射路由
+        route();
         // 启动OpenTCS
         startOpenTcs();
     }

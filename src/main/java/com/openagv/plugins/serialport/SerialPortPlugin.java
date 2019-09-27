@@ -7,6 +7,7 @@ import com.openagv.core.AppContext;
 import com.openagv.core.Main;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
+import com.openagv.opentcs.model.Telegram;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
@@ -52,11 +53,7 @@ public class SerialPortPlugin implements IPlugin {
             @Override
             public void dataAvailable() {
                 String telegram = readTelegram(serialPort);
-
-                AgvResult agvResult = AppContext.getTelegram().handle(telegram);
-                IResponse response = agvResult.getResponse();
-                Main.doTask(agvResult.getRequest(), response);
-                String resultString =response.toString();
+                String resultString = ToolsKit.sendCommand(new Telegram(telegram));
 
 //                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
 //                if(ToolsKit.isEmpty(responseTelegram)) {

@@ -29,19 +29,19 @@ public class TcpPlugin implements IPlugin {
     public TcpPlugin() {
         readTimeout = SettingUtils.getInt("tcp.read.timeout", 5000);
         enableLogging = SettingUtils.getBoolean("tcp.log.enable", false);
-        String listener = SettingUtils.getString("tcp.listener.class");
+        String listener = SettingUtils.getString("tcp.listener");
         connectionEventListener = ReflectUtil.newInstance(listener);
         createChannelSupplier();
     }
 
     private void createChannelSupplier() {
         final List<ChannelHandler> channelHandlers = new ArrayList<>();
-        String encodeClassString = SettingUtils.getString("tcp.encode.class");
-        String decodeClassString = SettingUtils.getString("tcp.decode.class");
+        String encodeClassString = SettingUtils.getString("tcp.encode");
+        String decodeClassString = SettingUtils.getString("tcp.decode");
         if(ToolsKit.isNotEmpty(encodeClassString) &&
                 ToolsKit.isNotEmpty(decodeClassString)) {
-            channelHandlers.add(ReflectUtil.newInstance(ClassUtil.loadClass(encodeClassString), connectionEventListener));
-            channelHandlers.add(ReflectUtil.newInstance(decodeClassString));
+            channelHandlers.add(ReflectUtil.newInstance(encodeClassString));
+            channelHandlers.add(ReflectUtil.newInstance(ClassUtil.loadClass(decodeClassString), connectionEventListener));
         }
         channelSupplier = new Supplier<List<ChannelHandler>>() {
             @Override
