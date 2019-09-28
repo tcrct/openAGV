@@ -2,6 +2,8 @@ package com.openagv.plugins.tcp;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
@@ -21,6 +23,8 @@ import java.util.function.Supplier;
  * @author Laotang
  */
 public class TcpPlugin implements IPlugin, IEnable {
+
+    private static final Log logger = LogFactory.get();
 
     private Supplier<List<ChannelHandler>> channelSupplier;
     private int readTimeout;
@@ -61,14 +65,14 @@ public class TcpPlugin implements IPlugin, IEnable {
                 channelSupplier,
                 readTimeout,
                 enableLogging);
-
-//        AppContext.setChannelManager(tcpClientChannelManager);
     }
 
     @Override
     public void enable() {
+        System.out.println("#####################tcpClientChannelManage enabler########################"+ tcpClientChannelManager);
         if(!tcpClientChannelManager.isInitialized()) {
             tcpClientChannelManager.initialize();
+            logger.info("开启车辆渠道管理器[{}]成功!", "tcpClientChannelManager");
         }
     }
 }

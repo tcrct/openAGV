@@ -1,5 +1,6 @@
 package com.openagv;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.Guice;
@@ -7,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.opentcs.OpenTcsConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
@@ -64,8 +66,11 @@ public class Application {
                 plugin.start();
                 Class[] classeArray = plugin.getClass().getInterfaces();
                 if(ToolsKit.isNotEmpty(classeArray) && classeArray.length > 1) {
-                    System.out.println(classeArray[0]);
-                    System.out.println(classeArray[1]);
+                    for(Class clazz : classeArray) {
+                        if(IEnable.class.equals(clazz)) {
+                            AppContext.getPluginEnableList().add((IEnable) plugin);
+                        }
+                    }
                 }
                 logger.warn("插件[{}]启动成功!", plugin.getClass().getName());
             }

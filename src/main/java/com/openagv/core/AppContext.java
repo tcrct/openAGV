@@ -3,6 +3,7 @@ package com.openagv.core;
 import cn.hutool.core.util.ReflectUtil;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.ITelegram;
@@ -35,6 +36,10 @@ public class AppContext {
     public static List<IHandler> AFTER_HEANDLER_LIST = new ArrayList<>();
     /**插件*/
     private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
+
+    /**插件开启回调*/
+    private static final List<IEnable> PLUGIN_ENABLE_LIST = new ArrayList<>();
+
     /**guice的injector*/
     private static Injector injector;
     /**injector的Module集合*/
@@ -121,6 +126,11 @@ public class AppContext {
     }
 
 
+    public static List<IEnable> getPluginEnableList() {
+        return PLUGIN_ENABLE_LIST;
+    }
+
+    /*
     private static Object channelManagerObj;
     public static void setChannelManager(Object channelManager) {
         channelManagerObj =channelManager;
@@ -144,6 +154,7 @@ public class AppContext {
 
         }
     }
+    */
 
 
     private static String INVOKE_CLASS_TYPE ;

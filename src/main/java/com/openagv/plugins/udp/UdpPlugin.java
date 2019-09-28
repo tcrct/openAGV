@@ -1,7 +1,10 @@
 package com.openagv.plugins.udp;
 
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.openagv.core.AppContext;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -18,12 +21,15 @@ import java.util.function.Supplier;
  *
  * @author Laotang
  */
-public class UdpPlugin implements IPlugin {
+public class UdpPlugin implements IPlugin, IEnable {
+
+    private static final Log logger = LogFactory.get();
 
     private int port;
     private Supplier<List<ChannelHandler>> channelSupplier;
     private static int BUFFER_SIZE = 64*1024;
     private static boolean loggingInitially;
+    private static UdpServerChannelManager udpServerChannelManager;
 
     private UdpPlugin() {
         this.port = SettingUtils.getInt("upd.port", 60000);
@@ -51,7 +57,14 @@ public class UdpPlugin implements IPlugin {
     public void start() throws Exception {
         Assertions.checkArgument(port > 0, "port <= 0: %s", new Object[]{port});
         java.util.Objects.requireNonNull(channelSupplier, "channelSupplier");
-        UdpServerChannelManager udpServerChannelManager = new UdpServerChannelManager(port, channelSupplier, loggingInitially, BUFFER_SIZE);
-        AppContext.setChannelManager(udpServerChannelManager);
+        udpServerChannelManager = new UdpServerChannelManager(port, channelSupplier, loggingInitially, BUFFER_SIZE);
+    }
+
+    @Override
+    public void enable() {
+        if(!udpServerChannelManager.isInitialized()) {
+            udpServerChannelManager.initialize();
+            logger.info("开启车辆渠道管理器[{}]成功!", "udpServerChannelManager");
+        }
     }
 }

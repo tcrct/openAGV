@@ -103,10 +103,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         getProcessModel().getVelocityController().addVelocityListener(getProcessModel());
         // 初始化车辆渠道管理器
-        for(Iterator<IEnable> iterator = AppContext.getPluginList().iterator(); iterator.hasNext();){
+        for(Iterator<IEnable> iterator = AppContext.getPluginEnableList().iterator(); iterator.hasNext();){
             iterator.next().enable();
         }
-        AppContext.channelManagerInitialize();
+//        AppContext.channelManagerInitialize();
         /*
         if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {
             SerialPortManager.addListener(Configure.getSerialport(), new DataAvailableListener() {

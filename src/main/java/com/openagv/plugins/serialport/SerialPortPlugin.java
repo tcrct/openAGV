@@ -5,6 +5,7 @@ import cn.hutool.log.LogFactory;
 import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
 import com.openagv.core.Main;
+import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.opentcs.model.Telegram;
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author Laotang
  */
-public class SerialPortPlugin implements IPlugin {
+public class SerialPortPlugin implements IPlugin, IEnable {
 
     private static final Log logger = LogFactory.get();
 
@@ -43,10 +44,25 @@ public class SerialPortPlugin implements IPlugin {
             throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"]");
         }
         logger.warn("串口[{}]启动成功！波特率为[{}]", serialPortName, baudrate);
-        listener();
     }
 
-    private void listener() {
+
+    private String readTelegram(SerialPort serialPort) {
+        java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
+        byte[] data = null;
+        try {
+            // 读取串口数据
+            data = SerialPortManager.readFromPort(serialPort);
+            // 以字符串的形式接收数据
+            return new String(data);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return "";
+        }
+    }
+
+    @Override
+    public void enable() {
         final SerialPort serialPort = AppContext.getSerialPort();
         java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
         SerialPortManager.addListener(serialPort, new DataAvailableListener() {
@@ -70,20 +86,6 @@ public class SerialPortPlugin implements IPlugin {
 //                getTelegramMatcher().checkForSendingNextRequest();
             }
         });
+        logger.info("开启串口渠道管理器[{}]成功!", serialPort.getName());
     }
-
-    private String readTelegram(SerialPort serialPort) {
-        java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
-        byte[] data = null;
-        try {
-            // 读取串口数据
-            data = SerialPortManager.readFromPort(serialPort);
-            // 以字符串的形式接收数据
-            return new String(data);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return "";
-        }
-    }
-
 }
