@@ -43,7 +43,7 @@ public class Response implements IResponse {
 
     @Override
     public void write(Object returnObj) {
-
+        this.returnObj = returnObj;
     }
 
     @Override

@@ -40,4 +40,5 @@ public class Telegram {
     public void setProcessModel(ProcessModel processModel) {
         this.processModel = processModel;
     }
+
 }

@@ -11,6 +11,9 @@ import com.openagv.route.Route;
 import com.openagv.route.RouteHelper;
 import com.openagv.tools.ToolsKit;
 
+/**
+ * 访问处理器
+ */
 public class AccountHandler {
 
     private static final Object[] NULL_ARGS = new Object[0];		// 默认参数

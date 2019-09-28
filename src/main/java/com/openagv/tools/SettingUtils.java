@@ -16,6 +16,10 @@ public class SettingUtils {
         return SETTING.getStr(key, defaultValue);
     }
 
+    public static String getStringByGroup(String key, String group, String defaultValue) {
+        return SETTING.getStr(key, group, defaultValue);
+    }
+
     public static int getInt(String key, int defaultValue){
         return SETTING.getInt(key, defaultValue);
     }

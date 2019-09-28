@@ -18,11 +18,4 @@ public interface ComponentsFactory {
      */
     CommAdapter createCommAdapter(Vehicle vehicle);
 
-    /**
-     * 创建请求响应匹配器
-     * @param template    处理模板
-     * @return TelegramMatcher
-     */
-//    TelegramMatcher createTelegramMatcher(AgreementTemplate template);
-
 }

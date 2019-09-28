@@ -7,6 +7,8 @@ import cn.hutool.log.LogFactory;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
+import com.openagv.core.interfaces.IResponse;
+import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import io.netty.channel.ChannelHandler;
@@ -22,7 +24,7 @@ import java.util.function.Supplier;
  *
  * @author Laotang
  */
-public class TcpPlugin implements IPlugin, IEnable {
+public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
 
     private static final Log logger = LogFactory.get();
 
@@ -68,11 +70,21 @@ public class TcpPlugin implements IPlugin, IEnable {
     }
 
     @Override
-    public void enable() {
-        System.out.println("#####################tcpClientChannelManage enabler########################"+ tcpClientChannelManager);
+    public Object enable() {
         if(!tcpClientChannelManager.isInitialized()) {
             tcpClientChannelManager.initialize();
             logger.info("开启车辆渠道管理器[{}]成功!", "tcpClientChannelManager");
+            return tcpClientChannelManager;
         }
+        return null;
+    }
+
+    /**
+     * 发送电报到设备
+     * @param telegram The {@link IResponse} to be sent.
+     */
+    @Override
+    public void sendTelegram(IResponse telegram) {
+        tcpClientChannelManager.send(telegram.toString());
     }
 }

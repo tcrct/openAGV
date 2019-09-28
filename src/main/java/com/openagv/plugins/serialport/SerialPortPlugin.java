@@ -8,11 +8,13 @@ import com.openagv.core.Main;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
+import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.opentcs.model.Telegram;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ import java.util.List;
  *
  * @author Laotang
  */
-public class SerialPortPlugin implements IPlugin, IEnable {
+public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
     private static final Log logger = LogFactory.get();
 
@@ -62,14 +64,16 @@ public class SerialPortPlugin implements IPlugin, IEnable {
     }
 
     @Override
-    public void enable() {
+    public Object enable() {
         final SerialPort serialPort = AppContext.getSerialPort();
-        java.util.Objects.requireNonNull(serialPort, "串口对象不能为null");
+        if(null == serialPort) {
+            return false;
+        }
         SerialPortManager.addListener(serialPort, new DataAvailableListener() {
             @Override
             public void dataAvailable() {
                 String telegram = readTelegram(serialPort);
-                String resultString = ToolsKit.sendCommand(new Telegram(telegram));
+                AgvResult result = ToolsKit.sendCommand(new Telegram(telegram));
 
 //                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
 //                if(ToolsKit.isEmpty(responseTelegram)) {
@@ -87,5 +91,11 @@ public class SerialPortPlugin implements IPlugin, IEnable {
             }
         });
         logger.info("开启串口渠道管理器[{}]成功!", serialPort.getName());
+        return serialPort;
+    }
+
+    @Override
+    public void sendTelegram(IResponse telegram) {
+
     }
 }

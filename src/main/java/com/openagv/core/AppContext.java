@@ -12,6 +12,7 @@ import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 
 import java.util.*;
@@ -163,6 +164,17 @@ public class AppContext {
             INVOKE_CLASS_TYPE = SettingUtils.getString("invoke.class", ToolsKit.SERVICE_FIELD);
         }
         return INVOKE_CLASS_TYPE;
+    }
+
+    /**
+     * 大杀器----TCS的对象服务器
+     */
+    private static TCSObjectService OBJECT_SERVICE;
+    public static void setOpenTcsObjectService(TCSObjectService objectService){
+        AppContext.OBJECT_SERVICE = objectService;
+    }
+    public static TCSObjectService getOpenTcsObjectService(){
+        return AppContext.OBJECT_SERVICE ;
     }
 
 }

@@ -3,6 +3,7 @@ package com.openagv.core.command;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
@@ -24,7 +25,7 @@ public class SendCommand extends Command {
     private static final Log logger = LogFactory.get();
 
     @Override
-    public String execute(Telegram telegram) {
+    public AgvResult execute(Telegram telegram) {
         List<IRequest> orderList = AppContext.getTelegram().handle(telegram);
         if(ToolsKit.isEmpty(orderList)) {
             throw new AgvException("返回的转换结果集不能为空");
@@ -38,7 +39,7 @@ public class SendCommand extends Command {
                 e.printStackTrace();
                 logger.error("执行任务时出错: {}", e.getMessage());
             }
-            return response.toString();
+            return new AgvResult(request ,response);
         }
         return null;
     }

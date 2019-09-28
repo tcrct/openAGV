@@ -6,6 +6,8 @@ import cn.hutool.log.LogFactory;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
+import com.openagv.core.interfaces.IResponse;
+import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import io.netty.channel.ChannelHandler;
@@ -21,7 +23,7 @@ import java.util.function.Supplier;
  *
  * @author Laotang
  */
-public class UdpPlugin implements IPlugin, IEnable {
+public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
 
     private static final Log logger = LogFactory.get();
 
@@ -61,10 +63,17 @@ public class UdpPlugin implements IPlugin, IEnable {
     }
 
     @Override
-    public void enable() {
+    public Object enable() {
         if(!udpServerChannelManager.isInitialized()) {
             udpServerChannelManager.initialize();
             logger.info("开启车辆渠道管理器[{}]成功!", "udpServerChannelManager");
+            return udpServerChannelManager;
         }
+        return null;
+    }
+
+    @Override
+    public void sendTelegram(IResponse telegram) {
+
     }
 }

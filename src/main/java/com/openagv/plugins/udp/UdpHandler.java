@@ -33,8 +33,8 @@ public class UdpHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         try {
             // 因为Netty对UDP进行了封装，所以接收到的是DatagramPacket对象。
             String str = datagramPacket.content().toString(CharsetUtil.UTF_8);
-           String resultString = ToolsKit.sendCommand(new Telegram(str));
-            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(resultString, CharsetUtil.UTF_8), datagramPacket.sender()));
+           AgvResult result = ToolsKit.sendCommand(new Telegram(str));
+            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(result.getResponse().toString(), CharsetUtil.UTF_8), datagramPacket.sender()));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

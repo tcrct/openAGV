@@ -3,15 +3,14 @@ package com.openagv.opentcs.adapter;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.assistedinject.Assisted;
+import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
-import com.openagv.core.Main;
-import com.openagv.core.command.SendCommand;
-import com.openagv.core.interfaces.IEnable;
-import com.openagv.core.interfaces.IResponse;
+import com.openagv.core.interfaces.*;
 import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.model.Telegram;
+import com.openagv.opentcs.telegrams.TelegramMatcher;
 import com.openagv.tools.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
@@ -43,8 +42,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     private ComponentsFactory componentsFactory;
     // 车辆管理缓存池
     private TcpClientChannelManager<String, String> vehicleChannelManager;
-     // 请求响应电报匹配器
-//    private TelegramMatcher telegramMatcher;
+    // 请求响应电报匹配器
+    private TelegramMatcher telegramMatcher;
 //    // 模板
 //    private AgreementTemplate template;
 
@@ -54,7 +53,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     private TCSObjectService objectService;
 
-
     /***
      * 构造函数
      * @param vehicle   车辆
@@ -63,12 +61,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Inject
     public CommAdapter(@Assisted Vehicle vehicle, TCSObjectService objectService, ComponentsFactory componentsFactory) {
         super(new ProcessModel(vehicle), 3, 2, LoadAction.CHARGE);
-//        String agreementTemplate = PropKit.get("agreement.template", "");
-//        requireNonNull(agreementTemplate,"请在duang.properties里设置agreement.template值");
-//        this.template = ObjectKit.newInstance(agreementTemplate);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
-        this.objectService = objectService;
-//        template.setComponent(this);
+        this.objectService = requireNonNull(objectService, "objectService");
+        AppContext.setOpenTcsObjectService(objectService);
     }
 
     public TCSObjectService getObjectService() {
@@ -81,7 +76,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Override
     public void initialize() {
         super.initialize();
-//        this.telegramMatcher = componentsFactory.createTelegramMatcher(template);
     }
 
     /**
@@ -104,8 +98,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         getProcessModel().getVelocityController().addVelocityListener(getProcessModel());
         // 初始化车辆渠道管理器
         for(Iterator<IEnable> iterator = AppContext.getPluginEnableList().iterator(); iterator.hasNext();){
-            iterator.next().enable();
+            IEnable enable = iterator.next();
+            // 开启链接或监听
+            vehicleChannelManager = (TcpClientChannelManager) enable.enable();
+            // 回调发送消息
+            this.telegramMatcher = new TelegramMatcher((ITelegramSender) enable);
+            logger.info("注册回调发送消息成功");
         }
+
 //        AppContext.channelManagerInitialize();
         /*
         if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {
@@ -191,18 +191,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         logger.info("sendCommand {}", cmd);
         singleStepExecutionAllowed = false;
         try {
-            System.out.println("start: " + System.currentTimeMillis());
-            String resultString = ToolsKit.sendCommand(new Telegram(cmd,getProcessModel()));
-            System.out.println(System.currentTimeMillis() + "#################command result: "+ resultString);
-
-
-
-            // 将移动的参数转换为请求参数，这里要根据协议规则生成对应的请求对象
-//            Telegram telegram =  template.builderTelegram(getProcessModel(), cmd);
-//            // 将移动命令放入缓存池
-//            commandMap.put(cmd, telegram.getId());
-//            // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
-//            telegramMatcher.enqueueRequestTelegram(telegram);
+            // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
+            AgvResult agvResult = ToolsKit.sendCommand(new Telegram(cmd,getProcessModel()));
+            IResponse response = agvResult.getResponse();
+            // 将移动命令放入缓存池
+            commandMap.put(cmd, agvResult.getRequest().getRequestId());
+            // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
+            telegramMatcher.enqueueRequestTelegram(response);
             logger.debug("{}: 将订单报文提交到消息队列完成", getName());
         } catch (Exception e) {
             logger.error("{}: 将订单报文提交到消息队列失败 {}", getName(), cmd);
@@ -224,17 +219,15 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     protected void connectVehicle() {
-//        if(CommunicationType.TCP.equals(Configure.getCommunicationType())) {
-//            if (ToolsKit.isEmpty(vehicleChannelManager)) {
-//                logger.warn("连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
-//                return;
-//            }
-//            /**进行bind操作*/
-//            String host = getProcessModel().getVehicleHost();
-//            int port = getProcessModel().getVehiclePort();
-//            vehicleChannelManager.connect(host, port);
-//            logger.warn("连接车辆 {} 成功:  host:{} port:{}.", getName(), host, port);
-//        }
+        if (ToolsKit.isEmpty(vehicleChannelManager)) {
+            logger.warn("连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
+            return;
+        }
+        /**进行bind操作*/
+        String host = getProcessModel().getVehicleHost();
+        int port = getProcessModel().getVehiclePort();
+        vehicleChannelManager.connect(host, port);
+        logger.warn("连接车辆 {} 成功:  host:{} port:{}.", getName(), host, port);
 
         /*
         List<String> pointNameList = new ArrayList<>();
@@ -309,13 +302,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         boolean canProcess = true;
         String reason = "";
 
-                    return new ExplainedBoolean(canProcess, reason);
+//                    return new ExplainedBoolean(canProcess, reason);
 
 //        if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {
 //            return new ExplainedBoolean(canProcess, reason);
 //        }
 
-        /*
+
         if(!isEnabled()) {
             canProcess = false;
             reason= "通讯适配器没有开启";
@@ -358,7 +351,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         logger.info("canProcess: {}, reason: {}", operations, reason);
         return new ExplainedBoolean(canProcess, reason);
-         */
+
     }
 
     @Override

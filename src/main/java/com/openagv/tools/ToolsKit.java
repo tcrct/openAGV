@@ -1,9 +1,15 @@
 package com.openagv.tools;
 
+import com.openagv.core.AgvResult;
+import com.openagv.core.AppContext;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
 import com.openagv.core.command.SendCommand;
 import com.openagv.opentcs.model.Telegram;
+import org.opentcs.data.model.Path;
+import org.opentcs.data.model.Point;
+import org.opentcs.data.model.Vehicle;
+import org.opentcs.util.persistence.v002.PointTO;
 
 import java.util.Collection;
 import java.util.Map;
@@ -153,7 +159,7 @@ public class ToolsKit {
     }
 
 
-    public static String sendCommand(Telegram telegram) {
+    public static AgvResult sendCommand(Telegram telegram) {
         return new SendCommand().execute(telegram);
     }
 
@@ -172,4 +178,28 @@ public class ToolsKit {
                         clazz.isAnnotationPresent(Service.class));
     }
 
+
+    /***
+     * 根据点名称取openTCS线路图上的点
+     */
+    public static Point getPoint(String pointName){
+        java.util.Objects.requireNonNull(pointName, "点名称不能为空");
+        return AppContext.getOpenTcsObjectService().fetchObject(Point.class, pointName);
+    }
+
+    /***
+     * 根据线名称取openTCS线路图上的线
+     */
+    public static Path getPath(String pathName){
+        java.util.Objects.requireNonNull(pathName, "线名称不能为空");
+        return AppContext.getOpenTcsObjectService().fetchObject(Path.class, pathName);
+    }
+
+    /***
+     * 根据线名称取openTCS线路图上的车辆
+     */
+    public static Vehicle getVehicle(String vehicleName){
+        java.util.Objects.requireNonNull(vehicleName, "车辆名称不能为空");
+        return AppContext.getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
+    }
 }

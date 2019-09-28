@@ -1,6 +1,5 @@
 package com.openagv.core.interfaces;
 
-import com.openagv.core.AgvResult;
 import com.openagv.opentcs.model.Telegram;
 
 import java.util.List;
