@@ -33,7 +33,7 @@ public class AccountHandler {
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");
         Object object = route.getInjectObject();
         if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
-            Object resultObj = ReflectUtil.invoke(object, target, request);
+            Object resultObj = ReflectUtil.invoke(object, target, request, response);
             response.write(resultObj);
         }
         else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {

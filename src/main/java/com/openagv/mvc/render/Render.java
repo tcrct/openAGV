@@ -29,13 +29,11 @@ public abstract class Render implements Serializable {
 
 
     protected void setDefaultValue2Response(String contentType) {
-        response.setHeader(HttpHeaderNames.PRAGMA.toString(), HttpHeaderValues.NO_CACHE.toString());
-        response.setHeader(HttpHeaderNames.CACHE_CONTROL.toString(), HttpHeaderValues.NO_CACHE.toString());
-        response.setHeader(HttpHeaderNames.EXPIRES.toString(), HttpHeaderValues.ZERO.toString());
-        response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        response.setParams(HttpHeaderNames.PRAGMA.toString(), HttpHeaderValues.NO_CACHE.toString());
+        response.setParams(HttpHeaderNames.CACHE_CONTROL.toString(), HttpHeaderValues.NO_CACHE.toString());
+        response.setParams(HttpHeaderNames.EXPIRES.toString(), HttpHeaderValues.ZERO.toString());
+        response.setParams(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         response.setStatus((response.getStatus()==200) ? HttpResponseStatus.OK.code() : response.getStatus());
-        response.setContentType(contentType);
-        response.setCharacterEncoding(ENCODING);
     }
 
     public abstract void render();

@@ -1,4 +1,4 @@
-package com.openagv.mvc;
+package com.openagv.opentcs.telegrams;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.openagv.core.interfaces.IRequest;
@@ -14,31 +14,26 @@ import java.util.Map;
  */
 public class Response implements IResponse {
 
-    private IRequest request;
-    private Map<String,String> headers;
+    private String requestId;
+    private Map<String,Object> params;
     private int status;
     private String charset;
     private Object returnObj;
 
-    private Response(IRequest request) {
-        this.headers = new HashMap<>();
-        this.request = request;
+    private Response(String requestId) {
+        this.params = new HashMap<>();
+        this.requestId = requestId;
         status = HttpResponseStatus.OK.code();
         this.returnObj = null;
     }
 
-    public static Response build(IRequest request) {
-        return new Response(request);
+    public static Response build(String requestId) {
+        return new Response(requestId);
     }
 
     @Override
     public String getRequestId() {
-        return request.getRequestId();
-    }
-
-    @Override
-    public IRequest getRequest() {
-        return request;
+        return requestId;
     }
 
     @Override
@@ -52,27 +47,13 @@ public class Response implements IResponse {
     }
 
     @Override
-    public void setHeader(String key, String value) {
-        this.headers.put(key, value);
+    public void setParams(String key, String value) {
+        this.params.put(key, value);
     }
 
     @Override
     public void setStatus(int status) {
         this.status= status;
-    }
-
-    @Override
-    public void setContentType(String contentType) {
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
-    }
-
-    @Override
-    public void setCharacterEncoding(String encoding) {
-        this.charset = encoding;
-        headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), encoding);
-        headers.put(HttpHeaderNames.CONTENT_ENCODING.toString(), encoding);
-        headers.put(HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(), encoding);
-        headers.put(HttpHeaderNames.TRANSFER_ENCODING.toString(), encoding);
     }
 
     @Override
@@ -88,4 +69,18 @@ public class Response implements IResponse {
         }
     }
 
+    @Override
+    public void setTargetPointName(String pointName) {
+        params.put(IResponse.TARGET_POINT_NAME, pointName);
+    }
+
+    @Override
+    public String getTargetPointName() {
+        return String.valueOf(params.get(IResponse.TARGET_POINT_NAME));
+    }
+
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
 }

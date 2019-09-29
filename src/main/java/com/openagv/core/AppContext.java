@@ -7,16 +7,14 @@ import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.ITelegram;
-import com.openagv.plugins.udp.UdpServerChannelManager;
+import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
 import org.opentcs.components.kernel.services.TCSObjectService;
-import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * 上下文及映射容器
@@ -166,15 +164,33 @@ public class AppContext {
         return INVOKE_CLASS_TYPE;
     }
 
+    private static String STATE_TARGET ;
+    public static String getStateRequestTarget() {
+        if(null == STATE_TARGET) {
+            STATE_TARGET = SettingUtils.getString("state.request.target");
+            throw new NullPointerException("该值不能为空，请先在app.setting设置[state.request.target]值，该值是车辆移动指令的标识！");
+        }
+        return STATE_TARGET;
+    }
+
+    /**
+     * 通讯适配器
+     */
+    private static CommAdapter COMM_ADAPTER;
+    public static void setCommAdapter(CommAdapter commAdapter) {
+        COMM_ADAPTER = commAdapter;
+    }
+    public static CommAdapter getCommAdapter() {
+        return COMM_ADAPTER;
+    }
+
     /**
      * 大杀器----TCS的对象服务器
      */
-    private static TCSObjectService OBJECT_SERVICE;
-    public static void setOpenTcsObjectService(TCSObjectService objectService){
-        AppContext.OBJECT_SERVICE = objectService;
-    }
     public static TCSObjectService getOpenTcsObjectService(){
-        return AppContext.OBJECT_SERVICE ;
+        return getCommAdapter().getObjectService() ;
     }
+
+
 
 }

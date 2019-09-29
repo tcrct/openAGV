@@ -1,10 +1,10 @@
 package com.openagv.opentcs.telegrams;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.ToolsKit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class TelegramMatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(TelegramMatcher.class);
+    private static final Log logger = LogFactory.get();
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
@@ -30,6 +30,10 @@ public class TelegramMatcher {
 
     public TelegramMatcher(ITelegramSender telegramSender) {
         this.telegramSender = requireNonNull(telegramSender, "telegramSender");
+    }
+
+    public ITelegramSender getTelegramSender() {
+        return telegramSender;
     }
 
     /**
@@ -77,7 +81,7 @@ public class TelegramMatcher {
         IResponse currentRequestTelegram = requests.peek();
         // 判断该回复里的请求ID与队列里的是否一致，如果一致，则返回true
         if(ToolsKit.isNotEmpty(currentRequestTelegram) &&
-                responseTelegram.getRequestId().equals(currentRequestTelegram.getRequestId())){
+                responseTelegram.getTargetPointName().equals(currentRequestTelegram.getTargetPointName())){
             // 在队列中移除第一位的
             requests.remove();
             return true;

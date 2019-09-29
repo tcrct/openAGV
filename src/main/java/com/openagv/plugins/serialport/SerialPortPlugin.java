@@ -10,6 +10,7 @@ import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.opentcs.model.Telegram;
+import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
@@ -73,13 +74,15 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             @Override
             public void dataAvailable() {
                 String telegram = readTelegram(serialPort);
-                AgvResult result = ToolsKit.sendCommand(new Telegram(telegram));
+                IResponse response = ToolsKit.sendCommand(new OrderRequest(telegram));
 
 //                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
 //                if(ToolsKit.isEmpty(responseTelegram)) {
 //                    return;
 //                }
                 logger.info("串口接收到的报文：" + telegram);
+                logger.info("业务处理后到的报文：" + response);
+
 //                if(!getTelegramMatcher().tryMatchWithCurrentRequestTelegram(responseTelegram)) {
 //                    // 如果不匹配，则忽略该响应或关闭连接
 //                    return;

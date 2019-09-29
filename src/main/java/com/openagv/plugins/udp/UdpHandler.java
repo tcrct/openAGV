@@ -12,6 +12,7 @@ import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegram;
 import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.model.Telegram;
+import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import io.netty.buffer.Unpooled;
@@ -33,8 +34,8 @@ public class UdpHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         try {
             // 因为Netty对UDP进行了封装，所以接收到的是DatagramPacket对象。
             String str = datagramPacket.content().toString(CharsetUtil.UTF_8);
-           AgvResult result = ToolsKit.sendCommand(new Telegram(str));
-            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(result.getResponse().toString(), CharsetUtil.UTF_8), datagramPacket.sender()));
+           IResponse response = ToolsKit.sendCommand(new OrderRequest(str));
+            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(response.toString(), CharsetUtil.UTF_8), datagramPacket.sender()));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

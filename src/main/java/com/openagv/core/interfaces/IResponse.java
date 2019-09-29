@@ -1,15 +1,13 @@
 package com.openagv.core.interfaces;
 
+import java.util.Map;
+
 /**
  * Created by laotang on 2019/9/25.
  */
 public interface IResponse {
 
-    /**
-     * 取出请求对象
-     * @return
-     */
-    IRequest getRequest();
+    String TARGET_POINT_NAME = "openAGV_TPN";
 
     /**
      * 请求ID
@@ -30,11 +28,17 @@ public interface IResponse {
     int getStatus();
 
     /**
-     * 添加返回头信息
+     * 添加返回扩展信息
      * @param key           名称
      * @param value         值
      */
-    void setHeader(String key, String value);
+    void setParams(String key, String value);
+
+    /**
+     * 取返回扩展信息
+     * @return
+     */
+    Map<String,Object> getParams();
 
     /**
      * 设置返回状态标识
@@ -43,21 +47,17 @@ public interface IResponse {
     void setStatus(int status);
 
     /**
-     * 设置返回ContentType信息
-     * @param contentType
-     */
-    void setContentType(String contentType);
-
-    /**
-     * 设置返回的编码格式
-     * @param encoding
-     */
-    void setCharacterEncoding(String encoding);
-
-    /**
      * 返回的内容
      * @return
      */
     String toString();
+
+    /**
+     * 取目标位置点名称
+     * @return
+     */
+    void setTargetPointName(String pointName);
+
+    String getTargetPointName();
 
 }

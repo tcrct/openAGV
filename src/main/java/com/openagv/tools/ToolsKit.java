@@ -5,6 +5,7 @@ import com.openagv.core.AppContext;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
 import com.openagv.core.command.SendCommand;
+import com.openagv.core.interfaces.IRequest;
 import com.openagv.opentcs.model.Telegram;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
@@ -158,8 +159,7 @@ public class ToolsKit {
         return className;
     }
 
-
-    public static AgvResult sendCommand(Telegram telegram) {
+    public static <T> T sendCommand(IRequest telegram) {
         return new SendCommand().execute(telegram);
     }
 

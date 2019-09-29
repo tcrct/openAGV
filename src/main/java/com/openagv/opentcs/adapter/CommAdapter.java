@@ -9,7 +9,7 @@ import com.openagv.core.interfaces.*;
 import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
-import com.openagv.opentcs.model.Telegram;
+import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
 import com.openagv.tools.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -63,11 +63,17 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         super(new ProcessModel(vehicle), 3, 2, LoadAction.CHARGE);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.objectService = requireNonNull(objectService, "objectService");
-        AppContext.setOpenTcsObjectService(objectService);
+        AppContext.setCommAdapter(this);
     }
 
     public TCSObjectService getObjectService() {
+        java.util.Objects.requireNonNull(objectService, "objectService is null");
         return objectService;
+    }
+
+    public TelegramMatcher getTelegramMatcher(){
+        java.util.Objects.requireNonNull(telegramMatcher, "telegramMatcher is null");
+        return telegramMatcher;
     }
 
     /***
@@ -192,10 +198,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         singleStepExecutionAllowed = false;
         try {
             // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
-            AgvResult agvResult = ToolsKit.sendCommand(new Telegram(cmd,getProcessModel()));
-            IResponse response = agvResult.getResponse();
+            IResponse response = ToolsKit.sendCommand(
+                    new StateRequest.Builder()
+                            .command(cmd)
+                            .model(getProcessModel())
+                            .build());
             // 将移动命令放入缓存池
-            commandMap.put(cmd, agvResult.getRequest().getRequestId());
+            commandMap.put(cmd, response.getRequestId());
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
             logger.debug("{}: 将订单报文提交到消息队列完成", getName());
@@ -361,13 +370,12 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     /**
      * 检查车辆位置并更新
-     * @param telegram
+     * @param response
      */
-    /*
-    public void checkForVehiclePositionUpdate(Telegram telegram) {
+    public void checkForVehiclePositionUpdate(IResponse response) {
 
         // 将报告的位置ID映射到点名称
-        String currentPosition = telegram.getPositionId();
+        String currentPosition = response.getTargetPointName();
         logger.debug("{}: Vehicle is now at point {}", getName(), currentPosition);
         // 更新位置，但前提是它不能是空
         if (ToolsKit.isNotEmpty(currentPosition)) {
@@ -382,7 +390,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //            CommAdapter.this.notify();
 //        }
     }
-    */
+
+
     /**
      * 必须实现，用于将值传递到控制中心的自定义面板
      * 启动时，面板点击更新后均会触发

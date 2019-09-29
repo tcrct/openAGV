@@ -10,8 +10,11 @@ import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.RequestTask;
 import com.openagv.opentcs.model.Telegram;
+import com.openagv.opentcs.telegrams.OrderRequest;
+import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -25,23 +28,52 @@ public class SendCommand extends Command {
     private static final Log logger = LogFactory.get();
 
     @Override
-    public AgvResult execute(Telegram telegram) {
-        List<IRequest> orderList = AppContext.getTelegram().handle(telegram);
-        if(ToolsKit.isEmpty(orderList)) {
+    public <T> T execute(IRequest request) {
+        if(request instanceof OrderRequest) {
+           return (T)sendOrderCommand((OrderRequest)request);
+        }
+        else if(request instanceof StateRequest) {
+            return (T)sendStateCommand((StateRequest)request);
+        }
+        else {
+            throw new AgvException("该请求没实现");
+        }
+    }
+
+    /**
+     * 发送命令请求
+     * @param request
+     * @return
+     */
+    private List<IResponse> sendOrderCommand(OrderRequest request) {
+        List<IRequest> requestList = AppContext.getTelegram().handle(request);
+        if(ToolsKit.isEmpty(requestList)) {
             throw new AgvException("返回的转换结果集不能为空");
         }
-        for(IRequest request : orderList) {
-            IResponse response = null;
-            Future<IResponse> futureTask = ThreadUtil.execAsync(new RequestTask(request));
-            try {
-                response = futureTask.get();
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("执行任务时出错: {}", e.getMessage());
-            }
-            return new AgvResult(request ,response);
+        List<IResponse> responseList = new ArrayList<>(requestList.size());
+        for(IRequest requestItem : requestList) {
+            responseList.add(sendStateCommand(requestItem));
         }
-        return null;
+        return responseList;
     }
+
+    /**
+     * 发送车辆移动请求
+     * @param request
+     * @return
+     */
+    private IResponse sendStateCommand(IRequest request) {
+        IResponse response = null;
+        Future<IResponse> futureTask = ThreadUtil.execAsync(new RequestTask(request));
+        try {
+            response = futureTask.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("执行任务时出错: {}", e.getMessage());
+        }
+        return response;
+    }
+
+
 
 }
