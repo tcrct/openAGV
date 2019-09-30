@@ -376,19 +376,22 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
         // 将报告的位置ID映射到点名称
         String currentPosition = response.getTargetPointName();
-        logger.debug("{}: Vehicle is now at point {}", getName(), currentPosition);
         // 更新位置，但前提是它不能是空
         if (ToolsKit.isNotEmpty(currentPosition)) {
             getProcessModel().setVehiclePosition(currentPosition);
+        } else {
+            logger.warn("车辆移动点不能为空，请确保response.getTargetPointName()返回的内容是下一移动点名称");
+            return;
         }
         // Update GUI.
-//        synchronized (CommAdapter.this) {
+        synchronized (CommAdapter.this) {
             MovementCommand cmd = getSentQueue().poll();
             commandMap.remove(cmd);
             getProcessModel().commandExecuted(cmd);
             // 唤醒处于等待状态的线程
-//            CommAdapter.this.notify();
-//        }
+            CommAdapter.this.notify();
+            logger.info("Vehicle[{}] move to {} point is success!", getName(), currentPosition);
+        }
     }
 
 

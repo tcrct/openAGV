@@ -1,12 +1,11 @@
 package com.openagv.core;
 
-import cn.hutool.core.util.ReflectUtil;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
-import com.openagv.core.interfaces.ITelegram;
+import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
@@ -111,18 +110,21 @@ public class AppContext {
     }
 
 
-    private static final String TELEGRAM_SETTING_FIELD = "telegram.impl";
-    private static ITelegram TELEGRAM;
-    public static ITelegram getTelegram(){
-        if(ToolsKit.isEmpty(TELEGRAM)) {
-            String telegramImpl = SettingUtils.getString(TELEGRAM_SETTING_FIELD);
-            if(ToolsKit.isEmpty(telegramImpl)) {
-                throw new NullPointerException("请先实现"+ ITelegram.class.getName()+"接口，并在app.setting文件里["+TELEGRAM_SETTING_FIELD+"]添加接口的实现类路径");
-            }
-            TELEGRAM = ReflectUtil.newInstance(telegramImpl);
-        }
-        return TELEGRAM;
-    }
+//    private static final String TELEGRAM_SETTING_FIELD = "telegram.impl";
+//    private static IDecomposeTelegram DECOMPOSE_TELEGRAM;
+//    public static void setDecomposeTelegram(IDecomposeTelegram decomposeTelegram){
+//        DECOMPOSE_TELEGRAM = decomposeTelegram;
+//    }
+//    public static IDecomposeTelegram getDecomposeTelegram (){
+//        if(ToolsKit.isEmpty(DECOMPOSE_TELEGRAM)) {
+//            String telegramImpl = SettingUtils.getString(TELEGRAM_SETTING_FIELD);
+//            if(ToolsKit.isEmpty(telegramImpl)) {
+//                DECOMPOSE_TELEGRAM new NullPointerException("请先实现"+ IDecomposeTelegram.class.getName()+"接口，并在app.setting文件里["+TELEGRAM_SETTING_FIELD+"]添加接口的实现类路径");
+//            }
+//            DECOMPOSE_TELEGRAM = ReflectUtil.newInstance(telegramImpl);
+//        }
+//        return DECOMPOSE_TELEGRAM;
+//    }
 
 
     public static List<IEnable> getPluginEnableList() {
@@ -164,14 +166,30 @@ public class AppContext {
         return INVOKE_CLASS_TYPE;
     }
 
-    private static String STATE_TARGET ;
-    public static String getStateRequestTarget() {
-        if(null == STATE_TARGET) {
-            STATE_TARGET = SettingUtils.getString("state.request.target");
-            throw new NullPointerException("该值不能为空，请先在app.setting设置[state.request.target]值，该值是车辆移动指令的标识！");
+    /**
+     * 下达车辆移动指令的key
+     */
+    private static String STATE_REQUEST_CMD_KEY;
+    public static String getStateRequestCmdKey() {
+        if(null == STATE_REQUEST_CMD_KEY) {
+            STATE_REQUEST_CMD_KEY = SettingUtils.getString("state.request.cmd");
+            if(ToolsKit.isEmpty(STATE_REQUEST_CMD_KEY)) {
+                throw new NullPointerException("该值不能为空，请先在app.setting设置[state.request.target]值，该值是车辆移动指令的标识！");
+            }
         }
-        return STATE_TARGET;
+        return STATE_REQUEST_CMD_KEY;
     }
+
+    private static OpenAgvConfigure CONFIGURE;
+    public static void setAgvConfigure(OpenAgvConfigure configure) {
+        if(null == CONFIGURE) {
+            CONFIGURE = configure;
+        }
+    }
+    public static OpenAgvConfigure getAgvConfigure() {
+        return CONFIGURE;
+    }
+
 
     /**
      * 通讯适配器

@@ -4,7 +4,7 @@ import com.openagv.opentcs.telegrams.OrderRequest;
 
 import java.util.List;
 
-public interface ITelegram {
+public interface IDecomposeTelegram {
 
     /**
      * 接收到消息

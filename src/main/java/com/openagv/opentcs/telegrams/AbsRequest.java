@@ -65,12 +65,12 @@ public abstract class AbsRequest implements IRequest {
         return originalTelegram;
     }
     @Override
-    public String getTarget(){
+    public String getCmdKey(){
         return target;
     }
 
     /**
      * 目标请求路径，即协议指令里的功能命令
      */
-    public abstract void setTarget(String target);
+    public abstract void setCmdKey(String target);
 }

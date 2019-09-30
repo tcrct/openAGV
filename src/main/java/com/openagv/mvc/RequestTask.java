@@ -8,6 +8,7 @@ import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.telegrams.Response;
 import com.openagv.tools.ToolsKit;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.concurrent.Callable;
 
@@ -28,11 +29,7 @@ public class RequestTask implements Callable<IResponse> {
 
     @Override
     public IResponse call() {
-        try {
-            iResponse = Response.build(iRequest.getRequestId());
-        } catch (Exception e){
-            logger.error(e.getMessage(), e);
-        }
+        iResponse = Response.build(iRequest.getRequestId());
         if (ToolsKit.isEmpty(iRequest) || ToolsKit.isEmpty(iResponse)) {
             throw new AgvException("RequestTask request or response fail");
         }

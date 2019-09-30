@@ -3,16 +3,16 @@ package com.openagv.core.command;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
+import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.RequestTask;
-import com.openagv.opentcs.model.Telegram;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +26,14 @@ import java.util.concurrent.Future;
 public class SendCommand extends Command {
 
     private static final Log logger = LogFactory.get();
+    private static IDecomposeTelegram decomposeTelegram;
 
     @Override
     public <T> T execute(IRequest request) {
+        if(null == decomposeTelegram) {
+            decomposeTelegram = AppContext.getAgvConfigure().getDecomposeTelegram();
+            java.util.Objects.requireNonNull(decomposeTelegram, "请先实现OpenAgvConfigure类里的getDecomposeTelegram方法");
+        }
         if(request instanceof OrderRequest) {
            return (T)sendOrderCommand((OrderRequest)request);
         }
@@ -46,7 +51,7 @@ public class SendCommand extends Command {
      * @return
      */
     private List<IResponse> sendOrderCommand(OrderRequest request) {
-        List<IRequest> requestList = AppContext.getTelegram().handle(request);
+        List<IRequest> requestList = decomposeTelegram.handle(request);
         if(ToolsKit.isEmpty(requestList)) {
             throw new AgvException("返回的转换结果集不能为空");
         }
@@ -68,7 +73,6 @@ public class SendCommand extends Command {
         try {
             response = futureTask.get();
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("执行任务时出错: {}", e.getMessage());
         }
         return response;

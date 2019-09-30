@@ -2,8 +2,6 @@ package com.openagv.opentcs.telegrams;
 
 import com.openagv.core.AppContext;
 import com.openagv.opentcs.model.ProcessModel;
-import com.openagv.tools.SettingUtils;
-import com.openagv.tools.ToolsKit;
 import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
@@ -61,13 +59,13 @@ public class StateRequest extends AbsRequest {
                     step.getDestinationPoint().getName(),
                     movementCommand.getFinalDestination().getName()
             );
-            stateRequest.setTarget(AppContext.getStateRequestTarget());
+            stateRequest.setCmdKey(AppContext.getStateRequestCmdKey());
             return stateRequest;
         }
     }
 
     @Override
-    public void setTarget(String target) {
+    public void setCmdKey(String target) {
         super.target = target;
     }
 

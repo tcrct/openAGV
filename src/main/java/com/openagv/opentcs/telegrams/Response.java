@@ -17,7 +17,7 @@ public class Response implements IResponse {
     private String requestId;
     private Map<String,Object> params;
     private int status;
-    private String charset;
+    private String cmdKey;
     private Object returnObj;
 
     private Response(String requestId) {
@@ -77,6 +77,16 @@ public class Response implements IResponse {
     @Override
     public String getTargetPointName() {
         return String.valueOf(params.get(IResponse.TARGET_POINT_NAME));
+    }
+
+    @Override
+    public void setCmdKey(String key) {
+        this.cmdKey =  String.valueOf(key);
+    }
+
+    @Override
+    public String getCmdKey() {
+        return cmdKey;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class OrderRequest extends AbsRequest {
     }
 
     @Override
-    public void setTarget(String target) {
+    public void setCmdKey(String target) {
         super.target = target;
     }
 }

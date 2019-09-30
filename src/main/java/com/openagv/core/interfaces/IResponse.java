@@ -53,11 +53,27 @@ public interface IResponse {
     String toString();
 
     /**
-     * 取目标位置点名称
+     * 设置目标位置点名称
      * @return
      */
     void setTargetPointName(String pointName);
 
+    /**
+     * 取目标位置点名称
+     * @return
+     */
     String getTargetPointName();
+
+    /**
+     * 设置请求指令
+     * @param key
+     */
+    void setCmdKey(String key);
+
+    /**
+     * 取请求指令
+     * @return
+     */
+    String getCmdKey();
 
 }

@@ -27,7 +27,7 @@ public class AccountHandler {
         return AccountHandlerHolder.INSTANCE;
     }
 
-    public void doHandler(String target, IRequest request, IResponse response) {
+    public void doHandler(String target, IRequest request, IResponse response) throws Exception{
         target = target.toUpperCase();
         Route route = RouteHelper.getRoutes().get(target);
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");

@@ -11,6 +11,7 @@ import com.openagv.mvc.ExceptionController;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.Iterator;
 
@@ -26,11 +27,12 @@ public class Main {
     public static void doTask(IRequest request, IResponse response) {
         try {
             doBeforeHandler(request, response);
-            java.util.Objects.requireNonNull(request.getTarget(), "target值不能为空，必须设置，该值用于反射调用方法");
-            AccountHandler.duang().doHandler(request.getTarget(), request, response);
+            java.util.Objects.requireNonNull(request.getCmdKey(), "target值不能为空，必须设置，该值用于反射调用方法");
+            AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
         } catch (Exception e) {
+            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             e.printStackTrace();
-            logger.error("执行任务[{}]时出错: {} {}", request.getTarget(), e.getMessage());
+            logger.error("执行任务[{}]时出错: {} {}", request.getCmdKey(), e.getMessage());
             if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
                 response.write(e.getMessage());
             } else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {

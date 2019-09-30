@@ -22,11 +22,11 @@ public interface IRequest {
 //    /**请求路径*/
 //    String getRequestURI();
 //
-    /**设置请求目的路径*/
-    void setTarget(String target);
+    /**设置请求目的路径，即指令名称*/
+    void setCmdKey(String cmdKey);
 
     /**取请求目的路径*/
-    String getTarget();
+    String getCmdKey();
 //
     /**取报文的原始字符串*/
     String getOriginalTelegram();

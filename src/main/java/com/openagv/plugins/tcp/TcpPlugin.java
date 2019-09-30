@@ -32,25 +32,27 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
     private int readTimeout;
     private boolean enableLogging;
     private TcpClientChannelManager tcpClientChannelManager;
-    private ConnectionEventListener connectionEventListener;
+//    private ConnectionEventListener connectionEventListener;
 
     public TcpPlugin() {
         readTimeout = SettingUtils.getInt("tcp.read.timeout", 5000);
         enableLogging = SettingUtils.getBoolean("tcp.log.enable", false);
-        String listener = SettingUtils.getString("tcp.listener");
-        connectionEventListener = ReflectUtil.newInstance(listener);
+//        String listener = SettingUtils.getString("tcp.listener");
+//        connectionEventListener = ReflectUtil.newInstance(listener);
         createChannelSupplier();
     }
 
     private void createChannelSupplier() {
         final List<ChannelHandler> channelHandlers = new ArrayList<>();
-        String encodeClassString = SettingUtils.getString("tcp.encode");
-        String decodeClassString = SettingUtils.getString("tcp.decode");
-        if(ToolsKit.isNotEmpty(encodeClassString) &&
-                ToolsKit.isNotEmpty(decodeClassString)) {
-            channelHandlers.add(ReflectUtil.newInstance(encodeClassString));
-            channelHandlers.add(ReflectUtil.newInstance(ClassUtil.loadClass(decodeClassString), connectionEventListener));
-        }
+        channelHandlers.add(AppContext.getAgvConfigure().getEncoder());
+        channelHandlers.add(AppContext.getAgvConfigure().getDecoder());
+//        String encodeClassString = SettingUtils.getString("tcp.encode");
+//        String decodeClassString = SettingUtils.getString("tcp.decode");
+//        if(ToolsKit.isNotEmpty(encodeClassString) &&
+//                ToolsKit.isNotEmpty(decodeClassString)) {
+//            channelHandlers.add(ReflectUtil.newInstance(encodeClassString));
+//            channelHandlers.add(ReflectUtil.newInstance(ClassUtil.loadClass(decodeClassString), connectionEventListener));
+//        }
         channelSupplier = new Supplier<List<ChannelHandler>>() {
             @Override
             public List<ChannelHandler> get() {
@@ -63,7 +65,7 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
     @Override
     public void start() throws Exception {
         tcpClientChannelManager = new TcpClientChannelManager<String, String>(
-                connectionEventListener,
+                AppContext.getAgvConfigure().getConnectionEventListener(),
                 channelSupplier,
                 readTimeout,
                 enableLogging);

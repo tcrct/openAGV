@@ -1,15 +1,12 @@
 package com.openagv;
 
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.core.interfaces.IEnable;
-import com.openagv.opentcs.OpenTcsConfigure;
+import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.route.RouteHelper;
@@ -18,7 +15,6 @@ import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,8 +75,9 @@ public class Application {
         }
     }
 
-    private void configure() {
-        OpenTcsConfigure.init();
+    public Application configure(OpenAgvConfigure configure) {
+        AppContext.setAgvConfigure(configure);
+        return this;
     }
 
     private void route() {
@@ -103,7 +100,7 @@ public class Application {
 
     public void run() throws Exception {
         // 设置OpenTCS所需要的配置文件
-        configure();
+        java.util.Objects.requireNonNull(AppContext.getAgvConfigure(), "配置文件为空，请先进行设置再启动系统！");
         // 启动插件
         startPlugins();
         // 依赖注入
