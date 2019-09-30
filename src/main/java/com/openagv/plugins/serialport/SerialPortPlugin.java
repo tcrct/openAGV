@@ -14,6 +14,7 @@ import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 
 import java.awt.*;
 import java.util.List;
@@ -26,27 +27,46 @@ import java.util.List;
 public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
     private static final Log logger = LogFactory.get();
+    /**串口名称*/
+    private String serialPortName;
+    /**获取波特率，默认为38400*/
+    private int baudrate;
+    /**事件回调*/
+    private ConnectionEventListener eventListener;
+
+
+    public SerialPortPlugin() {
+        this(SettingUtils.getString("serialport.name", "COM6"),
+                SettingUtils.getInt("serialport.baudrate", 38400));
+    }
+
+    public SerialPortPlugin(String portName, int baudrate) {
+        serialPortName = portName;
+        this.baudrate = baudrate;
+    }
 
     @Override
     public void start() throws Exception {
         List<String> mCommList = SerialPortManager.findPorts();
+
         if(ToolsKit.isEmpty(mCommList)) {
             throw new NullPointerException("没有找到可用的串串口！");
         }
-
-        String serialPortName = SettingUtils.getString("serialport.name", "COM6");
         if(!mCommList.contains(serialPortName)) {
             throw new IllegalArgumentException("指定的串口名称["+serialPortName+"]与系统允许使用的不符");
         }
-
-        // 获取波特率，默认为38400
-        int baudrate = SettingUtils.getInt("serialport.baudrate", 38400);
+        if(baudrate == 0) {
+            throw new IllegalArgumentException("串口波特率["+baudrate+"]没有设置");
+        }
         try {
             AppContext.setSerialPort(SerialPortManager.openPort(serialPortName, baudrate));
         } catch (Exception e) {
             throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"]");
         }
-        logger.warn("串口[{}]启动成功！波特率为[{}]", serialPortName, baudrate);
+        eventListener = AppContext.getAgvConfigure().getConnectionEventListener();
+        if(ToolsKit.isEmpty(eventListener)) {
+            throw new NullPointerException("事件监听器没有实现，请先实现");
+        }
     }
 
 
@@ -70,18 +90,20 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == serialPort) {
             return false;
         }
+        eventListener.onConnect();
         SerialPortManager.addListener(serialPort, new DataAvailableListener() {
             @Override
             public void dataAvailable() {
                 String telegram = readTelegram(serialPort);
-                IResponse response = ToolsKit.sendCommand(new OrderRequest(telegram));
+                eventListener.onIncomingTelegram(telegram);
+//                IResponse response = ToolsKit.sendCommand(new OrderRequest(telegram));
 
 //                Telegram responseTelegram =getTemplate().builderTelegram(telegram);
 //                if(ToolsKit.isEmpty(responseTelegram)) {
 //                    return;
 //                }
-                logger.info("串口接收到的报文：" + telegram);
-                logger.info("业务处理后到的报文：" + response);
+//                logger.info("串口接收到的报文：" + telegram);
+//                logger.info("业务处理后到的报文：" + response);
 
 //                if(!getTelegramMatcher().tryMatchWithCurrentRequestTelegram(responseTelegram)) {
 //                    // 如果不匹配，则忽略该响应或关闭连接
@@ -93,12 +115,19 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 //                getTelegramMatcher().checkForSendingNextRequest();
             }
         });
-        logger.info("开启串口渠道管理器[{}]成功!", serialPort.getName());
+        logger.warn("串口[{}]启动成功！波特率为[{}]", serialPortName, baudrate);
         return serialPort;
     }
 
+    /**
+     * 广播电报到设备
+     * @param response The {@link IResponse} to be sent.
+     */
     @Override
-    public void sendTelegram(IResponse telegram) {
-
+    public void sendTelegram(IResponse response) {
+        if(null == response) {
+            return;
+        }
+        SerialPortManager.sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }

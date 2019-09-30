@@ -83,10 +83,13 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
 
     /**
      * 发送电报到设备
-     * @param telegram The {@link IResponse} to be sent.
+     * @param response The {@link IResponse} to be sent.
      */
     @Override
-    public void sendTelegram(IResponse telegram) {
-        tcpClientChannelManager.send(telegram.toString());
+    public void sendTelegram(IResponse response) {
+        if(null == response) {
+            return;
+        }
+        tcpClientChannelManager.send(response.toString());
     }
 }

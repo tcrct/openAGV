@@ -3,7 +3,6 @@ package com.openagv.opentcs.adapter;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.assistedinject.Assisted;
-import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.*;
 import com.openagv.opentcs.enums.LoadAction;
@@ -11,7 +10,9 @@ import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
+import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
+import gnu.io.SerialPort;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
@@ -40,8 +41,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     private static final Log logger = LogFactory.get();
     // 组件工厂
     private ComponentsFactory componentsFactory;
+
     // 车辆管理缓存池
-    private TcpClientChannelManager<String, String> vehicleChannelManager;
+    private Object channelManager;
+    private TcpClientChannelManager<String, String> tcpClientChannelManager;
+    private UdpServerChannelManager<String,String> udpServerChannelManager;
+    private SerialPort serialPort;
+
     // 请求响应电报匹配器
     private TelegramMatcher telegramMatcher;
 //    // 模板
@@ -105,8 +111,18 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // 初始化车辆渠道管理器
         for(Iterator<IEnable> iterator = AppContext.getPluginEnableList().iterator(); iterator.hasNext();){
             IEnable enable = iterator.next();
+            channelManager = enable.enable();
             // 开启链接或监听
-            vehicleChannelManager = (TcpClientChannelManager) enable.enable();
+            if(channelManager instanceof TcpClientChannelManager) {
+                tcpClientChannelManager = (TcpClientChannelManager) channelManager;
+            }
+            else if(channelManager instanceof UdpServerChannelManager) {
+                udpServerChannelManager = (UdpServerChannelManager) channelManager;
+            }
+            else if(channelManager instanceof SerialPort) {
+                serialPort = (SerialPort) channelManager;
+            }
+
             // 回调发送消息
             this.telegramMatcher = new TelegramMatcher((ITelegramSender) enable);
             logger.info("注册回调发送消息成功");
@@ -157,8 +173,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         return (ProcessModel) super.getProcessModel();
     }
 
-    public TcpClientChannelManager<String, String> getVehicleChannelManager() {
-        return vehicleChannelManager;
+    public TcpClientChannelManager<String, String> getTcpClientChannelManager() {
+        return tcpClientChannelManager;
+    }
+    public UdpServerChannelManager<String, String> getUdpServerChannelManager() {
+        return udpServerChannelManager;
+    }
+    public SerialPort getSerialPort() {
+        return serialPort;
     }
 
 //    public TelegramMatcher getTelegramMatcher() {
@@ -228,14 +250,25 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     protected void connectVehicle() {
-        if (ToolsKit.isEmpty(vehicleChannelManager)) {
+
+        // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
+        getProcessModel().setVehiclePosition("36");
+        getProcessModel().setVehicleState(Vehicle.State.IDLE);
+        getProcessModel().setVehicleIdle(true);
+
+        if(!(tcpClientChannelManager instanceof TcpClientChannelManager)) {
+            logger.warn("UDP模式或串口模式以广播方式发送，退出connectVehicle方法");
+            return;
+        }
+
+        if (ToolsKit.isEmpty(tcpClientChannelManager)) {
             logger.warn("连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
             return;
         }
         /**进行bind操作*/
         String host = getProcessModel().getVehicleHost();
         int port = getProcessModel().getVehiclePort();
-        vehicleChannelManager.connect(host, port);
+        tcpClientChannelManager.connect(host, port);
         logger.warn("连接车辆 {} 成功:  host:{} port:{}.", getName(), host, port);
 
         /*
@@ -271,10 +304,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //        getProcessModel().setVehiclePosition(((Point) item).getName());
 
          */
-        // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
-        getProcessModel().setVehiclePosition("36");
-        getProcessModel().setVehicleState(Vehicle.State.IDLE);
-        getProcessModel().setVehicleIdle(true);
     }
 
     /**
@@ -282,11 +311,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     protected void disconnectVehicle() {
-        if(ToolsKit.isEmpty(vehicleChannelManager)) {
+
+        if(ToolsKit.isEmpty(tcpClientChannelManager)) {
             logger.warn("断开连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
             return;
+        } else if(tcpClientChannelManager instanceof TcpClientChannelManager) {
+            tcpClientChannelManager.disconnect();
         }
-        vehicleChannelManager.disconnect();
     }
 
     /**
@@ -295,7 +326,16 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     public boolean isVehicleConnected() {
-        return ToolsKit.isNotEmpty(vehicleChannelManager)  &&  vehicleChannelManager.isConnected();
+        if(null != tcpClientChannelManager && (tcpClientChannelManager instanceof TcpClientChannelManager)) {
+            return ToolsKit.isNotEmpty(tcpClientChannelManager) && tcpClientChannelManager.isConnected();
+        }
+        else  if(null != serialPort && (serialPort instanceof  SerialPort)) {
+            return true;
+        }
+        else if(null != udpServerChannelManager && (udpServerChannelManager instanceof UdpServerChannelManager)) {
+            return true;
+        }
+        return false;
     }
 
 

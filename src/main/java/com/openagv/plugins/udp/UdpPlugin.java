@@ -10,7 +10,11 @@ import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.CharsetUtil;
+import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.util.Assertions;
 
 import java.util.ArrayList;
@@ -32,10 +36,16 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
     private static int BUFFER_SIZE = 64*1024;
     private static boolean loggingInitially;
     private static UdpServerChannelManager udpServerChannelManager;
+    private ConnectionEventListener eventListener;
 
-    private UdpPlugin() {
-        this.port = SettingUtils.getInt("upd.port", 60000);
-        this.loggingInitially = SettingUtils.getBoolean("upd.logging", false);
+    public UdpPlugin() {
+        this(SettingUtils.getInt("upd.port", 60000),
+                SettingUtils.getBoolean("upd.logging", false));
+    }
+
+    public UdpPlugin(int port, boolean logEnable) {
+        this.port = port;
+        this.loggingInitially = logEnable;
         createChannelSupplier();
     }
 
@@ -60,20 +70,29 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         Assertions.checkArgument(port > 0, "port <= 0: %s", new Object[]{port});
         java.util.Objects.requireNonNull(channelSupplier, "channelSupplier");
         udpServerChannelManager = new UdpServerChannelManager(port, channelSupplier, loggingInitially, BUFFER_SIZE);
+        eventListener = AppContext.getAgvConfigure().getConnectionEventListener();
     }
 
     @Override
     public Object enable() {
         if(!udpServerChannelManager.isInitialized()) {
             udpServerChannelManager.initialize();
-            logger.info("开启车辆渠道管理器[{}]成功!", "udpServerChannelManager");
+            eventListener.onConnect();
+            logger.info("开启车辆渠道管理器[{}]成功，监听端口:{}", "udpServerChannelManager", port);
             return udpServerChannelManager;
         }
         return null;
     }
 
+    /**
+     * 广播电报到设备
+     * @param response
+     */
     @Override
-    public void sendTelegram(IResponse telegram) {
-
+    public void sendTelegram(IResponse response) {
+        if(null == response) {
+            return;
+        }
+        udpServerChannelManager.send(response.toString());
     }
 }
