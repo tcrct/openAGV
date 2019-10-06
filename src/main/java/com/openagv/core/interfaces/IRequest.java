@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by laotang on 2019/9/25.
  */
-public interface IRequest {
+public interface IRequest extends java.io.Serializable{
 
     /**唯一的请求ID，用ObjectId作标识*/
     String getRequestId();

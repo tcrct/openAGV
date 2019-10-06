@@ -9,6 +9,6 @@ import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 public class CommAdapterDescription extends VehicleCommAdapterDescription {
     @Override
     public String getDescription() {
-        return SettingUtils.getString("adapter.name","MyAdapter");
+        return SettingUtils.getStringByGroup("name","adapter", "MyAdapter");
     }
 }

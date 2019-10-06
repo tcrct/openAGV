@@ -8,18 +8,16 @@ import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
+import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.CharsetUtil;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.util.Assertions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -39,13 +37,16 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
     private ConnectionEventListener eventListener;
 
     public UdpPlugin() {
-        this(SettingUtils.getInt("upd.port", 60000),
-                SettingUtils.getBoolean("upd.logging", false));
+        this(SettingUtils.getInt("port", CommunicationType.UDP.name().toLowerCase(),60000),
+                SettingUtils.getBoolean("logging", CommunicationType.UDP.name().toLowerCase(),false),
+                SettingUtils.getStringsToSet("broadcast", CommunicationType.UDP.name().toLowerCase())
+        );
     }
 
-    public UdpPlugin(int port, boolean logEnable) {
+    public UdpPlugin(int port, boolean logEnable, Set<String> set) {
         this.port = port;
         this.loggingInitially = logEnable;
+        AppContext.setBroadcastFlag(set);
         createChannelSupplier();
     }
 
@@ -71,6 +72,7 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         java.util.Objects.requireNonNull(channelSupplier, "channelSupplier");
         udpServerChannelManager = new UdpServerChannelManager(port, channelSupplier, loggingInitially, BUFFER_SIZE);
         eventListener = AppContext.getAgvConfigure().getConnectionEventListener();
+        AppContext.setCommunicationType(CommunicationType.UDP);
     }
 
     @Override

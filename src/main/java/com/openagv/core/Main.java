@@ -1,6 +1,7 @@
 package com.openagv.core;
 
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.openagv.core.interfaces.IHandler;
@@ -30,9 +31,11 @@ public class Main {
             java.util.Objects.requireNonNull(request.getCmdKey(), "target值不能为空，必须设置，该值用于反射调用方法");
             AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
         } catch (Exception e) {
-            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            e.printStackTrace();
-            logger.error("执行任务[{}]时出错: {} {}", request.getCmdKey(), e.getMessage());
+            if(response.getStatus() != HttpResponseStatus.OK.code()) {
+                response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+                e.printStackTrace();
+                logger.error("执行任务[{}]时出错: {}", request.getCmdKey(), e.getMessage());
+            }
             if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
                 response.write(e.getMessage());
             } else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
@@ -44,7 +47,10 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    doAfterHandler(request, response);
+                    // TODO 这里的request ,response是否需要copy
+                    IRequest copyRequest = ObjectUtil.cloneByStream(request);
+                    IResponse copyResponse = ObjectUtil.cloneByStream(response);
+                    doAfterHandler(copyRequest, copyResponse);
                 } catch (Exception e) {
                     logger.error("执行后置处理器时发生异常: {}, {} ", e.getMessage(), e);
                 }

@@ -104,7 +104,7 @@ public class ToolsKit {
      * @return
      */
     public static String getVehicleHostName() {
-        return  SettingUtils.getString("vehicle.host.name", "host");
+        return  SettingUtils.getStringByGroup("host.name", "vehicle", "host");
     }
 
     /**
@@ -112,7 +112,7 @@ public class ToolsKit {
      * @return
      */
     public static String getVehiclePortName() {
-        return SettingUtils.getString("vehicle.port.name", "port");
+        return SettingUtils.getStringByGroup("port.name", "vehicle", "port");
     }
 
     /**
@@ -120,7 +120,7 @@ public class ToolsKit {
      * @return
      */
     public static int getMinPort(){
-        return SettingUtils.getInt("vehicle.min.port",5050);
+        return SettingUtils.getInt("min.port", "vehicle", 5050);
     }
 
     /**
@@ -128,7 +128,7 @@ public class ToolsKit {
      * @return
      */
     public static int getMaxPort(){
-        return SettingUtils.getInt("vehicle.max.port", 6060);
+        return SettingUtils.getInt("max.port", "vehicle", 6060);
     }
 
     /**

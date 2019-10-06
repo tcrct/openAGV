@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Created by laotang on 2019/9/25.
  */
-public interface IResponse {
+public interface IResponse extends java.io.Serializable{
 
     String TARGET_POINT_NAME = "openAGV_TPN";
 

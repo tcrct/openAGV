@@ -79,7 +79,7 @@ public class TelegramMatcher {
 
         //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
         IResponse currentRequestTelegram = requests.peek();
-        // 判断该回复里的请求ID与队列里的是否一致，如果一致，则返回true
+        // 判断该回复里的请求到达点与队列里的是否一致，如果一致，则返回true
         if(ToolsKit.isNotEmpty(currentRequestTelegram) &&
                 responseTelegram.getTargetPointName().equals(currentRequestTelegram.getTargetPointName())){
             // 在队列中移除第一位的
@@ -90,7 +90,7 @@ public class TelegramMatcher {
         if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
             logger.warn("请求队列没有{}的请求对象，传参的请求对象{}， 队列与最新对应的请求对象不匹配",responseTelegram.getRequestId(), currentRequestTelegram.getRequestId());
         } else {
-            logger.warn("接收到请求ID{}的响应，但没有请求正在等响应",responseTelegram.getRequestId());
+            logger.info("接收到请求ID{}的响应，但没有请求正在等响应",responseTelegram.getRequestId());
         }
 
         return false;

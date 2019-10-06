@@ -7,6 +7,7 @@ import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
+import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -188,6 +189,25 @@ public class AppContext {
     }
     public static OpenAgvConfigure getAgvConfigure() {
         return CONFIGURE;
+    }
+
+    private static CommunicationType COMMUNICATION_TYPE_ENUM = CommunicationType.SERIALPORT;
+    public static void setCommunicationType(CommunicationType typeEnum) {
+        COMMUNICATION_TYPE_ENUM = typeEnum;
+    }
+    public static CommunicationType getCommunicationType() {
+        return COMMUNICATION_TYPE_ENUM;
+    }
+
+    private static Set<String> BROADCAST_FLAG_SET = new HashSet<>();
+    public static void setBroadcastFlag(Set<String> set) {
+        if(ToolsKit.isEmpty(set)) {
+            throw new NullPointerException("由于该模式是串口或UDP方式，所以允许接受处理的请求广播集合不能为空，请先在app.setting里设置broadcast值！");
+        }
+        BROADCAST_FLAG_SET.addAll(set);
+    }
+    public static Set<String> getBroadcastFlagSet() {
+        return BROADCAST_FLAG_SET;
     }
 
 

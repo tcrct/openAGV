@@ -9,6 +9,7 @@ import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
+import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import io.netty.channel.ChannelHandler;
@@ -69,6 +70,7 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
                 channelSupplier,
                 readTimeout,
                 enableLogging);
+        AppContext.setCommunicationType(CommunicationType.TCP);
     }
 
     @Override

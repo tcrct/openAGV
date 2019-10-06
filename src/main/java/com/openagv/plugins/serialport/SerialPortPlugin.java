@@ -9,6 +9,7 @@ import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
+import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.opentcs.model.Telegram;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.SettingUtils;
@@ -18,6 +19,7 @@ import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 串口插件类
@@ -36,13 +38,16 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
 
     public SerialPortPlugin() {
-        this(SettingUtils.getString("serialport.name", "COM6"),
-                SettingUtils.getInt("serialport.baudrate", 38400));
+        this(SettingUtils.getStringByGroup("name", CommunicationType.SERIALPORT.name().toLowerCase(), "COM6"),
+                SettingUtils.getInt("baudrate", CommunicationType.SERIALPORT.name().toLowerCase(), 38400),
+                SettingUtils.getStringsToSet("broadcast", CommunicationType.SERIALPORT.name().toLowerCase())
+        );
     }
 
-    public SerialPortPlugin(String portName, int baudrate) {
+    public SerialPortPlugin(String portName, int baudrate, Set<String> set) {
         serialPortName = portName;
         this.baudrate = baudrate;
+        AppContext.setBroadcastFlag(set);
     }
 
     @Override
@@ -61,12 +66,13 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         try {
             AppContext.setSerialPort(SerialPortManager.openPort(serialPortName, baudrate));
         } catch (Exception e) {
-            throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"]");
+            throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"], 串口可能已被占用！");
         }
         eventListener = AppContext.getAgvConfigure().getConnectionEventListener();
         if(ToolsKit.isEmpty(eventListener)) {
             throw new NullPointerException("事件监听器没有实现，请先实现");
         }
+        AppContext.setCommunicationType(CommunicationType.SERIALPORT);
     }
 
 
