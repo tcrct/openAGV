@@ -1,9 +1,5 @@
 package com.openagv.plugins.tcp;
 
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
@@ -11,9 +7,8 @@ import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.SettingUtils;
-import com.openagv.tools.ToolsKit;
 import io.netty.channel.ChannelHandler;
-import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
+import org.apache.log4j.Logger;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 
 import java.util.ArrayList;
@@ -27,7 +22,7 @@ import java.util.function.Supplier;
  */
 public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(TcpPlugin.class);
 
     private Supplier<List<ChannelHandler>> channelSupplier;
     private int readTimeout;
@@ -77,7 +72,7 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
     public Object enable() {
         if(!tcpClientChannelManager.isInitialized()) {
             tcpClientChannelManager.initialize();
-            logger.info("开启车辆渠道管理器[{}]成功!", "tcpClientChannelManager");
+            logger.info("开启车辆渠道管理器[tcpClientChannelManager]成功!");
             return tcpClientChannelManager;
         }
         return null;
@@ -92,6 +87,7 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+        logger.info("TCP发送报文: "+response.toString());
         tcpClientChannelManager.send(response.toString());
     }
 }

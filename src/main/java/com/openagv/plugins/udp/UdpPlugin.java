@@ -12,6 +12,7 @@ import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import io.netty.channel.ChannelHandler;
+import org.apache.log4j.Logger;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.util.Assertions;
 
@@ -27,7 +28,7 @@ import java.util.function.Supplier;
  */
 public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(UdpPlugin.class);
 
     private int port;
     private Supplier<List<ChannelHandler>> channelSupplier;
@@ -80,7 +81,7 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(!udpServerChannelManager.isInitialized()) {
             udpServerChannelManager.initialize();
             eventListener.onConnect();
-            logger.info("开启车辆渠道管理器[{}]成功，监听端口:{}", "udpServerChannelManager", port);
+            logger.info("开启车辆渠道管理器[udpServerChannelManager]成功，监听端口:" +  port);
             return udpServerChannelManager;
         }
         return null;
@@ -88,13 +89,14 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
 
     /**
      * 广播电报到设备
-     * @param response
+     * @param response 返回对象
      */
     @Override
     public void sendTelegram(IResponse response) {
         if(null == response) {
             return;
         }
+        logger.info("UDP发送报文: "+response.toString());
         udpServerChannelManager.send(response.toString());
     }
 }

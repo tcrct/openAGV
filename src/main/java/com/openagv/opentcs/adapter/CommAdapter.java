@@ -1,7 +1,5 @@
 package com.openagv.opentcs.adapter;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.*;
@@ -13,6 +11,7 @@ import com.openagv.opentcs.telegrams.TelegramMatcher;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
@@ -20,6 +19,7 @@ import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.util.ExplainedBoolean;
+
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class CommAdapter extends BasicVehicleCommAdapter {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(CommAdapter.class);
     // 组件工厂
     private ComponentsFactory componentsFactory;
 
@@ -204,7 +204,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         boolean isCanSendNextCommand =  super.canSendNextCommand()
                 && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
 
-        logger.debug("canSendNextCommand {}", isCanSendNextCommand);
+        logger.debug("canSendNextCommand: " + isCanSendNextCommand);
         return isCanSendNextCommand;
     }
 
@@ -216,7 +216,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         requireNonNull(cmd, "cmd");
-        logger.info("sendCommand {}", cmd);
+        logger.info("sendCommand:" + cmd);
         singleStepExecutionAllowed = false;
         try {
             // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
@@ -229,9 +229,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             commandMap.put(cmd, response.getRequestId());
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
-            logger.debug("{}: 将订单报文提交到消息队列完成", getName());
+            logger.debug(getName()+": 将订单报文提交到消息队列完成");
         } catch (Exception e) {
-            logger.error("{}: 将订单报文提交到消息队列失败 {}", getName(), cmd);
+            logger.error(getName()+"将订单报文提交到消息队列失败: "+ cmd);
             logger.error(e.getMessage(), e);
         }
     }
@@ -263,14 +263,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
 
         if (ToolsKit.isEmpty(tcpClientChannelManager)) {
-            logger.warn("连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
+            logger.warn("连接车辆 "+getName()+" 时失败: vehicleChannelManager not present.");
             return;
         }
         /**进行bind操作*/
         String host = getProcessModel().getVehicleHost();
         int port = getProcessModel().getVehiclePort();
         tcpClientChannelManager.connect(host, port);
-        logger.warn("连接车辆 {} 成功:  host:{} port:{}.", getName(), host, port);
+        logger.warn("连接车辆 "+getName()+" 成功:  host:"+host+" port: "+ port);
 
         /*
         List<String> pointNameList = new ArrayList<>();
@@ -314,7 +314,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     protected void disconnectVehicle() {
 
         if(ToolsKit.isEmpty(tcpClientChannelManager)) {
-            logger.warn("断开连接车辆 {} 时失败: vehicleChannelManager not present.", getName());
+            logger.warn("断开连接车辆 "+getName()+" 时失败: vehicleChannelManager not present.");
             return;
         } else if(tcpClientChannelManager instanceof TcpClientChannelManager) {
             tcpClientChannelManager.disconnect();
@@ -399,14 +399,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                     reason = "未加载时无法卸载";
             }
         }
-        logger.info("canProcess: {}, reason: {}", operations, reason);
+        logger.info("canProcess: "+operations+", reason: " + reason);
         return new ExplainedBoolean(canProcess, reason);
 
     }
 
     @Override
     public void processMessage(@Nullable Object o) {
-        logger.info("processMessage: {}", o);
+        logger.info("processMessage: "+ o);
     }
 
     /**
@@ -431,7 +431,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             getProcessModel().commandExecuted(cmd);
             // 唤醒处于等待状态的线程
             CommAdapter.this.notify();
-            logger.info("Vehicle[{}] move to {} point is success!", getName(), currentPosition);
+            logger.info("Vehicle["+getName()+"] move to "+ currentPosition+" point is success!");
         }
     }
 

@@ -1,23 +1,17 @@
 package com.openagv.plugins.serialport;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
-import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
-import com.openagv.core.Main;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.opentcs.enums.CommunicationType;
-import com.openagv.opentcs.model.Telegram;
-import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import org.apache.log4j.Logger;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +22,7 @@ import java.util.Set;
  */
 public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(SerialPortPlugin.class);
     /**串口名称*/
     private String serialPortName;
     /**获取波特率，默认为38400*/
@@ -121,7 +115,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 //                getTelegramMatcher().checkForSendingNextRequest();
             }
         });
-        logger.warn("串口[{}]启动成功！波特率为[{}]", serialPortName, baudrate);
+        logger.warn("串口["+serialPortName+"]启动成功！波特率为["+baudrate+"]");
         return serialPort;
     }
 
@@ -134,6 +128,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+        logger.info("串口["+ AppContext.getSerialPort().getName()+"]发送报文: "+response.toString());
         SerialPortManager.sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }
