@@ -88,9 +88,9 @@ public class TelegramMatcher {
         }
 
         if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
-            logger.warn("请求队列没有{}的请求对象，传参的请求对象{}， 队列与最新对应的请求对象不匹配",responseTelegram.getRequestId(), currentRequestTelegram.getRequestId());
+            logger.warn("请求队列没有{}的请求对象，传参的请求对象{}， 队列与最新对应的请求对象不匹配", currentRequestTelegram.getTargetPointName(),responseTelegram.getTargetPointName());
         } else {
-            logger.info("接收到请求ID{}的响应，但没有请求正在等响应",responseTelegram.getRequestId());
+            logger.info("接收到请求ID{}的响应，但没有请求正在等响应",responseTelegram.getTargetPointName());
         }
 
         return false;

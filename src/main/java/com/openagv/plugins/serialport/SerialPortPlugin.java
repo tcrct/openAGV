@@ -134,6 +134,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+        logger.info("serialPort:{}, telegram: {}", AppContext.getSerialPort().getName(),response.toString());
         SerialPortManager.sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }

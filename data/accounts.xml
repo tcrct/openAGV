@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<userAccounts>
+  <account name="Alice" password="xyz">
+    <permission name="READ_DATA" />
+    <permission name="CHANGE_KERNEL_STATE" />
+    <permission name="CHANGE_CONFIGURATION" />
+    <permission name="MANAGE_USERS" />
+    <permission name="LOAD_MODEL" />
+    <permission name="SAVE_MODEL" />
+    <permission name="MODIFY_MODEL" />
+    <permission name="LOCK_PATH" />
+    <permission name="MODIFY_VEHICLES" />
+    <permission name="MODIFY_ORDER" />
+    <permission name="PUBLISH_MESSAGES" />
+  </account>
+</userAccounts>
