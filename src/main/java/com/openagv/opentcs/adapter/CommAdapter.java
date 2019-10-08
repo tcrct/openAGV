@@ -7,6 +7,7 @@ import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.StateRequest;
+import com.openagv.opentcs.telegrams.StateRequesterTask;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
@@ -50,8 +51,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     // 请求响应电报匹配器
     private TelegramMatcher telegramMatcher;
-//    // 模板
-//    private AgreementTemplate template;
+    // 定时发送任务器
+    private StateRequesterTask stateRequesterTask;
 
     private boolean singleStepExecutionAllowed = false;
 
@@ -125,6 +126,17 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
             // 回调发送消息
             this.telegramMatcher = new TelegramMatcher((ITelegramSender) enable);
+
+            // 定时任务
+            if(ToolsKit.isNotEmpty(telegramMatcher)) {
+                IHandshakeListener listener = AppContext.getAgvConfigure().getHandshakeListener();
+                if(ToolsKit.isNotEmpty(listener)) {
+                    listener.setSender(telegramMatcher.getTelegramSender());
+                    this.stateRequesterTask = new StateRequesterTask(listener);
+                    stateRequesterTask.enable();
+                }
+            }
+
             logger.info("注册回调发送消息成功");
         }
 
@@ -193,6 +205,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
 
     public synchronized void trigger() {
+        stateRequesterTask.disable();
         singleStepExecutionAllowed = true;
     }
     /**
@@ -416,7 +429,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public void checkForVehiclePositionUpdate(IResponse response) {
 
         // 将报告的位置ID映射到点名称
-        String currentPosition = response.getTargetPointName();
+        String currentPosition = response.getNextPointName();
         // 更新位置，但前提是它不能是空
         if (ToolsKit.isNotEmpty(currentPosition)) {
             getProcessModel().setVehiclePosition(currentPosition);

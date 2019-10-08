@@ -1,5 +1,6 @@
 package com.openagv.opentcs.telegrams;
 
+import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.ToolsKit;
@@ -43,9 +44,7 @@ public class TelegramMatcher {
         requireNonNull(requestTelegram, "requestTelegram");
 
         boolean emptyQueueBeforeEnqueue = requests.isEmpty();
-
         requests.add(requestTelegram);
-
         logger.info("添加到队列成功: "+ requestTelegram.toString());
 
         if (emptyQueueBeforeEnqueue) {
@@ -57,13 +56,31 @@ public class TelegramMatcher {
     public void checkForSendingNextRequest() {
         logger.debug("检查是否发送下一个请求.");
         if (peekCurrentRequest().isPresent()) {
-            telegramSender.sendTelegram(peekCurrentRequest().get());
+            IResponse response = peekCurrentRequest().get();
+            if(AppContext.isHandshakeListener()) {
+                AppContext.setTelegramQueue(response.getDeviceId(),
+                        response.getHandshakeKey(),
+                        response);
+                logger.info("添加到握手队列["+response.getDeviceId()+"]成功: "+ response.getHandshakeKey());
+            }
+            telegramSender.sendTelegram(response);
         }
         else {
             logger.info("没有请求消息发送");
         }
     }
 
+    /**
+     * add        增加一个元索                     如果队列已满，则抛出一个IIIegaISlabEepeplian异常
+     * remove   移除并返回队列头部的元素    如果队列为空，则抛出一个NoSuchElementException异常
+     * element  返回队列头部的元素             如果队列为空，则抛出一个NoSuchElementException异常
+     * offer       添加一个元素并返回true       如果队列已满，则返回false
+     * poll         移除并返问队列头部的元素    如果队列为空，则返回null
+     * peek       返回队列头部的元素             如果队列为空，则返回null
+     * put         添加一个元素                      如果队列满，则阻塞
+     * take        移除并返回队列头部的元素     如果队列为空，则阻塞
+     * @return
+     */
     public Optional<IResponse> peekCurrentRequest() {
         return Optional.ofNullable(requests.peek());
     }
@@ -82,7 +99,7 @@ public class TelegramMatcher {
         IResponse currentRequestTelegram = requests.peek();
         // 判断该回复里的请求到达点与队列里的是否一致，如果一致，则返回true
         if(ToolsKit.isNotEmpty(currentRequestTelegram) &&
-                responseTelegram.getTargetPointName().equals(currentRequestTelegram.getTargetPointName())){
+                responseTelegram.getNextPointName().equals(currentRequestTelegram.getNextPointName())){
             // 在队列中移除第一位的
             requests.remove();
             logger.info("匹配成功，在队列中移除第一位的元素记录");
@@ -90,7 +107,7 @@ public class TelegramMatcher {
         }
 
         if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
-            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getTargetPointName()+"， 队列与最新对应的请求对象不匹配");
+            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getNextPointName()+"， 队列与最新对应的请求对象不匹配");
         } else {
             logger.info("接收到请求ID["+responseTelegram.getRequestId()+"]的响应，但没有请求正在等响应");
         }

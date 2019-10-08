@@ -19,6 +19,7 @@ public class Response implements IResponse {
     private int status;
     private String cmdKey;
     private Object returnObj;
+    private String deviceId;
 
     private Response(String requestId) {
         this.params = new HashMap<>();
@@ -34,6 +35,11 @@ public class Response implements IResponse {
     @Override
     public String getRequestId() {
         return requestId;
+    }
+
+    @Override
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     @Override
@@ -65,17 +71,17 @@ public class Response implements IResponse {
                 return ObjectUtil.toString(returnObj);
             }
         } else{
-            return "Hello, Laotang";
+            return "hello,laotang";
         }
     }
 
     @Override
-    public void setTargetPointName(String pointName) {
+    public void setNextPointName(String pointName) {
         params.put(IResponse.TARGET_POINT_NAME, pointName);
     }
 
     @Override
-    public String getTargetPointName() {
+    public String getNextPointName() {
         return String.valueOf(params.get(IResponse.TARGET_POINT_NAME));
     }
 
@@ -90,7 +96,26 @@ public class Response implements IResponse {
     }
 
     @Override
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+    @Override
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    @Override
     public Map<String, Object> getParams() {
         return params;
+    }
+
+    @Override
+    public void setHandshakeKey(String key) {
+        params.put(IResponse.HANDSHAKE_NAME, key);
+    }
+
+    @Override
+    public String getHandshakeKey() {
+        return String.valueOf(params.get(IResponse.HANDSHAKE_NAME));
     }
 }
