@@ -13,6 +13,7 @@ import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 
@@ -23,7 +24,7 @@ import java.util.Iterator;
  */
 public class Main {
 
-    private final static Log logger = LogFactory.get();
+    private final static Logger logger = Logger.getLogger(Main.class);
 
     public static void doTask(IRequest request, IResponse response) {
         try {
@@ -32,9 +33,10 @@ public class Main {
             AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
         } catch (Exception e) {
             if(response.getStatus() != HttpResponseStatus.OK.code()) {
+                if(response.getStatus() != HttpResponseStatus.MULTIPLE_CHOICES.code()) {
+                    logger.error(e.getMessage(), e);
+                }
                 response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-                e.printStackTrace();
-                logger.error("执行任务[{}]时出错: {}", request.getCmdKey(), e.getMessage());
             }
             if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
                 response.write(e.getMessage());
@@ -42,20 +44,24 @@ public class Main {
                 ExceptionController.build().getRender(e.getMessage()).setContext(request, response).render();
             }
         }
-        // 另起线程处理
-        ThreadUtil.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // TODO 这里的request ,response是否需要copy
-                    IRequest copyRequest = ObjectUtil.cloneByStream(request);
-                    IResponse copyResponse = ObjectUtil.cloneByStream(response);
-                    doAfterHandler(copyRequest, copyResponse);
-                } catch (Exception e) {
-                    logger.error("执行后置处理器时发生异常: {}, {} ", e.getMessage(), e);
+        /*
+        // 如果有后置处理器，则另起线程处理
+        if(!AppContext.getAfterHeandlerList().isEmpty()) {
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // TODO 这里的request ,response是否需要copy
+                        IRequest copyRequest = ObjectUtil.cloneByStream(request);
+                        IResponse copyResponse = ObjectUtil.cloneByStream(response);
+                        doAfterHandler(copyRequest, copyResponse);
+                    } catch (Exception e) {
+                        logger.error("执行后置处理器时发生异常: {}, {} ", e.getMessage(), e);
+                    }
                 }
-            }
-        });
+            });
+        }
+         */
     }
 
     /**
