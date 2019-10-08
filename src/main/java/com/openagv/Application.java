@@ -1,7 +1,6 @@
 package com.openagv;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+
 import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
@@ -11,9 +10,11 @@ import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.route.RouteHelper;
 import com.openagv.tools.ToolsKit;
+import org.apache.log4j.Logger;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
+
 
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class Application {
 
-    private final static Log logger = LogFactory.get();
+    private final static Logger logger = Logger.getLogger(Application.class);
 
     private static Application application;
 
@@ -68,7 +69,7 @@ public class Application {
                         }
                     }
                 }
-                logger.warn("插件[{}]启动成功!", plugin.getClass().getName());
+                logger.warn("插件[{"+plugin.getClass().getName()+"}]启动成功!");
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

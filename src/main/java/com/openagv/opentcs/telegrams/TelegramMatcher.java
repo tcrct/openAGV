@@ -1,10 +1,9 @@
 package com.openagv.opentcs.telegrams;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.ToolsKit;
+import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -20,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class TelegramMatcher {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(TelegramMatcher.class);
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
@@ -46,6 +45,8 @@ public class TelegramMatcher {
         boolean emptyQueueBeforeEnqueue = requests.isEmpty();
 
         requests.add(requestTelegram);
+
+        logger.info("添加到队列成功: "+ requestTelegram.toString());
 
         if (emptyQueueBeforeEnqueue) {
             checkForSendingNextRequest();
@@ -84,13 +85,14 @@ public class TelegramMatcher {
                 responseTelegram.getTargetPointName().equals(currentRequestTelegram.getTargetPointName())){
             // 在队列中移除第一位的
             requests.remove();
+            logger.info("匹配成功，在队列中移除第一位的元素记录");
             return true;
         }
 
         if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
-            logger.warn("请求队列没有{}的请求对象，传参的请求对象{}， 队列与最新对应的请求对象不匹配", currentRequestTelegram.getTargetPointName(),responseTelegram.getTargetPointName());
+            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getTargetPointName()+"， 队列与最新对应的请求对象不匹配");
         } else {
-            logger.info("接收到请求ID{}的响应，但没有请求正在等响应",responseTelegram.getTargetPointName());
+            logger.info("接收到请求ID["+responseTelegram.getRequestId()+"]的响应，但没有请求正在等响应");
         }
 
         return false;

@@ -2,19 +2,20 @@ package com.openagv.handlers;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.openagv.core.AppContext;
-import com.openagv.core.interfaces.IService;
 import com.openagv.mvc.BaseController;
-import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.route.Route;
 import com.openagv.route.RouteHelper;
 import com.openagv.tools.ToolsKit;
+import org.apache.log4j.Logger;
 
 /**
  * 访问处理器
  */
 public class AccountHandler {
+
+    private final static Logger logger = Logger.getLogger(AccountHandler.class);
 
     private static final Object[] NULL_ARGS = new Object[0];		// 默认参数
 
@@ -34,12 +35,14 @@ public class AccountHandler {
         Object object = route.getInjectObject();
         if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
             Object resultObj = ReflectUtil.invoke(object, target, request, response);
+            logger.info("openAGV返回报文："+ resultObj);
             response.write(resultObj);
         }
         else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
             BaseController controllerObj = (BaseController) route.getInjectObject();
             controllerObj.init(request, response);
             Object resultObj = ReflectUtil.invoke(controllerObj, target, request);
+            logger.info("openAGV返回报文："+ resultObj);
             controllerObj.getRender(resultObj).setContext(request, response).render();
         }
     }
