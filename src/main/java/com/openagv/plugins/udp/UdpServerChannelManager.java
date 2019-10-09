@@ -111,7 +111,7 @@ public class UdpServerChannelManager<I,O> {
             int port = AppContext.getCommAdapter().getProcessModel().getVehiclePort();
             address = new InetSocketAddress(host, port);
         }
-        logger.info("upd server send client {} ", address.getAddress());
+        logger.info("upd server send client {} ", (address.getHostName()+":"+address.getPort()));
         serverChannelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegram, CharsetUtil.UTF_8),  address));
         address = null;
     }
