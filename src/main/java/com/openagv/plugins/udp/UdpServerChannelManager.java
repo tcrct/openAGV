@@ -102,7 +102,7 @@ public class UdpServerChannelManager<I,O> {
         if (!this.initialized) {
             throw new IllegalArgumentException("Not initialized.");
         }
-        logger.info("UDP广播的报文:{}", telegram);
+//        logger.info("UDP广播的报文:{}", telegram);
         if (ToolsKit.isEmpty(telegram)) {
             throw new IllegalArgumentException("广播的报文内容不能为空");
         }
@@ -111,7 +111,7 @@ public class UdpServerChannelManager<I,O> {
             int port = AppContext.getCommAdapter().getProcessModel().getVehiclePort();
             address = new InetSocketAddress(host, port);
         }
-        logger.info("upd server send client {} ", address.getAddress().toString() );
+        logger.info("upd server send client {} ", address.getAddress());
         serverChannelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegram, CharsetUtil.UTF_8),  address));
         address = null;
     }

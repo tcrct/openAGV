@@ -265,13 +265,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     protected void connectVehicle() {
 
         // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
-//        getProcessModel().setVehiclePosition("36");
-        getProcessModel().setVehiclePosition("705");
+        getProcessModel().setVehiclePosition("36");
+//        getProcessModel().setVehiclePosition("705");
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         getProcessModel().setVehicleIdle(true);
 
-        if(!(tcpClientChannelManager instanceof TcpClientChannelManager)) {
-            logger.warn("UDP模式或串口模式以广播方式发送，退出connectVehicle方法");
+        if(ToolsKit.isNotEmpty(serialPort) || ToolsKit.isNotEmpty(udpServerChannelManager)) {
+            logger.warn("UDP或串口模式是以广播方式发送，所以退出connectVehicle方法");
             return;
         }
 
