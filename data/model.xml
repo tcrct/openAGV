@@ -2,30 +2,26 @@
 <model version="0.0.2" name="demo20190923-1">
     <point name="31" xPosition="21500" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="31 --- 35"/>
-        <property name="cpr" value="31"/>
-        <property name="npr" value="35"/>
+        <property name="direction" value="right"/>
     </point>
     <point name="310" xPosition="35500" yPosition="26000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="310 --- 31"/>
-        <property name="cpr" value="310"/>
-        <property name="npr" value="31"/>
+        <property name="direction" value="right"/>
     </point>
     <point name="35" xPosition="5500" yPosition="24500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="35 --- 36"/>
-        <property name="cpr" value="35"/>
-        <property name="npr" value="36"/>
+        <property name="direction" value="right"/>
     </point>
     <point name="36" xPosition="21000" yPosition="32500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="36 --- 310"/>
-        <property name="cpr" value="36"/>
-        <property name="npr" value="310"/>
+        <property name="direction" value="right"/>
     </point>
     <path name="31 --- 35" sourcePoint="31" destinationPoint="35" length="17464" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="310 --- 31" sourcePoint="310" destinationPoint="31" length="16378" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="35 --- 36" sourcePoint="35" destinationPoint="36" length="17443" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="36 --- 310" sourcePoint="36" destinationPoint="310" length="15890" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <vehicle name="A002" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
-        <property name="host" value="127.0.0.1"/>
+        <property name="host" value="192.168.8.181"/>
         <property name="port" value="60000"/>
         <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
     </vehicle>
@@ -97,5 +93,5 @@
             <property name="POSITION_Y" value="25000"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-10-09T04:11:08.375Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-10-09T07:32:40.981Z"/>
 </model>

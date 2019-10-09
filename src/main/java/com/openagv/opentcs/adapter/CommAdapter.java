@@ -109,6 +109,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             return;
         }
         getProcessModel().getVelocityController().addVelocityListener(getProcessModel());
+        logger.info("初始化车辆渠道管理器");
         // 初始化车辆渠道管理器
         for(Iterator<IEnable> iterator = AppContext.getPluginEnableList().iterator(); iterator.hasNext();){
             IEnable enable = iterator.next();
@@ -136,44 +137,11 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                     stateRequesterTask.enable();
                 }
             }
-
             logger.info("注册回调发送消息成功");
         }
-
-//        AppContext.channelManagerInitialize();
-        /*
-        if(CommunicationType.SERIALPORT.equals(Configure.getCommunicationType())) {
-            SerialPortManager.addListener(Configure.getSerialport(), new DataAvailableListener() {
-                @Override
-                public void dataAvailable() {
-                    String telegram = readTelegram4SerialPort();
-                    logger.info("串口接收到的报文：" + telegram);
-                    Telegram responseTelegram =getTemplate().builderTelegram(telegram);
-                    if(!getTelegramMatcher().tryMatchWithCurrentRequestTelegram(responseTelegram)) {
-                        // 如果不匹配，则忽略该响应或关闭连接
-                        return;
-                    }
-                    //检查并更新车辆状态，位置点
-                    checkForVehiclePositionUpdate(responseTelegram);
-                    //在执行上面更新位置的方法后再检查是否有下一条请求需要发送
-                    getTelegramMatcher().checkForSendingNextRequest();
-                }
-            });
-        } else if(CommunicationType.UDP.equals(Configure.getCommunicationType())) {
-
-        } else {
-            // 创建负责与车辆连接的渠道管理器,基于netty
-            vehicleChannelManager = new TcpClientChannelManager<String, String>(template.getConnEventListener(),
-                    template.getChannelHandlers(),
-                    getProcessModel().getVehicleIdleTimeout(),
-                    getProcessModel().isLoggingEnabled());
-
-            // 初始化车辆渠道管理器
-            vehicleChannelManager.initialize();
-        }
-        */
         // 调用父类开启
         super.enable();
+        AppContext.getAgvConfigure().getConnectionEventListener().onConnect();
     }
 
     /**

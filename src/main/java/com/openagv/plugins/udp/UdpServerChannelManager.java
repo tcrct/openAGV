@@ -67,8 +67,6 @@ public class UdpServerChannelManager<I,O> {
                     ch.pipeline().addLast(new UdpHandler());
                 }
             });
-
-
             try {
                 this.serverChannelFuture = this.bootstrap.bind("0.0.0.0", this.port).sync();
                 this.initialized = true;
@@ -111,7 +109,7 @@ public class UdpServerChannelManager<I,O> {
             int port = AppContext.getCommAdapter().getProcessModel().getVehiclePort();
             address = new InetSocketAddress(host, port);
         }
-        logger.info("upd server send client {} ", (address.getHostName()+":"+address.getPort()));
+        logger.info("upd server send client {} ", (address.getAddress().toString()+":"+address.getPort()));
         serverChannelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegram, CharsetUtil.UTF_8),  address));
         address = null;
     }

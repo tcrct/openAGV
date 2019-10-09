@@ -213,7 +213,7 @@ public class AppContext {
     private static Set<String> BROADCAST_FLAG_SET = new HashSet<>();
     public static void setBroadcastFlag(Set<String> set) {
         if(ToolsKit.isEmpty(set)) {
-            throw new NullPointerException("由于该模式是串口或UDP方式，所以允许接受处理的请求广播集合不能为空，请先在app.setting里设置broadcast值！");
+            throw new NullPointerException("由于该模式是串口方式，所以允许接受处理的请求广播集合不能为空，请先在app.setting里设置broadcast值！");
         }
         BROADCAST_FLAG_SET.addAll(set);
     }

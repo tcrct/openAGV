@@ -29,8 +29,10 @@ public class UdpHandler extends SimpleChannelInboundHandler<DatagramPacket> {
                 logger.error("upd接收到的报文内容不能为空");
                 return;
             }
-            eventListener.onIncomingTelegram(telegram);
-            AppContext.getCommAdapter().getUdpServerChannelManager().setSendAddress(datagramPacket.sender());
+            if(ToolsKit.isNotEmpty(eventListener) && ToolsKit.isNotEmpty(telegram)) {
+                eventListener.onIncomingTelegram(telegram);
+                AppContext.getCommAdapter().getUdpServerChannelManager().setSendAddress(datagramPacket.sender());
+            }
 //            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(response.toString(), CharsetUtil.UTF_8), datagramPacket.sender()));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
