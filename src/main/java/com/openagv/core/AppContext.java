@@ -273,7 +273,8 @@ public class AppContext {
         java.util.Objects.requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
         LinkedBlockingQueue<Map<String,IResponse>> queue =  TELEGRAM_QUEUE.get(deviceId);
         Map<String,IResponse> map = queue.peek();
-        if(ToolsKit.isNotEmpty(queue) && map.containsKey(key)) {
+        if(ToolsKit.isNotEmpty(queue) &&
+                (map.containsKey(key)) || map.containsKey(key.toUpperCase())) {
             //移除并返回第一位的元素
             map.remove(key);
             queue.remove();
