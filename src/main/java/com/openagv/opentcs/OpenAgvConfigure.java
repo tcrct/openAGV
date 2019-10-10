@@ -8,7 +8,6 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import org.apache.log4j.PropertyConfigurator;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -37,7 +36,7 @@ public abstract class OpenAgvConfigure {
         System.setProperty("opentcs.home", ".");
         System.setProperty("splash", configPath + File.separator+"bin"+File.separator+"splash-image.gif");
         System.setProperty("file.encoding", "UTF-8");
-        PropertyConfigurator.configure(configPath+File.separator+subDir+File.separator+"log4j.properties");
+//        PropertyConfigurator.configure(configPath+File.separator+subDir+File.separator+ "log4j.properties");
         logger.warn("OpenAgvConfigure init success");
     }
 

@@ -10,10 +10,11 @@ import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.route.RouteHelper;
 import com.openagv.tools.ToolsKit;
-import org.apache.log4j.Logger;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.Iterator;
@@ -25,7 +26,7 @@ import java.util.List;
  */
 public class Application {
 
-    private final static Logger logger = Logger.getLogger(Application.class);
+    private final static Logger logger = LoggerFactory.getLogger(Application.class);
 
     private static Application application;
 
