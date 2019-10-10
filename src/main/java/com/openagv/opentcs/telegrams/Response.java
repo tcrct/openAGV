@@ -24,7 +24,7 @@ public class Response implements IResponse {
     private Response(String requestId) {
         this.params = new HashMap<>();
         this.requestId = requestId;
-        status = HttpResponseStatus.BAD_REQUEST.code();
+        status = HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
         this.returnObj = null;
     }
 
