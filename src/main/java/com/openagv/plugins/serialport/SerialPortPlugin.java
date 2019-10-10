@@ -33,15 +33,12 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
     public SerialPortPlugin() {
         this(SettingUtils.getStringByGroup("name", CommunicationType.SERIALPORT.name().toLowerCase(), "COM6"),
-                SettingUtils.getInt("baudrate", CommunicationType.SERIALPORT.name().toLowerCase(), 38400),
-                SettingUtils.getStringsToSet("broadcast", CommunicationType.SERIALPORT.name().toLowerCase())
-        );
+                SettingUtils.getInt("baudrate", CommunicationType.SERIALPORT.name().toLowerCase(), 38400));
     }
 
-    public SerialPortPlugin(String portName, int baudrate, Set<String> set) {
+    public SerialPortPlugin(String portName, int baudrate) {
         serialPortName = portName;
         this.baudrate = baudrate;
-        AppContext.setBroadcastFlag(set);
     }
 
     @Override
