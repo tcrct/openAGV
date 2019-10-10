@@ -42,7 +42,6 @@ public class Main {
                 ExceptionController.build().getRender(e.getMessage()).setContext(request, response).render();
             }
         }
-        /*
         // 如果有后置处理器，则另起线程处理
         if(!AppContext.getAfterHeandlerList().isEmpty()) {
             ThreadUtil.execute(new Runnable() {
@@ -54,12 +53,11 @@ public class Main {
                         IResponse copyResponse = ObjectUtil.cloneByStream(response);
                         doAfterHandler(copyRequest, copyResponse);
                     } catch (Exception e) {
-                        logger.error("执行后置处理器时发生异常: {}, {} ", e.getMessage(), e);
+                        logger.error("执行后置处理器时发生异常: "+ e.getMessage(), e);
                     }
                 }
             });
         }
-         */
     }
 
     /**
