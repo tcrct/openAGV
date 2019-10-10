@@ -77,9 +77,8 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(!udpServerChannelManager.isInitialized()) {
             udpServerChannelManager.initialize();
             logger.info("开启车辆渠道管理器[udpServerChannelManager]成功，监听端口:" +  port);
-            return udpServerChannelManager;
         }
-        return null;
+        return udpServerChannelManager;
     }
 
     /**

@@ -78,12 +78,16 @@ public class UdpServerChannelManager<I,O> {
         }
     }
 
-    public void terminate() {
+    public boolean isConnected() {
+        return serverChannelFuture != null && serverChannelFuture.channel().isActive();
+    }
+
+    public void disconnect() {
         if (this.initialized) {
             this.serverChannelFuture.channel().close();
-            this.serverChannelFuture = null;
             this.bootstrap.config().group().shutdownGracefully();
             this.initialized = false;
+            this.serverChannelFuture = null;
             logger.info("Stop Server!");
         }
     }

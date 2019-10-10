@@ -35,6 +35,7 @@ public class AccountHandler {
         Route route = RouteHelper.getRoutes().get(target);
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");
         Object object = route.getInjectObject();
+        java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应处理类对象");
         if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
             Object resultObj = ReflectUtil.invoke(object, target, request, response);
             logger.info("逻辑处理后返回报文："+ resultObj);

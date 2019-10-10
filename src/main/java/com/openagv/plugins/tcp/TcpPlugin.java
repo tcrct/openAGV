@@ -73,9 +73,8 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(!tcpClientChannelManager.isInitialized()) {
             tcpClientChannelManager.initialize();
             logger.info("开启车辆渠道管理器[tcpClientChannelManager]成功!");
-            return tcpClientChannelManager;
         }
-        return null;
+        return tcpClientChannelManager;
     }
 
     /**
