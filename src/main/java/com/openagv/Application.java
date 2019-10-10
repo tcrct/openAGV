@@ -40,8 +40,12 @@ public class Application {
     private Application(){
     }
 
-    public Application handlers(List<IHandler> handlers) {
+    public Application beforeHandlers(List<IHandler> handlers) {
         AppContext.getBeforeHeandlerList().addAll(handlers);
+        return this;
+    }
+    public Application afterHandlers(List<IHandler> handlers) {
+        AppContext.getAfterHeandlerList().addAll(handlers);
         return this;
     }
 

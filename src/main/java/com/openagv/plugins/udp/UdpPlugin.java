@@ -35,19 +35,16 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
     private static int BUFFER_SIZE = 64*1024;
     private static boolean loggingInitially;
     private static UdpServerChannelManager udpServerChannelManager;
-    private ConnectionEventListener eventListener;
 
     public UdpPlugin() {
         this(SettingUtils.getInt("port", CommunicationType.UDP.name().toLowerCase(),60000),
-                SettingUtils.getBoolean("logging", CommunicationType.UDP.name().toLowerCase(),false),
-                SettingUtils.getStringsToSet("broadcast", CommunicationType.UDP.name().toLowerCase())
+                SettingUtils.getBoolean("logging", CommunicationType.UDP.name().toLowerCase(),false)
         );
     }
 
-    public UdpPlugin(int port, boolean logEnable, Set<String> set) {
+    public UdpPlugin(int port, boolean logEnable) {
         this.port = port;
         this.loggingInitially = logEnable;
-        AppContext.setBroadcastFlag(set);
         createChannelSupplier();
     }
 
@@ -72,7 +69,6 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         Assertions.checkArgument(port > 0, "port <= 0: %s", new Object[]{port});
         java.util.Objects.requireNonNull(channelSupplier, "channelSupplier");
         udpServerChannelManager = new UdpServerChannelManager(port, channelSupplier, loggingInitially, BUFFER_SIZE);
-        eventListener = AppContext.getAgvConfigure().getConnectionEventListener();
         AppContext.setCommunicationType(CommunicationType.UDP);
     }
 
@@ -80,11 +76,9 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
     public Object enable() {
         if(!udpServerChannelManager.isInitialized()) {
             udpServerChannelManager.initialize();
-            eventListener.onConnect();
             logger.info("开启车辆渠道管理器[udpServerChannelManager]成功，监听端口:" +  port);
-            return udpServerChannelManager;
         }
-        return null;
+        return udpServerChannelManager;
     }
 
     /**

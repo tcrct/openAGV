@@ -20,17 +20,27 @@ public class StateRequest extends AbsRequest {
     private String endPointName;
     /** 车辆名称*/
     private String vehicleName;
+    /**到达最终停车点后执行的操作*/
+    private String finalOperation;
+    /**车辆参数模型*/
+    private ProcessModel processModel;
+    /**车辆移动命令*/
+    private MovementCommand movementCommand;
 
     private StateRequest() {
         super(TelegramType.STATE);
     }
 
-    private StateRequest(String vehicleName, String currentPointName, String nextPointName, String endPointName) {
+    private StateRequest(String vehicleName, String currentPointName, String nextPointName, String endPointName,
+                         String finalOperation, ProcessModel processModel, MovementCommand command) {
         super(TelegramType.STATE);
         this.vehicleName = vehicleName;
         this.currentPointName = currentPointName;
         this.nextPointName = nextPointName;
         this.endPointName = endPointName;
+        this.finalOperation = finalOperation;
+        this.processModel = processModel;
+        this.movementCommand =command;
     }
 
     public static class Builder {
@@ -57,7 +67,10 @@ public class StateRequest extends AbsRequest {
                     processModel.getVehicleReference().getName(),
                     step.getSourcePoint().getName(),
                     step.getDestinationPoint().getName(),
-                    movementCommand.getFinalDestination().getName()
+                    movementCommand.getFinalDestination().getName(),
+                    movementCommand.getFinalOperation(),
+                    processModel,
+                    movementCommand
             );
             stateRequest.setCmdKey(AppContext.getStateRequestCmdKey());
             return stateRequest;
@@ -83,5 +96,17 @@ public class StateRequest extends AbsRequest {
 
     public String getVehicleName() {
         return vehicleName;
+    }
+
+    public String getFinalOperation() {
+        return finalOperation;
+    }
+
+    public ProcessModel getProcessModel() {
+        return processModel;
+    }
+
+    public MovementCommand getMovementCommand() {
+        return movementCommand;
     }
 }

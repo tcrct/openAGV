@@ -7,7 +7,15 @@ import java.util.Map;
  */
 public interface IResponse extends java.io.Serializable{
 
-    String TARGET_POINT_NAME = "openAGV_TPN";
+    String TARGET_POINT_NAME = "OA_NPN";
+    String HANDSHAKE_NAME = "OA_HS_KEY";
+
+    /**
+     * 设置请求ID
+     * @param requestId
+     * @return
+     */
+    void setRequestId(String requestId);
 
     /**
      * 请求ID
@@ -56,13 +64,13 @@ public interface IResponse extends java.io.Serializable{
      * 设置目标位置点名称
      * @return
      */
-    void setTargetPointName(String pointName);
+    void setNextPointName(String pointName);
 
     /**
      * 取目标位置点名称
      * @return
      */
-    String getTargetPointName();
+    String getNextPointName();
 
     /**
      * 设置请求指令
@@ -75,5 +83,23 @@ public interface IResponse extends java.io.Serializable{
      * @return
      */
     String getCmdKey();
+
+    /**
+     * 取设备ID
+     * @return
+     */
+    String getDeviceId();
+
+    /**
+     * 设置设备ID
+     * @param deviceId
+     */
+    void setDeviceId(String deviceId);
+
+
+    /**设置握手标识字段*/
+    void setHandshakeKey(String key);
+    /**取得握手标识字段*/
+    String getHandshakeKey();
 
 }

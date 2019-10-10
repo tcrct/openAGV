@@ -3,16 +3,13 @@ package com.openagv.core.command;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.RequestTask;
-import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
-import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,22 +20,24 @@ import java.util.concurrent.Future;
  *
  * @author Laotang
  */
-public class SendCommand extends Command {
+public class SendCommand implements Command {
 
     private static final Log logger = LogFactory.get();
-    private static IDecomposeTelegram decomposeTelegram;
+
+    private static final SendCommand sendCommand = new SendCommand();
+    public static SendCommand duang() {
+        return sendCommand;
+    }
+    private SendCommand(){}
+
 
     @Override
-    public <T> T execute(IRequest request) {
-        if(null == decomposeTelegram) {
-            decomposeTelegram = AppContext.getAgvConfigure().getDecomposeTelegram();
-            java.util.Objects.requireNonNull(decomposeTelegram, "请先实现OpenAgvConfigure类里的getDecomposeTelegram方法");
+    public <T> T execute(Object object) {
+        if(object instanceof List) {
+           return (T)sendOrderCommand((List<IRequest>)object);
         }
-        if(request instanceof OrderRequest) {
-           return (T)sendOrderCommand((OrderRequest)request);
-        }
-        else if(request instanceof StateRequest) {
-            return (T)sendStateCommand((StateRequest)request);
+        else if(object instanceof StateRequest) {
+            return (T)sendStateCommand((StateRequest)object);
         }
         else {
             throw new AgvException("该请求没实现");
@@ -47,11 +46,10 @@ public class SendCommand extends Command {
 
     /**
      * 发送命令请求
-     * @param request
+     * @param requestList
      * @return
      */
-    private List<IResponse> sendOrderCommand(OrderRequest request) {
-        List<IRequest> requestList = decomposeTelegram.handle(request);
+    private List<IResponse> sendOrderCommand(List<IRequest> requestList) {
         if(ToolsKit.isEmpty(requestList)) {
             throw new AgvException("返回的转换结果集不能为空");
         }

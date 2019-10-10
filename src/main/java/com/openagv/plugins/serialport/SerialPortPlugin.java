@@ -33,20 +33,17 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
 
     public SerialPortPlugin() {
         this(SettingUtils.getStringByGroup("name", CommunicationType.SERIALPORT.name().toLowerCase(), "COM6"),
-                SettingUtils.getInt("baudrate", CommunicationType.SERIALPORT.name().toLowerCase(), 38400),
-                SettingUtils.getStringsToSet("broadcast", CommunicationType.SERIALPORT.name().toLowerCase())
-        );
+                SettingUtils.getInt("baudrate", CommunicationType.SERIALPORT.name().toLowerCase(), 38400));
     }
 
-    public SerialPortPlugin(String portName, int baudrate, Set<String> set) {
+    public SerialPortPlugin(String portName, int baudrate) {
         serialPortName = portName;
         this.baudrate = baudrate;
-        AppContext.setBroadcastFlag(set);
     }
 
     @Override
     public void start() throws Exception {
-        List<String> mCommList = SerialPortManager.findPorts();
+        List<String> mCommList = SerialPortManager.duang().findPorts();
 
         if(ToolsKit.isEmpty(mCommList)) {
             throw new NullPointerException("没有找到可用的串串口！");
@@ -58,7 +55,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             throw new IllegalArgumentException("串口波特率["+baudrate+"]没有设置");
         }
         try {
-            AppContext.setSerialPort(SerialPortManager.openPort(serialPortName, baudrate));
+            AppContext.setSerialPort(SerialPortManager.duang().openPort(serialPortName, baudrate));
         } catch (Exception e) {
             throw new RuntimeException("打开串口时失败，名称["+serialPortName+"]， 波特率["+baudrate+"], 串口可能已被占用！");
         }
@@ -75,7 +72,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         byte[] data = null;
         try {
             // 读取串口数据
-            data = SerialPortManager.readFromPort(serialPort);
+            data = SerialPortManager.duang().readFromPort(serialPort);
             // 以字符串的形式接收数据
             return new String(data);
         } catch (Exception e) {
@@ -91,7 +88,8 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             return false;
         }
         eventListener.onConnect();
-        SerialPortManager.addListener(serialPort, new DataAvailableListener() {
+        SerialPortManager serialPortManager = SerialPortManager.duang();
+        serialPortManager.addListener(serialPort, new DataAvailableListener() {
             @Override
             public void dataAvailable() {
                 String telegram = readTelegram(serialPort);
@@ -116,7 +114,11 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             }
         });
         logger.warn("串口["+serialPortName+"]启动成功！波特率为["+baudrate+"]");
-        return serialPort;
+        return serialPortManager;
+    }
+
+    public void disconnect() {
+        SerialPortManager.duang().closePort(AppContext.getSerialPort());
     }
 
     /**
@@ -129,6 +131,6 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             return;
         }
         logger.info("串口["+ AppContext.getSerialPort().getName()+"]发送报文: "+response.toString());
-        SerialPortManager.sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
+        SerialPortManager.duang().sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }

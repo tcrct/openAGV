@@ -1,18 +1,20 @@
 package com.openagv.tools;
 
-import com.openagv.core.AgvResult;
 import com.openagv.core.AppContext;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
 import com.openagv.core.command.SendCommand;
+import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
-import com.openagv.opentcs.model.Telegram;
+import com.openagv.exceptions.AgvException;
+import com.openagv.opentcs.telegrams.OrderRequest;
+import com.openagv.opentcs.telegrams.StateRequest;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
-import org.opentcs.util.persistence.v002.PointTO;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ToolsKit {
@@ -20,6 +22,7 @@ public class ToolsKit {
     public static final String CONTROLLER_FIELD = "Controller";
     public static final String  SERVICE_FIELD = "Service";
     private static final String  SERVICE_IMPL_FIELD = "ServiceImpl";
+    private static IDecomposeTelegram decomposeTelegram;
 
     /***
      * 判断传入的对象是否为空
@@ -159,10 +162,30 @@ public class ToolsKit {
         return className;
     }
 
-    public static <T> T sendCommand(IRequest telegram) {
-        return new SendCommand().execute(telegram);
+    public static <T> T sendCommand(List<IRequest> requestList) {
+        return SendCommand.duang().execute(requestList);
     }
 
+    public static <T> T sendCommand(StateRequest request) {
+        return SendCommand.duang().execute(request);
+    }
+
+    /**
+     * 将原始报文分析成IRequest对象
+     * @param telegram
+     * @return
+     */
+    public static List<IRequest> telegramToRequestList(String telegram) {
+        if(null == decomposeTelegram) {
+            decomposeTelegram = AppContext.getAgvConfigure().getDecomposeTelegram();
+            java.util.Objects.requireNonNull(decomposeTelegram, "请先实现OpenAgvConfigure类里的getDecomposeTelegram方法");
+        }
+        List<IRequest> requestList = decomposeTelegram.handle(new OrderRequest(telegram));
+        if(ToolsKit.isEmpty(requestList)) {
+            throw new AgvException("返回的转换结果集不能为空");
+        }
+        return requestList;
+    }
 
     public static boolean isInjectServiceClass(Class<?> clazz) {
         return null != clazz && clazz.isAnnotationPresent(Service.class) && clazz.getInterfaces().length >= 1;

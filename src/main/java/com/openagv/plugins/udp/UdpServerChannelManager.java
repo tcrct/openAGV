@@ -67,8 +67,6 @@ public class UdpServerChannelManager<I,O> {
                     ch.pipeline().addLast(new UdpHandler());
                 }
             });
-
-
             try {
                 this.serverChannelFuture = this.bootstrap.bind("0.0.0.0", this.port).sync();
                 this.initialized = true;
@@ -80,12 +78,16 @@ public class UdpServerChannelManager<I,O> {
         }
     }
 
-    public void terminate() {
+    public boolean isConnected() {
+        return serverChannelFuture != null && serverChannelFuture.channel().isActive();
+    }
+
+    public void disconnect() {
         if (this.initialized) {
             this.serverChannelFuture.channel().close();
-            this.serverChannelFuture = null;
             this.bootstrap.config().group().shutdownGracefully();
             this.initialized = false;
+            this.serverChannelFuture = null;
             logger.info("Stop Server!");
         }
     }
@@ -102,7 +104,7 @@ public class UdpServerChannelManager<I,O> {
         if (!this.initialized) {
             throw new IllegalArgumentException("Not initialized.");
         }
-        logger.info("UDP广播的报文:{}", telegram);
+//        logger.info("UDP广播的报文:{}", telegram);
         if (ToolsKit.isEmpty(telegram)) {
             throw new IllegalArgumentException("广播的报文内容不能为空");
         }
@@ -111,7 +113,7 @@ public class UdpServerChannelManager<I,O> {
             int port = AppContext.getCommAdapter().getProcessModel().getVehiclePort();
             address = new InetSocketAddress(host, port);
         }
-        logger.info("upd server send client {} ", address.getAddress().toString() );
+        logger.info("upd server send client {} ", (address.getAddress().toString()+":"+address.getPort()));
         serverChannelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegram, CharsetUtil.UTF_8),  address));
         address = null;
     }

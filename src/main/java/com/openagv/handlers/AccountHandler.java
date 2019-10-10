@@ -7,7 +7,9 @@ import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.route.Route;
 import com.openagv.route.RouteHelper;
+import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 
 /**
@@ -33,9 +35,10 @@ public class AccountHandler {
         Route route = RouteHelper.getRoutes().get(target);
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");
         Object object = route.getInjectObject();
+        java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应处理类对象");
         if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
             Object resultObj = ReflectUtil.invoke(object, target, request, response);
-            logger.info("openAGV返回报文："+ resultObj);
+            logger.info("逻辑处理后返回报文："+ resultObj);
             response.write(resultObj);
         }
         else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {

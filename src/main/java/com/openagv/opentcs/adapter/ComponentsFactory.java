@@ -1,6 +1,9 @@
 package com.openagv.opentcs.adapter;
 
+import com.openagv.opentcs.telegrams.StateRequesterTask;
 import org.opentcs.data.model.Vehicle;
+
+import java.awt.event.ActionListener;
 
 
 /**
@@ -17,5 +20,4 @@ public interface ComponentsFactory {
      * @return CommAdapter
      */
     CommAdapter createCommAdapter(Vehicle vehicle);
-
 }

@@ -59,7 +59,7 @@
     <guava.version>25.1-android</guava.version>
     <findbugs.version>3.0.1</findbugs.version>
     <mockito.version>1.9.5</mockito.version>
-    <slf4j.version>1.7.21</slf4j.version>
+    <slf4j.version>1.7.25</slf4j.version>
     <log4j.version>1.2.17</log4j.version>
   </properties>
 
@@ -173,6 +173,16 @@
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
@@ -183,11 +193,7 @@
       <version>${log4j.version}</version>
     </dependency>
 
-<!--        <dependency>-->
-<!--      <groupId>org.slf4j</groupId>-->
-<!--      <artifactId>slf4j-simple</artifactId>-->
-<!--      <version>${slf4j.version}</version>-->
-<!--    </dependency>-->
+
     <!-- logback-->
 <!--    <dependency>-->
 <!--      <groupId>ch.qos.logback</groupId>-->

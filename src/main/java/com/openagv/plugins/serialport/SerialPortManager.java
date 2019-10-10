@@ -2,6 +2,7 @@ package com.openagv.plugins.serialport;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.openagv.core.AppContext;
 import com.openagv.tools.ToolsKit;
 import gnu.io.*;
 
@@ -18,16 +19,23 @@ import java.util.TooManyListenersException;
  *
  * @author Laotang
  */
-class SerialPortManager {
+public class SerialPortManager {
 
     private static final Log logger = LogFactory.get();
+    private static SerialPortManager serialPortManager = new SerialPortManager();
 
+    public static SerialPortManager duang() {
+        return serialPortManager;
+    }
+    private SerialPortManager() {
+
+    }
     /**
      * 查找所有可用端口
      *
      * @return 可用端口名称列表
      */
-    public static final ArrayList<String> findPorts() {
+    public final ArrayList<String> findPorts() {
         // 获得当前所有可用串口
         Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
         ArrayList<String> portNameList = new ArrayList<String>();
@@ -50,7 +58,7 @@ class SerialPortManager {
      * @throws PortInUseException
      *             串口已被占用
      */
-    public static final SerialPort openPort(String portName, int baudrate) throws PortInUseException {
+    public final SerialPort openPort(String portName, int baudrate) throws PortInUseException {
         try {
             // 通过端口名识别端口
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
@@ -83,10 +91,11 @@ class SerialPortManager {
      * @param serialPort
      *            待关闭的串口对象
      */
-    public static void closePort(SerialPort serialPort) {
+    public void closePort(SerialPort serialPort) {
         if (serialPort != null) {
             serialPort.close();
         }
+        AppContext.setSerialPort(null);
     }
 
     /**
@@ -97,7 +106,7 @@ class SerialPortManager {
      * @param order
      *            待发送数据
      */
-    public static void sendToPort(SerialPort serialPort, byte[] order) {
+    public void sendToPort(SerialPort serialPort, byte[] order) {
         OutputStream out = null;
         try {
             out = serialPort.getOutputStream();
@@ -124,7 +133,7 @@ class SerialPortManager {
      *            当前已建立连接的SerialPort对象
      * @return 读取到的数据
      */
-    public static byte[] readFromPort(SerialPort serialPort) {
+    public byte[] readFromPort(SerialPort serialPort) {
         InputStream in = null;
         byte[] bytes = {};
         try {
@@ -159,7 +168,7 @@ class SerialPortManager {
      * @param listener
      *            串口存在有效数据监听
      */
-    public static void addListener(SerialPort serialPort, DataAvailableListener listener) {
+    public void addListener(SerialPort serialPort, DataAvailableListener listener) {
         try {
             // 给串口添加监听器
             serialPort.addEventListener(new SerialPortListener(listener));
@@ -170,5 +179,9 @@ class SerialPortManager {
         } catch (TooManyListenersException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    public boolean isConnected() {
+        return serialPortManager != null && AppContext.getSerialPort() != null;
     }
 }
