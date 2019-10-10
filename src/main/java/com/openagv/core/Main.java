@@ -28,13 +28,12 @@ public class Main {
 
     public static void doTask(IRequest request, IResponse response) {
         try {
-            doBeforeHandler(request, response);
-            java.util.Objects.requireNonNull(request.getCmdKey(), "target值不能为空，必须设置，该值用于反射调用方法");
-            AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
-        } catch (Exception e) {
-            if(response.getStatus() != HttpResponseStatus.MULTIPLE_CHOICES.code()) {
-                logger.error(e.getMessage(), e);
+            if(doBeforeHandler(request, response)) {
+                java.util.Objects.requireNonNull(request.getCmdKey(), "target值不能为空，必须设置，该值用于反射调用方法");
+                AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             //设置为错误500状态
             response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
@@ -70,19 +69,23 @@ public class Main {
      * @param request   请求对象
      * @param response 返回对象
      */
-    private static void doBeforeHandler(IRequest request, IResponse response) throws Exception {
+    private static boolean doBeforeHandler(IRequest request, IResponse response) throws Exception {
         if(AppContext.getBeforeHeandlerList().isEmpty()) {
-            return;
+            return true;
         }
         // 如果是StateRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
         if(request instanceof StateRequest){
-            return;
+            return true;
         }
         if(request instanceof OrderRequest) {
             for (Iterator<IHandler> it = AppContext.getBeforeHeandlerList().iterator(); it.hasNext(); ) {
-                it.next().doHandler(request, response);
+                boolean isNextHandle = it.next().doHandler(request, response);
+                if(!isNextHandle){
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     /**

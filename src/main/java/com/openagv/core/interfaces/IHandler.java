@@ -4,6 +4,6 @@ import com.openagv.exceptions.AgvException;
 
 public interface IHandler {
 
-    void doHandler(IRequest request, IResponse response) throws AgvException;
+    boolean doHandler(IRequest request, IResponse response) throws AgvException;
 
 }

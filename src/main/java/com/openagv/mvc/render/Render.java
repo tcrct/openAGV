@@ -33,7 +33,7 @@ public abstract class Render implements Serializable {
         response.setParams(HttpHeaderNames.CACHE_CONTROL.toString(), HttpHeaderValues.NO_CACHE.toString());
         response.setParams(HttpHeaderNames.EXPIRES.toString(), HttpHeaderValues.ZERO.toString());
         response.setParams(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
-        response.setStatus((response.getStatus()==200) ? HttpResponseStatus.OK.code() : response.getStatus());
+        response.setStatus((response.getStatus()==HttpResponseStatus.BAD_REQUEST.code()) ? HttpResponseStatus.OK.code() : response.getStatus());
     }
 
     public abstract void render();
