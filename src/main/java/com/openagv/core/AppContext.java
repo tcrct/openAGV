@@ -6,6 +6,7 @@ import com.openagv.core.interfaces.*;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
+import com.openagv.opentcs.telegrams.TelegramQueueDto;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -230,24 +231,25 @@ public class AppContext {
 
 
     /***电报队列，key为车辆，Value为所有响应的报文，服务器回复车辆上发的*/
-    private final static Map<String, LinkedBlockingQueue<Map<String, IResponse>>> TELEGRAM_QUEUE = new java.util.concurrent.ConcurrentHashMap<>();
+    private final static Map<String, LinkedBlockingQueue<Map<String, TelegramQueueDto>>> TELEGRAM_QUEUE = new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
      * 添加到队列
-     * @param deviceId 设备ID
-     * @param key 标识字段，用于确认握手关系
-     * @param response 返回对象
+     * @param queueDto 队列对象
      */
-    public static void setTelegramQueue(String deviceId, String key, IResponse response) {
+    public static void setTelegramQueue(TelegramQueueDto queueDto) {
+        String deviceId = queueDto.getDeviceId();
+        String key = queueDto.getHandshakeKey();
+        IResponse response = queueDto.getResponse();
         java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
         java.util.Objects.requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
         java.util.Objects.requireNonNull(response, "返回的对象不能为空");
-        LinkedBlockingQueue<Map<String,IResponse>> queue =  TELEGRAM_QUEUE.get(deviceId);
+        LinkedBlockingQueue<Map<String,TelegramQueueDto>> queue =  TELEGRAM_QUEUE.get(deviceId);
         if(ToolsKit.isEmpty(queue)) {
             queue = new LinkedBlockingQueue<>();
         }
-        queue.add(new HashMap<String, IResponse>(1){{
-          this.put(key,response);
+        queue.add(new HashMap<String, TelegramQueueDto>(1){{
+          this.put(key, queueDto);
         }});
         TELEGRAM_QUEUE.put(deviceId, queue);
     }
@@ -259,10 +261,17 @@ public class AppContext {
     public static boolean removeTelegramQueue(String deviceId, String key) {
         java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
         java.util.Objects.requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
-        LinkedBlockingQueue<Map<String,IResponse>> queue =  TELEGRAM_QUEUE.get(deviceId);
-        Map<String,IResponse> map = queue.peek();
+        LinkedBlockingQueue<Map<String,TelegramQueueDto>> queue =  TELEGRAM_QUEUE.get(deviceId);
+        Map<String,TelegramQueueDto> map = queue.peek();
         if(ToolsKit.isNotEmpty(queue) && map.containsKey(key)) {
             //移除并返回第一位的元素
+            TelegramQueueDto queueDto = map.get(key);
+            ICallback callback =queueDto.getCallback();
+            String requestId = queueDto.getReqeustId();
+            if(ToolsKit.isNotEmpty(callback) && ToolsKit.isNotEmpty(requestId)) {
+                // 回调机制，告诉系统这条指令可以完结了。
+                callback.call(deviceId, requestId);
+            }
             map.remove(key);
             queue.remove();
             logger.info("remove queue["+deviceId+"] key["+key+"] is success!");
@@ -270,24 +279,24 @@ public class AppContext {
         }
         return false;
     }
-    /***
-     * 返回集合中指定队列中第一个元素
-     * @param deviceId 设备ID
-     */
-    public static IResponse getFirstResponseByQueue(String deviceId) {
-        java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
-        LinkedBlockingQueue<Map<String, IResponse>> queue = TELEGRAM_QUEUE.get(deviceId);
-        if(ToolsKit.isEmpty(queue)) {
-            Map<String, IResponse> map = queue.peek();
-            if (ToolsKit.isNotEmpty(map)) {
-                return map.values().iterator().next();
-            }
-        }
-        return null;
-    }
+//    /***
+//     * 返回集合中指定队列中第一个元素
+//     * @param deviceId 设备ID
+//     */
+//    public static IResponse getFirstResponseByQueue(String deviceId) {
+//        java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
+//        LinkedBlockingQueue<Map<String, IResponse>> queue = TELEGRAM_QUEUE.get(deviceId);
+//        if(ToolsKit.isEmpty(queue)) {
+//            Map<String, IResponse> map = queue.peek();
+//            if (ToolsKit.isNotEmpty(map)) {
+//                return map.values().iterator().next();
+//            }
+//        }
+//        return null;
+//    }
 
     /***返回报文集合队列*/
-    public static  Map<String, LinkedBlockingQueue<Map<String, IResponse>>> getTelegramQueue() {
+    public static  Map<String, LinkedBlockingQueue<Map<String, TelegramQueueDto>>> getTelegramQueue() {
         return TELEGRAM_QUEUE;
     }
 

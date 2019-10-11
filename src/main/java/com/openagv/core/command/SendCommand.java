@@ -8,6 +8,7 @@ import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.RequestTask;
+import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.tools.ToolsKit;
 
@@ -35,6 +36,9 @@ public class SendCommand implements Command {
     public <T> T execute(Object object) {
         if(object instanceof List) {
            return (T)sendOrderCommand((List<IRequest>)object);
+        }
+        if(object instanceof OrderRequest) {
+            return (T)sendStateCommand((OrderRequest)object);
         }
         else if(object instanceof StateRequest) {
             return (T)sendStateCommand((StateRequest)object);

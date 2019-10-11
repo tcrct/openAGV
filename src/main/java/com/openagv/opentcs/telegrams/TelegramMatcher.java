@@ -58,9 +58,9 @@ public class TelegramMatcher {
         if (peekCurrentRequest().isPresent()) {
             IResponse response = peekCurrentRequest().get();
             if(AppContext.isHandshakeListener()) {
-                AppContext.setTelegramQueue(response.getDeviceId(),
+                AppContext.setTelegramQueue(new TelegramQueueDto(response.getDeviceId(),
                         response.getHandshakeKey(),
-                        response);
+                        response));
                 logger.info("添加到握手队列["+response.getDeviceId()+"]成功: "+ response.getHandshakeKey());
             }
             telegramSender.sendTelegram(response);

@@ -1,8 +1,6 @@
 package com.openagv.opentcs.telegrams;
 
-import java.io.Serializable;
-
-public class OrderRequest<T> extends AbsRequest {
+public class OrderRequest extends AbsRequest {
 
     public OrderRequest() {
         super(TelegramType.ORDER);
