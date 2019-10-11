@@ -5,6 +5,7 @@ import com.openagv.core.interfaces.IRequest;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -36,6 +37,9 @@ public abstract class AbsRequest implements IRequest {
     private Map<String, Object> paramMap = new HashMap<>();
     /**报文的原始字符串*/
     protected String originalTelegram;
+    /**协议对象*/
+    private Serializable bean;
+
 
     public AbsRequest(TelegramType type) {
         if (TelegramType.ORDER.equals(type)) {
@@ -68,9 +72,18 @@ public abstract class AbsRequest implements IRequest {
     public String getCmdKey(){
         return target;
     }
+    public void setProtocol(Serializable bean) {
+        this.bean = bean;
+    }
+    @Override
+    public Serializable getProtocol(){
+        return bean;
+    }
 
     /**
      * 目标请求路径，即协议指令里的功能命令
      */
     public abstract void setCmdKey(String target);
+
+
 }

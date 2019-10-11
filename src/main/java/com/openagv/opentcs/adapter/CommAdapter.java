@@ -13,6 +13,7 @@ import com.openagv.plugins.serialport.SerialPortManager;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
@@ -208,14 +209,16 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                             .command(cmd)
                             .model(getProcessModel())
                             .build());
+            if(response.getStatus() != HttpResponseStatus.OK.code()) {
+                throw new IllegalArgumentException(response.toString());
+            }
             // 将移动命令放入缓存池
             commandMap.put(cmd, response.getRequestId());
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
             logger.debug(getName()+": 将订单报文提交到消息队列完成");
         } catch (Exception e) {
-            logger.error(getName()+"将订单报文提交到消息队列失败: "+ cmd);
-            logger.error(e.getMessage(), e);
+            logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }
     }
 

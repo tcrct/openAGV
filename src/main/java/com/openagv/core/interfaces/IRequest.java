@@ -3,6 +3,7 @@ package com.openagv.core.interfaces;
 import com.openagv.opentcs.model.ProcessModel;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -46,9 +47,8 @@ public interface IRequest extends java.io.Serializable{
 //    /**取车辆移动命令*/
 //    MovementCommand getMovementCommand();
 //
-//    /**取车辆移动命令*/
-//    Object getContentBean();
-//
-//    /**设置*/
-//    void setContentBean(Object bean);
+    /**取协议对象*/
+    Serializable getProtocol();
+    /**设置协议对象*/
+    void setProtocol(java.io.Serializable bean);
 }

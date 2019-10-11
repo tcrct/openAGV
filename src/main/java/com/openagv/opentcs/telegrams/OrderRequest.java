@@ -1,6 +1,8 @@
 package com.openagv.opentcs.telegrams;
 
-public class OrderRequest extends AbsRequest {
+import java.io.Serializable;
+
+public class OrderRequest<T> extends AbsRequest {
 
     public OrderRequest() {
         super(TelegramType.ORDER);
@@ -19,4 +21,5 @@ public class OrderRequest extends AbsRequest {
     public void setCmdKey(String target) {
         super.target = target;
     }
+
 }
