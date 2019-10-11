@@ -38,7 +38,8 @@ public class AppContext {
     public static List<IHandler> AFTER_HEANDLER_LIST = new ArrayList<>();
     /**插件*/
     private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
-
+    /**自定义指令操作集合*/
+    private static final Map<String, ITemplate> ACTION_TEMPLATE_MAP = new HashMap<>();
     /**插件开启回调*/
     private static final List<IEnable> PLUGIN_ENABLE_LIST = new ArrayList<>();
 
@@ -209,6 +210,10 @@ public class AppContext {
     }
     public static CommunicationType getCommunicationType() {
         return COMMUNICATION_TYPE_ENUM;
+    }
+
+    public static Map<String, ITemplate> getActionTemplateMap() {
+        return ACTION_TEMPLATE_MAP;
     }
 
     /**

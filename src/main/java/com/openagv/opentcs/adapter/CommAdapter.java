@@ -217,8 +217,30 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
             logger.debug(getName()+": 将订单报文提交到消息队列完成");
+
+            //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
+            if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
+                executeOperation(cmd.getOperation());
+            }
+
         } catch (Exception e) {
             logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 执行自定义指令组合
+     * @param operation 指令组合标识字符串
+     */
+    private void executeOperation(String operation) {
+        requireNonNull(operation, "operation");
+        if (!isEnabled()) {
+            return;
+        }
+        ITemplate actionTemplate = AppContext.getActionTemplateMap().get(operation);
+        if(ToolsKit.isNotEmpty(actionTemplate)) {
+            logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
+            actionTemplate.execute();
         }
     }
 

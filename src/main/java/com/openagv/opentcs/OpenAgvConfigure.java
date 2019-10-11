@@ -5,14 +5,9 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IHandshakeListener;
-import com.openagv.tools.SettingUtils;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import org.apache.log4j.PropertyConfigurator;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
-import org.slf4j.LoggerFactory;
-
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
 
@@ -42,6 +37,7 @@ public abstract class OpenAgvConfigure {
         System.setProperty("file.encoding", "UTF-8");
 //        PropertyConfigurator.configure(configPath+File.separator+subDir+File.separator+"log4j.properties");
         logger.warn("OpenAgvConfigure init success");
+
     }
 
     public abstract ConnectionEventListener getConnectionEventListener();
@@ -49,7 +45,6 @@ public abstract class OpenAgvConfigure {
     public abstract MessageToMessageEncoder getEncoder();
     public abstract IDecomposeTelegram getDecomposeTelegram();
     public abstract IHandshakeListener getHandshakeListener();
-
 
 //    public static void main(String[] args) {
 //        new OpenTcsConfigure();
