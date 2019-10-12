@@ -40,7 +40,6 @@ public abstract class AbsRequest implements IRequest {
     /**协议对象*/
     private Serializable bean;
 
-
     public AbsRequest(TelegramType type) {
         if (TelegramType.ORDER.equals(type)) {
             orderRequestCount.increment();
@@ -85,5 +84,6 @@ public abstract class AbsRequest implements IRequest {
      */
     public abstract void setCmdKey(String target);
 
-
+    @Override
+    public abstract boolean isServerSend();
 }

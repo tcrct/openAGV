@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.core.interfaces.IEnable;
+import com.openagv.core.interfaces.IAction;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
@@ -51,6 +52,13 @@ public class Application {
 
     public Application plugins(List<IPlugin> plugins) {
         AppContext.getPluginList().addAll(plugins);
+        return this;
+    }
+
+    public Application actions(List<IAction> actions) {
+        for(IAction action : actions) {
+            AppContext.getActionTemplateMap().put(action.actionKey(), action);
+        }
         return this;
     }
 

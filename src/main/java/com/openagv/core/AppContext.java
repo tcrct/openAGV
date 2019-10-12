@@ -3,6 +3,7 @@ package com.openagv.core;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.interfaces.*;
+import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
@@ -39,7 +40,7 @@ public class AppContext {
     /**插件*/
     private static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
     /**自定义指令操作集合*/
-    private static final Map<String, ITemplate> ACTION_TEMPLATE_MAP = new HashMap<>();
+    private static final Map<String, IAction> ACTION_TEMPLATE_MAP = new HashMap<>();
     /**插件开启回调*/
     private static final List<IEnable> PLUGIN_ENABLE_LIST = new ArrayList<>();
 
@@ -212,7 +213,7 @@ public class AppContext {
         return COMMUNICATION_TYPE_ENUM;
     }
 
-    public static Map<String, ITemplate> getActionTemplateMap() {
+    public static Map<String, IAction> getActionTemplateMap() {
         return ACTION_TEMPLATE_MAP;
     }
 
@@ -243,12 +244,21 @@ public class AppContext {
      * @param queueDto 队列对象
      */
     public static void setTelegramQueue(TelegramQueueDto queueDto) {
+        if(ToolsKit.isEmpty(queueDto)) {
+            throw new NullPointerException("队列对象不能为空");
+        }
         String deviceId = queueDto.getDeviceId();
         String key = queueDto.getHandshakeKey();
         IResponse response = queueDto.getResponse();
-        java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
-        java.util.Objects.requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
-        java.util.Objects.requireNonNull(response, "返回的对象不能为空");
+        if(ToolsKit.isEmpty(deviceId)){
+            throw new NullPointerException("设备ID不能为空");
+        }
+        if(ToolsKit.isEmpty(key)){
+            throw new NullPointerException("标识字段不能为空，一般是指验证码之类的唯一标识字段");
+        }
+        if(ToolsKit.isEmpty(response)){
+            throw new NullPointerException("返回的对象不能为空");
+        }
         LinkedBlockingQueue<Map<String,TelegramQueueDto>> queue =  TELEGRAM_QUEUE.get(deviceId);
         if(ToolsKit.isEmpty(queue)) {
             queue = new LinkedBlockingQueue<>();
@@ -270,16 +280,24 @@ public class AppContext {
         Map<String,TelegramQueueDto> map = queue.peek();
         if(ToolsKit.isNotEmpty(queue) && map.containsKey(key)) {
             //移除并返回第一位的元素
-            TelegramQueueDto queueDto = map.get(key);
+            TelegramQueueDto toBeDeleteDto = map.get(key);
+            if(ToolsKit.isEmpty(toBeDeleteDto)) {
+                throw new AgvException("TelegramQueueDto is null");
+            }
+            //先复制
+            TelegramQueueDto queueDto = new TelegramQueueDto(toBeDeleteDto);
+            // 再删除
+            map.remove(key);
+            queue.remove();
+            logger.info("remove queue["+deviceId+"] key["+key+"] is success!");
+            // 指令队列中移除后再发送下一个指令
             ICallback callback =queueDto.getCallback();
             String requestId = queueDto.getReqeustId();
             if(ToolsKit.isNotEmpty(callback) && ToolsKit.isNotEmpty(requestId)) {
                 // 回调机制，告诉系统这条指令可以完结了。
                 callback.call(deviceId, requestId);
             }
-            map.remove(key);
-            queue.remove();
-            logger.info("remove queue["+deviceId+"] key["+key+"] is success!");
+
             return true;
         }
         return false;

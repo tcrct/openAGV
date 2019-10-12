@@ -19,10 +19,10 @@ public interface IRequest extends java.io.Serializable{
 //
     /**参数值KV集合*/
     Map<String, Object> getPropertiesMap();
-//
-//    /**请求路径*/
-//    String getRequestURI();
-//
+
+    /**是否是服务器/控制台发起的请求 */
+    boolean isServerSend();
+
     /**设置请求目的路径，即指令名称*/
     void setCmdKey(String cmdKey);
 
@@ -51,4 +51,5 @@ public interface IRequest extends java.io.Serializable{
     Serializable getProtocol();
     /**设置协议对象*/
     void setProtocol(java.io.Serializable bean);
+
 }

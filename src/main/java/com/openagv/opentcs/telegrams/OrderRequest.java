@@ -2,9 +2,7 @@ package com.openagv.opentcs.telegrams;
 
 public class OrderRequest extends AbsRequest {
 
-    public OrderRequest() {
-        super(TelegramType.ORDER);
-    }
+    public OrderRequest() {super(TelegramType.ORDER);}
 
     public OrderRequest(String telegram) {
         super(TelegramType.ORDER);
@@ -20,4 +18,8 @@ public class OrderRequest extends AbsRequest {
         super.target = target;
     }
 
+    @Override
+    public boolean isServerSend() {
+        return false;
+    }
 }

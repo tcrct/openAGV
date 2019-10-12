@@ -31,6 +31,11 @@ public class StateRequest extends AbsRequest {
         super(TelegramType.STATE);
     }
 
+    @Override
+    public boolean isServerSend() {
+        return true;
+    }
+
     private StateRequest(String vehicleName, String currentPointName, String nextPointName, String endPointName,
                          String finalOperation, ProcessModel processModel, MovementCommand command) {
         super(TelegramType.STATE);

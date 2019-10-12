@@ -7,11 +7,17 @@ package com.openagv.core.interfaces;
  *
  * @author Laotang
  */
-public interface ITemplate {
+public interface IAction {
+
+    /**
+     * 动作名称
+     * @return
+     */
+    String actionKey();
 
     /**
      *执行操作
      */
-    void execute();
+    void execute() throws Exception;
 
 }

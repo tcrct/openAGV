@@ -9,10 +9,10 @@ import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.StateRequesterTask;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
+import com.openagv.opentcs.telegrams.TelegramQueueDto;
 import com.openagv.plugins.serialport.SerialPortManager;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
-import gnu.io.SerialPort;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
@@ -217,12 +218,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
             logger.debug(getName()+": 将订单报文提交到消息队列完成");
-
-            //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
-            if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
-                executeOperation(cmd.getOperation());
-            }
-
         } catch (Exception e) {
             logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }
@@ -232,16 +227,24 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      * 执行自定义指令组合
      * @param operation 指令组合标识字符串
      */
-    private void executeOperation(String operation) {
-        requireNonNull(operation, "operation");
+    private void executeOperation(String operation) throws Exception {
+        operation = requireNonNull(operation, "operation is null");
         if (!isEnabled()) {
             return;
         }
-        ITemplate actionTemplate = AppContext.getActionTemplateMap().get(operation);
-        if(ToolsKit.isNotEmpty(actionTemplate)) {
-            logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
-            actionTemplate.execute();
+        IAction actionTemplate = AppContext.getActionTemplateMap().get(operation);
+        if(ToolsKit.isEmpty(actionTemplate)) {
+            actionTemplate = AppContext.getActionTemplateMap().get(operation.toUpperCase());
+            if(ToolsKit.isEmpty(actionTemplate)) {
+                actionTemplate = AppContext.getActionTemplateMap().get(operation.toLowerCase());
+            }
         }
+        if(ToolsKit.isEmpty(actionTemplate)) {
+            throw new NullPointerException("请先配置需要执行的自定义指令组合，名称需要一致，不区分大小写");
+        }
+        logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
+        actionTemplate.execute();
+
     }
 
     /**
@@ -249,9 +252,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     public synchronized void clearCommandQueue() {
-        logger.info("###########clearCommandQueue");
-        super.clearCommandQueue();
         commandMap.clear();
+        Queue<Map<String, TelegramQueueDto>> queue = AppContext.getTelegramQueue().get(getName());
+        if(ToolsKit.isNotEmpty(queue)) {
+            queue.clear();
+        }
+        super.clearCommandQueue();
+        logger.info("###########clearCommandQueue");
     }
 
     /***
@@ -266,8 +273,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         getProcessModel().setVehicleIdle(true);
 
-        if(ToolsKit.isNotEmpty(serialPortManager) || ToolsKit.isNotEmpty(udpServerChannelManager)) {
-            logger.warn("UDP或串口模式是以广播方式发送，所以退出connectVehicle方法");
+        if(ToolsKit.isNotEmpty(serialPortManager)) {
+            logger.warn("串口模式是以广播方式发送，退出connectVehicle方法");
+            return;
+        }
+
+        if(ToolsKit.isNotEmpty(udpServerChannelManager)) {
+            logger.warn("UDP模式不需要进行握手，退出connectVehicle方法");
             return;
         }
 
@@ -305,6 +317,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             channelManager = null;
             telegramMatcher = null;
             stateRequesterTask.disable();
+            clearCommandQueue();
             logger.warn("断开车辆连接 " + getName() + " 成功");
         } catch (Exception e) {
             logger.warn("断开车辆链接 " + getName() + " 时失败: " + e.getMessage(), e);
@@ -416,6 +429,15 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             // 唤醒处于等待状态的线程
             CommAdapter.this.notify();
             logger.info("Vehicle["+getName()+"] move to "+ currentPosition+" point is success!");
+
+            //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
+            if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
+                try {
+                    executeOperation(cmd.getOperation());
+                } catch (Exception e) {
+                    logger.error("执行自定义指令时出错: " + e.getMessage(), e);
+                }
+            }
         }
     }
 

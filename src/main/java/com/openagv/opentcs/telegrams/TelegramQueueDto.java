@@ -21,6 +21,10 @@ public class TelegramQueueDto implements Serializable {
     public TelegramQueueDto() {
     }
 
+    public TelegramQueueDto(TelegramQueueDto dto) {
+        this(dto.getDeviceId(),dto.getHandshakeKey(), dto.getReqeustId(), dto.getCallback(), dto.getResponse());
+    }
+
     public TelegramQueueDto(String deviceId, String handshakeKey, IResponse response) {
         this.deviceId = deviceId;
         this.handshakeKey = handshakeKey;

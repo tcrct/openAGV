@@ -54,7 +54,7 @@ public class TelegramMatcher {
 
     /**检查是否发送下一个请求*/
     public void checkForSendingNextRequest() {
-        logger.debug("检查是否发送下一个请求.");
+        logger.info("检查是否发送下一个请求.");
         if (peekCurrentRequest().isPresent()) {
             IResponse response = peekCurrentRequest().get();
             if(AppContext.isHandshakeListener()) {
