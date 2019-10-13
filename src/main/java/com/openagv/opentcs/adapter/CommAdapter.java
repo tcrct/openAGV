@@ -19,6 +19,7 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
+import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.util.ExplainedBoolean;
@@ -34,6 +35,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
+import static org.opentcs.data.model.Vehicle.Orientation.BACKWARD;
 
 /**
  * 通讯适配器
@@ -182,6 +184,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     }
     /**
      * 是否可以发送下一条指令
+     * 已发送的命令数小于车辆的容量，并且队列中至少有一个命令正在等待发送
      * @return true可以发送
      */
     @Override
@@ -189,7 +192,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         boolean isCanSendNextCommand =  super.canSendNextCommand()
                 && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
 
-        logger.debug("canSendNextCommand: " + isCanSendNextCommand);
+        logger.info(singleStepExecutionAllowed+"############canSendNextCommand: " + isCanSendNextCommand);
         return isCanSendNextCommand;
     }
 
@@ -217,7 +220,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             commandMap.put(cmd, response.getRequestId());
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
-            logger.debug(getName()+": 将订单报文提交到消息队列完成");
+            logger.info(getName()+": 将订单报文提交到消息队列完成");
         } catch (Exception e) {
             logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }
@@ -227,10 +230,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      * 执行自定义指令组合
      * @param operation 指令组合标识字符串
      */
-    private void executeOperation(String operation) throws Exception {
+    private boolean executeOperation(String operation)  {
         operation = requireNonNull(operation, "operation is null");
         if (!isEnabled()) {
-            return;
+            return false;
         }
         IAction actionTemplate = AppContext.getActionTemplateMap().get(operation);
         if(ToolsKit.isEmpty(actionTemplate)) {
@@ -243,8 +246,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             throw new NullPointerException("请先配置需要执行的自定义指令组合，名称需要一致，不区分大小写");
         }
         logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
-        actionTemplate.execute();
-
+        try {
+            actionTemplate.execute();
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     /**
@@ -432,6 +440,24 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
+                getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
+                logger.info("#########canSendNextCommand(): " + canSendNextCommand());
+
+                Route.Step step = cmd.getStep();
+                Vehicle.Orientation orientation = cmd.getStep().getVehicleOrientation();
+                long pathLength = step.getPath().getLength();
+                int maxVelocity;
+                switch (orientation) {
+                    case BACKWARD:
+                        maxVelocity = step.getPath().getMaxReverseVelocity();
+                        logger.info(pathLength +"           "+BACKWARD+" maxVelocity"+maxVelocity);
+                        break;
+                    default:
+                        maxVelocity = step.getPath().getMaxVelocity();
+                        logger.info(pathLength +"           maxVelocity"+maxVelocity);
+                        break;
+                }
+
                 try {
                     executeOperation(cmd.getOperation());
                 } catch (Exception e) {
