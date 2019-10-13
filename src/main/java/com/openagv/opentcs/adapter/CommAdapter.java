@@ -59,6 +59,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     // 定时发送任务器
     private StateRequesterTask stateRequesterTask;
 
+    //允许单步执行,默认为不允许，即没有选中
     private boolean singleStepExecutionAllowed = false;
 
     private final Map<MovementCommand, String> commandMap = new ConcurrentHashMap<>();
@@ -191,7 +192,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     protected synchronized boolean canSendNextCommand() {
         boolean isCanSendNextCommand =  super.canSendNextCommand()
                 && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
-
+        logger.info("super.canSendNextCommand(): " + super.canSendNextCommand());
         logger.info(singleStepExecutionAllowed+"############canSendNextCommand: " + isCanSendNextCommand);
         return isCanSendNextCommand;
     }
@@ -214,6 +215,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                             .model(getProcessModel())
                             .build());
             if(response.getStatus() != HttpResponseStatus.OK.code()) {
+                telegramMatcher.getTelegramSender().sendTelegram(response);
                 throw new IllegalArgumentException(response.toString());
             }
             // 将移动命令放入缓存池
@@ -440,7 +442,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
+                //设置为执行状态
                 getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
+                // 设置为允许单步执行，即等待取消单步执行
+                singleStepExecutionAllowed = true;
                 logger.info("#########canSendNextCommand(): " + canSendNextCommand());
 
                 Route.Step step = cmd.getStep();
@@ -459,7 +464,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                 }
 
                 try {
-                    executeOperation(cmd.getOperation());
+                    boolean isExceuteSuccess = executeOperation(cmd.getOperation());
+                    if(isExceuteSuccess) {
+                        // 如果自定义指令执行完成后，设置车辆为空闲状态
+                        getProcessModel().setVehicleState(Vehicle.State.IDLE);
+                        // 设置不允许单步执行。即恢复自动执行
+                        singleStepExecutionAllowed = false;
+                    }
                 } catch (Exception e) {
                     logger.error("执行自定义指令时出错: " + e.getMessage(), e);
                 }
