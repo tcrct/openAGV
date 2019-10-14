@@ -282,10 +282,8 @@ public class ProcessModel extends VehicleProcessModel implements VelocityListene
     }
 
     /**
-     * Returns this communication adapter's <em>single step mode</em> flag.
-     *
-     * @return <code>true</code> if, and only if, this adapter is currently in
-     * single step mode.
+     *返回此通信适配器的单步模式标志
+     *@return 如果返回true为单步模式
      */
     public synchronized boolean isSingleStepModeEnabled() {
         return singleStepModeEnabled;

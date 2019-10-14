@@ -13,6 +13,8 @@ public class TelegramQueueDto implements Serializable {
     private String handshakeKey;
     /**请求ID*/
     private String reqeustId;
+    /**命令名称*/
+    private String cmdKey;
     /**注册回调事件*/
     private ICallback callback;
     /**返回结果*/
@@ -22,21 +24,20 @@ public class TelegramQueueDto implements Serializable {
     }
 
     public TelegramQueueDto(TelegramQueueDto dto) {
-        this(dto.getDeviceId(),dto.getHandshakeKey(), dto.getReqeustId(), dto.getCallback(), dto.getResponse());
+        this(dto.getDeviceId(),dto.getHandshakeKey(), dto.getReqeustId(), dto.getCmdKey(), dto.getCallback(), dto.getResponse());
     }
 
-    public TelegramQueueDto(String deviceId, String handshakeKey, IResponse response) {
-        this.deviceId = deviceId;
-        this.handshakeKey = handshakeKey;
-        this.response = response;
+    public TelegramQueueDto(String deviceId, String handshakeKey, String reqeustId, String cmdKey,IResponse response) {
+        this(deviceId,handshakeKey,reqeustId,cmdKey,null, response);
     }
 
-    public TelegramQueueDto(String deviceId, String handshakeKey, String requestId, ICallback callback, IResponse response) {
+    public TelegramQueueDto(String deviceId, String handshakeKey, String requestId, String cmdKey, ICallback callback, IResponse response) {
         this.deviceId = deviceId;
         this.handshakeKey = handshakeKey;
         this.reqeustId = requestId;
         this.callback = callback;
         this.response = response;
+        this.cmdKey= cmdKey;
     }
 
     public String getDeviceId() {
@@ -79,14 +80,23 @@ public class TelegramQueueDto implements Serializable {
         this.reqeustId = reqeustId;
     }
 
+    public String getCmdKey() {
+        return cmdKey;
+    }
+
+    public void setCmdKey(String cmdKey) {
+        this.cmdKey = cmdKey;
+    }
+
     @Override
     public String toString() {
         return "TelegramQueueDto{" +
                 "deviceId='" + deviceId + '\'' +
                 ", handshakeKey='" + handshakeKey + '\'' +
                 ", reqeustId='" + reqeustId + '\'' +
+                ", cmdKey='" + cmdKey + '\'' +
                 ", callback=" + callback +
-                ", response=" + response +
+                ", response=" + response.toString() +
                 '}';
     }
 }

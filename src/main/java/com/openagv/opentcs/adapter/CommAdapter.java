@@ -19,7 +19,6 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
-import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.util.ExplainedBoolean;
@@ -32,10 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 import static java.util.Objects.requireNonNull;
-import static org.opentcs.data.model.Vehicle.Orientation.BACKWARD;
 
 /**
  * 通讯适配器
@@ -170,31 +168,19 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         return serialPortManager;
     }
 
-//    public TelegramMatcher getTelegramMatcher() {
-//        return telegramMatcher;
-//    }
-//
-//    public AgreementTemplate getTemplate() {
-//        return template;
-//    }
-
-
     public synchronized void trigger() {
         stateRequesterTask.disable();
-        singleStepExecutionAllowed = true;
+        getProcessModel().setSingleStepModeEnabled(true);
     }
     /**
      * 是否可以发送下一条指令
      * 已发送的命令数小于车辆的容量，并且队列中至少有一个命令正在等待发送
+     * 并且不是单步模式
      * @return true可以发送
      */
     @Override
     protected synchronized boolean canSendNextCommand() {
-        boolean isCanSendNextCommand =  super.canSendNextCommand()
-                && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
-        logger.info("super.canSendNextCommand(): " + super.canSendNextCommand());
-        logger.info(singleStepExecutionAllowed+"############canSendNextCommand: " + isCanSendNextCommand);
-        return isCanSendNextCommand;
+        return super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled());
     }
 
     /**
@@ -204,9 +190,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
-        requireNonNull(cmd, "cmd");
+        requireNonNull(cmd, "移动命令不能为空");
         logger.info("sendCommand:" + cmd);
-        singleStepExecutionAllowed = false;
         try {
             // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
             IResponse response = ToolsKit.sendCommand(
@@ -227,47 +212,19 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }
     }
-
-    /**
-     * 执行自定义指令组合
-     * @param operation 指令组合标识字符串
-     */
-    private boolean executeOperation(String operation)  {
-        operation = requireNonNull(operation, "operation is null");
-        if (!isEnabled()) {
-            return false;
-        }
-        IAction actionTemplate = AppContext.getActionTemplateMap().get(operation);
-        if(ToolsKit.isEmpty(actionTemplate)) {
-            actionTemplate = AppContext.getActionTemplateMap().get(operation.toUpperCase());
-            if(ToolsKit.isEmpty(actionTemplate)) {
-                actionTemplate = AppContext.getActionTemplateMap().get(operation.toLowerCase());
-            }
-        }
-        if(ToolsKit.isEmpty(actionTemplate)) {
-            throw new NullPointerException("请先配置需要执行的自定义指令组合，名称需要一致，不区分大小写");
-        }
-        logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
-        try {
-            actionTemplate.execute();
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
     /**
      * 清理命令队列
      */
     @Override
     public synchronized void clearCommandQueue() {
         commandMap.clear();
-        Queue<Map<String, TelegramQueueDto>> queue = AppContext.getTelegramQueue().get(getName());
+        Queue<TelegramQueueDto> queue = AppContext.getHandshakeTelegramQueue().get(getName());
         if(ToolsKit.isNotEmpty(queue)) {
             queue.clear();
+            logger.error("清除握手队列成功");
         }
         super.clearCommandQueue();
+        getProcessModel().setSingleStepModeEnabled(false);
         logger.info("###########clearCommandQueue");
     }
 
@@ -428,54 +385,96 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         if (ToolsKit.isNotEmpty(currentPosition)) {
             getProcessModel().setVehiclePosition(currentPosition);
         } else {
-            logger.warn("车辆移动点不能为空，请确保response.getTargetPointName()返回的内容是下一移动点名称");
+            logger.warn("车辆移动点不能为空，请确保response.setTargetPointName()设置了下一个移动点名称");
             return;
         }
+
         // Update GUI.
         synchronized (CommAdapter.this) {
-            MovementCommand cmd = getSentQueue().poll();
-            commandMap.remove(cmd);
-            getProcessModel().commandExecuted(cmd);
-            // 唤醒处于等待状态的线程
-            CommAdapter.this.notify();
-            logger.info("Vehicle["+getName()+"] move to "+ currentPosition+" point is success!");
-
+            MovementCommand currentCmd = getSentQueue().peek();
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
-            if(!cmd.isWithoutOperation() && cmd.isFinalMovement()) {
-                //设置为执行状态
-                getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
-                // 设置为允许单步执行，即等待取消单步执行
-                singleStepExecutionAllowed = true;
-                logger.info("#########canSendNextCommand(): " + canSendNextCommand());
-
-                Route.Step step = cmd.getStep();
-                Vehicle.Orientation orientation = cmd.getStep().getVehicleOrientation();
+            if(!currentCmd.isWithoutOperation() && currentCmd.isFinalMovement() && isContainActionsKey(currentCmd)) {
+                /*
+                Route.Step step = currentCmd.getStep();
+                Vehicle.Orientation orientation = step.getVehicleOrientation();
                 long pathLength = step.getPath().getLength();
                 int maxVelocity;
                 switch (orientation) {
                     case BACKWARD:
                         maxVelocity = step.getPath().getMaxReverseVelocity();
-                        logger.info(pathLength +"           "+BACKWARD+" maxVelocity"+maxVelocity);
+                        logger.info(pathLength +"           "+BACKWARD+" maxVelocity："+maxVelocity+"               orientation"+orientation);
                         break;
                     default:
                         maxVelocity = step.getPath().getMaxVelocity();
-                        logger.info(pathLength +"           maxVelocity"+maxVelocity);
+                        logger.info(pathLength +"           maxVelocity: "+maxVelocity+"               orientation"+orientation);
                         break;
                 }
+                 */
+                executeCustomCmds(currentCmd.getOperation());
+            } else {
+                executeMoveVehicleCmd();
+            }
+            // 唤醒处于等待状态的线程
+            CommAdapter.this.notify();
+        }
+    }
 
-                try {
-                    boolean isExceuteSuccess = executeOperation(cmd.getOperation());
-                    if(isExceuteSuccess) {
-                        // 如果自定义指令执行完成后，设置车辆为空闲状态
-                        getProcessModel().setVehicleState(Vehicle.State.IDLE);
-                        // 设置不允许单步执行。即恢复自动执行
-                        singleStepExecutionAllowed = false;
-                    }
-                } catch (Exception e) {
-                    logger.error("执行自定义指令时出错: " + e.getMessage(), e);
-                }
+    /**
+     * 最后执行的动作名称是否包含自定义模板集合中
+     * @param currentCmd
+     * @return
+     */
+    private boolean isContainActionsKey(MovementCommand currentCmd) {
+        String operation = currentCmd.getOperation();
+        IAction actionTemplate = AppContext.getCustomActionsQueue().get(operation);
+        if(ToolsKit.isEmpty(actionTemplate)) {
+            actionTemplate = AppContext.getCustomActionsQueue().get(operation.toUpperCase());
+            if(ToolsKit.isEmpty(actionTemplate)) {
+                actionTemplate = AppContext.getCustomActionsQueue().get(operation.toLowerCase());
             }
         }
+        if(ToolsKit.isEmpty(actionTemplate)) {
+            logger.info("请先配置需要执行的自定义指令组合，名称需要一致，不区分大小写");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 执行自定义指令组合
+     * @param operation 指令组合标识字符串
+     */
+    private void executeCustomCmds(String operation)  {
+        operation = requireNonNull(operation, "operation is null");
+        if (!isEnabled()) {
+            return ;
+        }
+        logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
+        try {
+            //设置为执行状态
+            getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
+            // 设置为允许单步执行，即等待自定义命令执行完成或某一指令取消单步操作模式后，再发送移动车辆命令。
+            getProcessModel().setSingleStepModeEnabled(true);
+            // 执行自定义指令队列
+            AppContext.getCustomActionsQueue().get(operation).execute();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 执行移动车辆命令
+     */
+    public void executeMoveVehicleCmd() {
+        logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
+        //车辆设置为空闲状态，执行下一个移动指令
+        getProcessModel().setVehicleState(Vehicle.State.IDLE);
+        // 取消单步执行状态
+        getProcessModel().setSingleStepModeEnabled(false);
+        MovementCommand cmd = getSentQueue().poll();
+        commandMap.remove(cmd);
+        getProcessModel().commandExecuted(cmd);
+        logger.info("Vehicle[" + getName() + "] move to " + cmd.getStep().getDestinationPoint().getName() + " point is success!");
     }
 
 
@@ -501,3 +500,5 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
 
 }
+
+

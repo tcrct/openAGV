@@ -57,7 +57,7 @@ public class Application {
 
     public Application actions(List<IAction> actions) {
         for(IAction action : actions) {
-            AppContext.getActionTemplateMap().put(action.actionKey(), action);
+            AppContext.getCustomActionsQueue().put(action.actionKey(), action);
         }
         return this;
     }
