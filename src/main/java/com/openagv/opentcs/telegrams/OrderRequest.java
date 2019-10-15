@@ -22,4 +22,5 @@ public class OrderRequest extends AbsRequest {
     public boolean isServerSend() {
         return false;
     }
+
 }

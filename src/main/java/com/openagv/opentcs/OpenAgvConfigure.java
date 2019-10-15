@@ -29,7 +29,7 @@ public abstract class OpenAgvConfigure {
         File dir = new File(configPath);
         configPath = dir.getParentFile().getAbsolutePath();
         logger.info("OpenTcsConfigure Path: {}", configPath);
-        System.setProperty("java.util.logging.config.file", configPath+File.separator+subDir+File.separator+"logging.config");
+//        System.setProperty("java.util.logging.config.file", configPath+File.separator+subDir+File.separator+"logging.config");
         System.setProperty("java.security.policy", configPath +File.separator+subDir+File.separator+ "java.policy");
         System.setProperty("opentcs.base", configPath);
         System.setProperty("opentcs.home", ".");

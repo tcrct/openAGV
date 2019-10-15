@@ -39,6 +39,8 @@ public abstract class AbsRequest implements IRequest {
     protected String originalTelegram;
     /**协议对象*/
     private Serializable bean;
+    /**类似标识符，区分request/response对象*/
+    protected String type;
 
     public AbsRequest(TelegramType type) {
         if (TelegramType.ORDER.equals(type)) {
@@ -48,7 +50,7 @@ public abstract class AbsRequest implements IRequest {
         }
     }
 
-    protected enum TelegramType {
+    public enum TelegramType {
         ORDER, STATE
     }
 
@@ -86,4 +88,5 @@ public abstract class AbsRequest implements IRequest {
 
     @Override
     public abstract boolean isServerSend();
+
 }
