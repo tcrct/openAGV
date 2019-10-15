@@ -5,6 +5,11 @@ import com.openagv.core.interfaces.IResponse;
 
 import java.io.Serializable;
 
+/**
+ * 存放在握手对队里的报文对象Dto
+ *
+ * @author Laotang
+ */
 public class TelegramQueueDto implements Serializable {
 
     /**设备/车辆ID*/
