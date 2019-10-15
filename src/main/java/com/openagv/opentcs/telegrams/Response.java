@@ -21,6 +21,10 @@ public class Response implements IResponse {
     private Object returnObj;
     private String deviceId;
 
+    public Response() {
+
+    }
+
     private Response(String requestId) {
         this.params = new HashMap<>();
         this.requestId = requestId;
