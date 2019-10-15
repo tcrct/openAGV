@@ -1,8 +1,9 @@
 package com.openagv.opentcs.adapter;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+import com.openagv.core.AppContext;
+import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.ToolsKit;
+import org.apache.log4j.Logger;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterFactory;
@@ -20,7 +21,7 @@ import static org.opentcs.util.Assertions.checkInRange;
  */
 public class CommAdapterFactory implements VehicleCommAdapterFactory {
 
-    private static final Log logger = LogFactory.get();
+    private static final Logger logger = Logger.getLogger(CommAdapterFactory.class);
 
     private ComponentsFactory componentsFactory;
 
@@ -70,21 +71,26 @@ public class CommAdapterFactory implements VehicleCommAdapterFactory {
 
     @Override
     public boolean providesAdapterFor(Vehicle vehicle) {
-        java.util.Objects.requireNonNull(vehicle,"vehicle");
-        if (ToolsKit.isEmpty(ToolsKit.getVehicleHostName())) {
-            return false;
+        java.util.Objects.requireNonNull(vehicle,"vehicle is null");
+        // 如果不是串口的方式，必须要先设置车辆的Host及Port
+        if(!CommunicationType.SERIALPORT.equals(AppContext.getCommunicationType())) {
+            if (ToolsKit.isEmpty(ToolsKit.getVehicleHostName())) {
+                logger.error("车辆没有设置Host，请先设置");
+                return false;
+            }
+            if (ToolsKit.isEmpty(ToolsKit.getVehiclePortName())) {
+                logger.error("车辆没有设置Port，请先设置");
+                return false;
+            }
+            try {
+                // 端口设置范围
+                int port = Integer.parseInt(vehicle.getProperty(ToolsKit.getVehiclePortName()));
+                checkInRange(port, ToolsKit.getMinPort(), ToolsKit.getMaxPort(), "port value");
+            } catch (IllegalArgumentException e) {
+                logger.error(e.getMessage(), e);
+                return false;
+            }
         }
-        if (ToolsKit.isEmpty(ToolsKit.getVehiclePortName())) {
-            return false;
-        }
-        try {
-            // 端口设置范围
-            int port = Integer.parseInt(vehicle.getProperty(ToolsKit.getVehiclePortName()));
-            checkInRange(port,ToolsKit.getMinPort(),ToolsKit.getMaxPort(), "port value");
-        } catch (IllegalArgumentException exc) {
-            return false;
-        }
-
         return true;
     }
 
