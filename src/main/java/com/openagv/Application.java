@@ -4,6 +4,8 @@ package com.openagv;
 import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
+import com.openagv.core.handshake.HandshakeTelegramDto;
+import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IAction;
 import com.openagv.opentcs.OpenAgvConfigure;

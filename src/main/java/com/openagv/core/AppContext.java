@@ -2,12 +2,13 @@ package com.openagv.core;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.*;
 import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
-import com.openagv.opentcs.telegrams.TelegramQueueDto;
+import com.openagv.core.handshake.HandshakeTelegramDto;
 import com.openagv.route.Route;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -244,78 +245,8 @@ public class AppContext {
      * 用于消息握手机制，必须进行消息握手确认处理，如握手不成功，则阻塞该车辆的消息发送，直至握手确认成功
      * 确认成功后，会移除顶部位置的报文对象
      * */
-    private final static Map<String, LinkedBlockingQueue<TelegramQueueDto>> HANDSHAKE_TELEGRAM_QUEUE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static HandshakeTelegramQueue HANDSHAKE_TELEGRAM_QUEUE = null;
 
-    /**
-     * 添加到队列
-     * @param queueDto 队列对象
-     */
-    public static void setHandshakeTelegramQueue(TelegramQueueDto queueDto) {
-        if(ToolsKit.isEmpty(queueDto)) {
-            throw new NullPointerException("队列对象不能为空");
-        }
-        String deviceId = queueDto.getDeviceId();
-        String key = queueDto.getHandshakeKey();
-        IResponse response = queueDto.getResponse();
-        if(ToolsKit.isEmpty(deviceId)){
-            throw new NullPointerException("设备ID不能为空");
-        }
-        if(ToolsKit.isEmpty(key)){
-            throw new NullPointerException("标识字段不能为空，一般是指验证码之类的唯一标识字段");
-        }
-        if(ToolsKit.isEmpty(response)){
-            throw new NullPointerException("返回的对象不能为空");
-        }
-        LinkedBlockingQueue<TelegramQueueDto> queue =  HANDSHAKE_TELEGRAM_QUEUE.get(deviceId);
-        if(ToolsKit.isEmpty(queue)) {
-            queue = new LinkedBlockingQueue<>();
-        }
-        // 添加到队列
-        queue.add(queueDto);
-        HANDSHAKE_TELEGRAM_QUEUE.put(deviceId, queue);
-    }
-    /**
-     * 移除元素
-     * @param deviceId 设备ID
-     * @param key 标识字段，用于确认握手关系
-     */
-    public static void removeTelegramQueue(String deviceId, String key) {
-        java.util.Objects.requireNonNull(deviceId, "设备ID不能为空");
-        java.util.Objects.requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
-        LinkedBlockingQueue<TelegramQueueDto> queue =  HANDSHAKE_TELEGRAM_QUEUE.get(deviceId);
-        if(ToolsKit.isEmpty(queue)) {
-            throw new AgvException("handshake queue is null");
-        }
-        TelegramQueueDto toBeDeleteDto = queue.peek();
-        if(ToolsKit.isEmpty(toBeDeleteDto)) {
-            throw new AgvException("TelegramQueueDto is null");
-        }
-        String handshakeKey = toBeDeleteDto.getHandshakeKey();
-        if(ToolsKit.isNotEmpty(queue) && ToolsKit.isNotEmpty(handshakeKey) && handshakeKey.equals(key)) {
-            //先复制 ??
-            TelegramQueueDto queueDto = new TelegramQueueDto(toBeDeleteDto);
-            // 再移除第一位元素对象
-            queue.remove();
-            logger.info("remove vehicle["+deviceId+"] queueDto["+queueDto.toString()+"] is success!");
-            // 指令队列中移除后再发送下一个指令
-            ICallback callback =queueDto.getCallback();
-            String requestId = queueDto.getReqeustId();
-            if(ToolsKit.isNotEmpty(callback) && ToolsKit.isNotEmpty(requestId)) {
-                // 回调机制，告诉系统这条指令可以完结了。
-                try {
-                    callback.call(deviceId, requestId);
-                } catch (Exception e) {
-                    throw new AgvException(e.getMessage(), e);
-                }
-            }
-        }
-        if(ToolsKit.isEmpty(handshakeKey)) {
-            throw new AgvException("握手key不能为空");
-        }
-        if(!handshakeKey.equals(key)) {
-            throw new AgvException("提交上来的报文handshakeKey["+key+"]与系统队列中handshakeKey["+handshakeKey+"]不一致！");
-        }
-    }
 //    /***
 //     * 返回集合中指定队列中第一个元素
 //     * @param deviceId 设备ID
@@ -331,10 +262,4 @@ public class AppContext {
 //        }
 //        return null;
 //    }
-
-    /***返回报文集合队列*/
-    public static  Map<String, LinkedBlockingQueue<TelegramQueueDto>> getHandshakeTelegramQueue() {
-        return HANDSHAKE_TELEGRAM_QUEUE;
-    }
-
 }

@@ -31,9 +31,9 @@ public interface IRequest extends java.io.Serializable{
 //
     /**取报文的原始字符串*/
     String getOriginalTelegram();
-//
-//    /**转换为Bean*/
-//    <T> T asBean(Class<T> clazz);
+
+    /**请求类型*/
+    String getRequestType();
 //
 //    /**发送车辆进程参数模型*/
 //    void setModel(ProcessModel processModel);

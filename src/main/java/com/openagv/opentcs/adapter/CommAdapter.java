@@ -9,7 +9,7 @@ import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.StateRequesterTask;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
-import com.openagv.opentcs.telegrams.TelegramQueueDto;
+import com.openagv.core.handshake.HandshakeTelegramDto;
 import com.openagv.plugins.serialport.SerialPortManager;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
@@ -218,11 +218,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Override
     public synchronized void clearCommandQueue() {
         commandMap.clear();
-        Queue<TelegramQueueDto> queue = AppContext.getHandshakeTelegramQueue().get(getName());
-        if(ToolsKit.isNotEmpty(queue)) {
-            queue.clear();
-            logger.error("清除握手队列成功");
-        }
+        AppContext.getAgvConfigure().getHandshakeTelegramQueue().clearQueue();
+        logger.error("清除握手队列成功");
         super.clearCommandQueue();
         getProcessModel().setSingleStepModeEnabled(false);
         logger.info("###########clearCommandQueue");
@@ -235,8 +232,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     protected void connectVehicle() {
         logger.info("###########connectVehicle");
         // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
-//        getProcessModel().setVehiclePosition("36");
-        getProcessModel().setVehiclePosition("1");
+        getProcessModel().setVehiclePosition("36");
+//        getProcessModel().setVehiclePosition("1");
 //        getProcessModel().setVehiclePosition("705");
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         getProcessModel().setVehicleIdle(true);

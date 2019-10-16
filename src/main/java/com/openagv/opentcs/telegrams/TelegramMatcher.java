@@ -1,6 +1,8 @@
 package com.openagv.opentcs.telegrams;
 
 import com.openagv.core.AppContext;
+import com.openagv.core.handshake.HandshakeTelegramDto;
+import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
 import com.openagv.tools.ToolsKit;
@@ -27,9 +29,12 @@ public class TelegramMatcher {
 
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
+    /**握手对象*/
+    private HandshakeTelegramQueue handshakeTelegramQueue;
 
     public TelegramMatcher(ITelegramSender telegramSender) {
         this.telegramSender = requireNonNull(telegramSender, "telegramSender");
+        handshakeTelegramQueue = AppContext.getAgvConfigure().getHandshakeTelegramQueue();
     }
 
     public ITelegramSender getTelegramSender() {
@@ -58,11 +63,7 @@ public class TelegramMatcher {
         if (peekCurrentRequest().isPresent()) {
             IResponse response = peekCurrentRequest().get();
             if(AppContext.isHandshakeListener()) {
-                AppContext.setHandshakeTelegramQueue(new TelegramQueueDto(response.getDeviceId(),
-                        response.getHandshakeKey(),
-                        response.getRequestId(),
-                        response.getCmdKey(),
-                        response));
+                handshakeTelegramQueue.add(new HandshakeTelegramDto(response));
                 logger.info("添加到握手队列["+response.getDeviceId()+"]成功: "+ response.getHandshakeKey());
             }
             telegramSender.sendTelegram(response);

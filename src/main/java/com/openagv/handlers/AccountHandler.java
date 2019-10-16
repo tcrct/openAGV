@@ -2,6 +2,7 @@ package com.openagv.handlers;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.openagv.core.AppContext;
+import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.BaseController;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
@@ -36,17 +37,20 @@ public class AccountHandler {
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");
         Object object = route.getInjectObject();
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应处理类对象");
-        if(ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
-            Object resultObj = ReflectUtil.invoke(object, target, request, response);
-            logger.info("逻辑处理后返回报文："+ resultObj);
-            response.write(resultObj);
-        }
-        else if(ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
-            BaseController controllerObj = (BaseController) route.getInjectObject();
-            controllerObj.init(request, response);
-            Object resultObj = ReflectUtil.invoke(controllerObj, target, request);
-            logger.info("openAGV返回报文："+ resultObj);
-            controllerObj.getRender(resultObj).setContext(request, response).render();
+        try {
+            if (ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
+                Object resultObj = ReflectUtil.invoke(object, target, request, response);
+                logger.info("逻辑处理后返回报文：" + resultObj);
+                response.write(resultObj);
+            } else if (ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
+                BaseController controllerObj = (BaseController) route.getInjectObject();
+                controllerObj.init(request, response);
+                Object resultObj = ReflectUtil.invoke(controllerObj, target, request);
+                logger.info("openAGV返回报文：" + resultObj);
+                controllerObj.getRender(resultObj).setContext(request, response).render();
+            }
+        } catch (Exception e) {
+            throw new AgvException(e.getMessage(),e);
         }
     }
 

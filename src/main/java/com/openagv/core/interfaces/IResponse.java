@@ -50,7 +50,7 @@ public interface IResponse extends java.io.Serializable{
 
     /**
      * 设置返回状态标识
-     * @return
+     * @return  状态标识
      */
     void setStatus(int status);
 
@@ -62,7 +62,7 @@ public interface IResponse extends java.io.Serializable{
 
     /**
      * 设置目标位置点名称
-     * @return
+     * @return 目标点名称
      */
     void setNextPointName(String pointName);
 
@@ -74,7 +74,7 @@ public interface IResponse extends java.io.Serializable{
 
     /**
      * 设置请求指令
-     * @param key
+     * @param key 指令关键字
      */
     void setCmdKey(String key);
 
@@ -92,14 +92,26 @@ public interface IResponse extends java.io.Serializable{
 
     /**
      * 设置设备ID
-     * @param deviceId
+     * @param deviceId  设备ID
      */
     void setDeviceId(String deviceId);
 
-
-    /**设置握手标识字段*/
+    /**
+     * 设置握手标识字段
+     * @param key 标识字段
+     */
     void setHandshakeKey(String key);
-    /**取得握手标识字段*/
+
+    /**
+     * 取得握手标识字段
+     */
     String getHandshakeKey();
+
+    void setServerSend(boolean isServerSend);
+
+    boolean isServerSend();
+
+    boolean isHandshakeList();
+    void setHandshakeListener(boolean isHandshakeList);
 
 }

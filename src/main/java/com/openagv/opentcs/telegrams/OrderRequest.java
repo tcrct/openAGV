@@ -23,4 +23,8 @@ public class OrderRequest extends AbsRequest {
         return false;
     }
 
+    @Override
+    public String getRequestType() {
+        return OrderRequest.class.getSimpleName().toLowerCase();
+    }
 }

@@ -89,4 +89,7 @@ public abstract class AbsRequest implements IRequest {
     @Override
     public abstract boolean isServerSend();
 
+    @Override
+    public abstract String getRequestType();
+
 }

@@ -36,6 +36,11 @@ public class StateRequest extends AbsRequest {
         return true;
     }
 
+    @Override
+    public String getRequestType() {
+        return StateRequest.class.getSimpleName().toLowerCase();
+    }
+
     private StateRequest(String vehicleName, String currentPointName, String nextPointName, String endPointName,
                          String finalOperation, ProcessModel processModel, MovementCommand command) {
         super(TelegramType.STATE);

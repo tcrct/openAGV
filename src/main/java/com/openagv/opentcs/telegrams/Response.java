@@ -20,6 +20,8 @@ public class Response implements IResponse {
     private String cmdKey;
     private Object returnObj;
     private String deviceId;
+    private boolean isServerSend;
+    private boolean isHandshakeList;
 
     public Response() {
 
@@ -121,5 +123,27 @@ public class Response implements IResponse {
     @Override
     public String getHandshakeKey() {
         return String.valueOf(params.get(IResponse.HANDSHAKE_NAME));
+    }
+
+    @Override
+    public void setServerSend(boolean isServerSend) {
+        this.isServerSend = isServerSend;
+    }
+
+    @Override
+    public boolean isServerSend() {
+        return isServerSend;
+    }
+
+
+    @Override
+    public void setHandshakeListener(boolean isHandshakeList) {
+        this.isHandshakeList = isHandshakeList;
+    }
+
+
+    @Override
+    public boolean isHandshakeList() {
+        return isHandshakeList;
     }
 }
