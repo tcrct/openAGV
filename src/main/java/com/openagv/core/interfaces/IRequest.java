@@ -1,8 +1,5 @@
 package com.openagv.core.interfaces;
 
-import com.openagv.opentcs.model.ProcessModel;
-import org.opentcs.drivers.vehicle.MovementCommand;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -19,9 +16,6 @@ public interface IRequest extends java.io.Serializable{
 //
     /**参数值KV集合*/
     Map<String, Object> getPropertiesMap();
-
-    /**是否是服务器/控制台发起的请求 */
-    boolean isServerSend();
 
     /**设置请求目的路径，即指令名称*/
     void setCmdKey(String cmdKey);

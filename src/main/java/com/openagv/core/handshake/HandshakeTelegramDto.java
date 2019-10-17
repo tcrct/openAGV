@@ -3,7 +3,6 @@ package com.openagv.core.handshake;
 import com.openagv.core.interfaces.ICallback;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
-import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.tools.ToolsKit;
 import org.apache.log4j.Logger;
 
@@ -70,7 +69,6 @@ public class HandshakeTelegramDto implements Serializable {
             return "";
         }
         return "HandshakeTelegramDto{" +
-                "isServerSend=" + response.isServerSend() +
                 ", cmdKey=" + response.getCmdKey() +
                 ", handshakeKey=" + response.getHandshakeKey() +
                 ", telegram=" + response.toString() +

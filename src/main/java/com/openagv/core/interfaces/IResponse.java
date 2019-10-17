@@ -107,10 +107,6 @@ public interface IResponse extends java.io.Serializable{
      */
     String getHandshakeKey();
 
-    void setServerSend(boolean isServerSend);
-
-    boolean isServerSend();
-
     boolean isHandshakeList();
     void setHandshakeListener(boolean isHandshakeList);
 

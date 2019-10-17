@@ -19,11 +19,6 @@ public class OrderRequest extends AbsRequest {
     }
 
     @Override
-    public boolean isServerSend() {
-        return false;
-    }
-
-    @Override
     public String getRequestType() {
         return OrderRequest.class.getSimpleName().toLowerCase();
     }

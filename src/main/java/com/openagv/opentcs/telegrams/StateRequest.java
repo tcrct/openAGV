@@ -32,11 +32,6 @@ public class StateRequest extends AbsRequest {
     }
 
     @Override
-    public boolean isServerSend() {
-        return true;
-    }
-
-    @Override
     public String getRequestType() {
         return StateRequest.class.getSimpleName().toLowerCase();
     }
