@@ -92,4 +92,8 @@ public class HandshakeTelegramQueue {
             HANDSHAKE_TELEGRAM_QUEUE.clear();
         }
     }
+
+    public boolean containsKey(String key) {
+        return HANDSHAKE_TELEGRAM_QUEUE.containsKey(key);
+    }
 }

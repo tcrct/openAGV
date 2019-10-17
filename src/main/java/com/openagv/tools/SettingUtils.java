@@ -62,7 +62,7 @@ public class SettingUtils {
     public static Set<String> getStringsToSet(String key,String group) {
         String[] stringArray = getStringArray(key, group);
         Set<String> set = new HashSet<>();
-        if(null == stringArray) {
+        if(ToolsKit.isEmpty(stringArray)) {
             return set;
         }
         for(String str : stringArray) {

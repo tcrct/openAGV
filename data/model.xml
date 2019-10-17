@@ -1,97 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model version="0.0.2" name="demo20190923-1">
-    <point name="31" xPosition="21500" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="31 --- 35"/>
-        <property name="direction" value="right"/>
+<model version="0.0.2" name="Roller">
+    <point name="1" xPosition="6000" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="1 --- 2"/>
     </point>
-    <point name="310" xPosition="35500" yPosition="26000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="310 --- 31"/>
-        <property name="direction" value="right"/>
+    <point name="2" xPosition="36000" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="2 --- 1"/>
     </point>
-    <point name="35" xPosition="5500" yPosition="24500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="35 --- 36"/>
-        <property name="direction" value="right"/>
-    </point>
-    <point name="36" xPosition="21000" yPosition="32500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="36 --- 310"/>
-        <property name="direction" value="right"/>
-    </point>
-    <path name="31 --- 35" sourcePoint="31" destinationPoint="35" length="17464" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="310 --- 31" sourcePoint="310" destinationPoint="31" length="16378" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="35 --- 36" sourcePoint="35" destinationPoint="36" length="17443" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="36 --- 310" sourcePoint="36" destinationPoint="310" length="15890" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <vehicle name="A002" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
-        <property name="host" value="192.168.8.181"/>
+    <path name="1 --- 2" sourcePoint="1" destinationPoint="2" length="1000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="2 --- 1" sourcePoint="2" destinationPoint="1" length="30000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <vehicle name="A010" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="0" type="">
+        <property name="host" value="192.168.8.162"/>
         <property name="port" value="60000"/>
         <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
     </vehicle>
     <locationType name="LType-0001">
         <allowedOperation name="NOP"/>
+        <allowedOperation name="Roller"/>
     </locationType>
-    <location name="work1" xPosition="10500" yPosition="25000" zPosition="0" type="LType-0001">
-        <link point="35"/>
+    <location name="load" xPosition="8000" yPosition="17000" zPosition="0" type="LType-0001">
+        <link point="1"/>
         <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC"/>
     </location>
-    <location name="work2" xPosition="30500" yPosition="25000" zPosition="0" type="LType-0001">
-        <link point="310"/>
+    <location name="unload" xPosition="10000" yPosition="15000" zPosition="0" type="LType-0001">
+        <link point="2"/>
         <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC"/>
     </location>
     <visualLayout name="VLayout-1" scaleX="50.0" scaleY="50.0">
-        <modelLayoutElement visualizedObjectName="31" layer="0">
+        <modelLayoutElement visualizedObjectName="1" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="21250"/>
-            <property name="POSITION_Y" value="14250"/>
+            <property name="POSITION_X" value="35250"/>
+            <property name="POSITION_Y" value="17250"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="31 --- 35" layer="0">
+        <modelLayoutElement visualizedObjectName="1 --- 2" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="240,-260;30,-300"/>
+            <property name="CONTROL_POINTS" value="700,-170;60,-170"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="310" layer="0">
+        <modelLayoutElement visualizedObjectName="2" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="41750"/>
-            <property name="POSITION_Y" value="24750"/>
+            <property name="POSITION_X" value="2750"/>
+            <property name="POSITION_Y" value="17250"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="310 --- 31" layer="0">
+        <modelLayoutElement visualizedObjectName="2 --- 1" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="850,-320;710,-260"/>
+            <property name="CONTROL_POINTS" value="50,-160;680,-180"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="35" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="1250"/>
-            <property name="POSITION_Y" value="24250"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="35 --- 36" layer="0">
-            <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="30,-660;280,-690"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="36" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="21250"/>
-            <property name="POSITION_Y" value="33750"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="36 --- 310" layer="0">
-            <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="620,-680;810,-670"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="A002" layer="0">
+        <modelLayoutElement visualizedObjectName="A010" layer="0">
             <property name="ROUTE_COLOR" value="#FF0000"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="work1" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
+        <modelLayoutElement visualizedObjectName="load" layer="0">
+            <property name="LABEL_OFFSET_X" value="0"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="10500"/>
-            <property name="POSITION_Y" value="25000"/>
+            <property name="POSITION_X" value="24250"/>
+            <property name="POSITION_Y" value="16250"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="work2" layer="0">
+        <modelLayoutElement visualizedObjectName="unload" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="30500"/>
-            <property name="POSITION_Y" value="25000"/>
+            <property name="POSITION_X" value="13750"/>
+            <property name="POSITION_Y" value="16250"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-10-09T07:32:40.981Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-10-17T06:52:12.507Z"/>
 </model>

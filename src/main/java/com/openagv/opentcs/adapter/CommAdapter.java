@@ -207,7 +207,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             commandMap.put(cmd, response.getRequestId());
             // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
             telegramMatcher.enqueueRequestTelegram(response);
-            logger.info(getName()+": 将订单报文提交到消息队列完成");
+            logger.info(getName()+": 将车辆移动报文提交到消息队列完成");
         } catch (Exception e) {
             logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }

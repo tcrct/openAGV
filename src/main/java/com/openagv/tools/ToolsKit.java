@@ -51,7 +51,7 @@ public class ToolsKit {
         if (null == obj) {
             return bool;
         }
-        else if (obj == "" || "".equals(obj)) {
+        else if (obj == "" || "".equals(obj) || "null".equalsIgnoreCase(String.valueOf(obj))) {
             return bool;
         }
         else if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
