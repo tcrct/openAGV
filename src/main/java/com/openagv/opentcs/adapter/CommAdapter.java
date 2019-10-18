@@ -19,9 +19,11 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
+import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.util.ExplainedBoolean;
+import org.opentcs.virtualvehicle.VelocityController;
 
 
 import javax.annotation.Nonnull;
@@ -390,6 +392,25 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // Update GUI.
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
+//            Route.Step step = currentCmd.getStep();
+//            Vehicle.Orientation orientation = step.getVehicleOrientation();
+//            long pathLength = step.getPath().getLength();
+//            int maxVelocity;
+//            switch (orientation) {
+//                case BACKWARD:
+//                    maxVelocity = step.getPath().getMaxReverseVelocity();
+//                    break;
+//                default:
+//                    maxVelocity = step.getPath().getMaxVelocity();
+//                    break;
+//            }
+//            String pointName = step.getDestinationPoint().getName();
+//            getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
+//            getProcessModel().getVelocityController().addWayEntry(new VelocityController.WayEntry(pathLength,
+//                    maxVelocity,
+//                    pointName,
+//                    orientation));
+//            System.out.println("#########$$$$$$$$$$$$$$$$$$$$$orientation: " + orientation.name());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!currentCmd.isWithoutOperation() && currentCmd.isFinalMovement() && isContainActionsKey(currentCmd)) {
                 /*

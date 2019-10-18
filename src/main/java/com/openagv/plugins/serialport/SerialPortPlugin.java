@@ -5,6 +5,7 @@ import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
+import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.enums.CommunicationType;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
@@ -85,7 +86,11 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
     public Object enable() {
         final SerialPort serialPort = AppContext.getSerialPort();
         if(null == serialPort) {
-            return false;
+            try {
+                start();
+            } catch (Exception e) {
+                throw new AgvException(e.getMessage(), e);
+            }
         }
         eventListener.onConnect();
         SerialPortManager serialPortManager = SerialPortManager.duang();
