@@ -2,6 +2,7 @@ package com.openagv.opentcs.telegrams;
 
 import com.openagv.core.AppContext;
 import com.openagv.opentcs.model.ProcessModel;
+import com.openagv.tools.ToolsKit;
 import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
@@ -70,7 +71,7 @@ public class StateRequest extends AbsRequest {
         public StateRequest build() {
             StateRequest stateRequest = new StateRequest(
                     processModel.getVehicleReference().getName(),
-                    step.getSourcePoint().getName(),
+                    ToolsKit.isEmpty(step.getSourcePoint()) ? step.getDestinationPoint().getName() : step.getSourcePoint().getName(),
                     step.getDestinationPoint().getName(),
                     movementCommand.getFinalDestination().getName(),
                     movementCommand.getFinalOperation(),

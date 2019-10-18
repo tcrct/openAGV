@@ -102,7 +102,8 @@ public class TelegramMatcher {
         IResponse currentRequestTelegram = requests.peek();
         // 判断该回复里的请求到达点与队列里的是否一致，如果一致，则返回true
         if(ToolsKit.isNotEmpty(currentRequestTelegram) &&
-                responseTelegram.getNextPointName().equals(currentRequestTelegram.getNextPointName())){
+//                responseTelegram.getHandshakeKey().equals(currentRequestTelegram.getHandshakeKey()) ||
+                responseTelegram.getNextPointName().equals(currentRequestTelegram.getNextPointName())) {
             // 在队列中移除第一位的
             requests.remove();
             logger.info("匹配成功，在队列中移除第一位的元素记录");
