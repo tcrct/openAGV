@@ -180,11 +180,7 @@ public class ToolsKit {
             decomposeTelegram = AppContext.getAgvConfigure().getDecomposeTelegram();
             java.util.Objects.requireNonNull(decomposeTelegram, "请先实现OpenAgvConfigure类里的getDecomposeTelegram方法");
         }
-        List<IRequest> requestList = decomposeTelegram.handle(new OrderRequest(telegram));
-        if(ToolsKit.isEmpty(requestList)) {
-            throw new AgvException("返回的转换结果集不能为空");
-        }
-        return requestList;
+        return decomposeTelegram.handle(new OrderRequest(telegram));
     }
 
     public static boolean isInjectServiceClass(Class<?> clazz) {
