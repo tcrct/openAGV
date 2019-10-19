@@ -54,7 +54,9 @@ public class HandshakeTelegramQueue {
         HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null");
         IResponse response = requireNonNull(toBeDeleteDto.getResponse(),"");
         String handshakeKey = response.getHandshakeKey();
-        if(ToolsKit.isNotEmpty(queue) && ToolsKit.isNotEmpty(handshakeKey) && handshakeKey.equals(key)) {
+        if(ToolsKit.isNotEmpty(queue) &&
+                ToolsKit.isNotEmpty(handshakeKey) &&
+                handshakeKey.equals(key)) {
             //先复制 ??
             HandshakeTelegramDto telegramDto = new HandshakeTelegramDto(toBeDeleteDto);
             // 再移除第一位元素对象
@@ -63,10 +65,14 @@ public class HandshakeTelegramQueue {
             // 指令队列中移除后再发送下一个指令
             ICallback callback =telegramDto.getCallback();
             String requestId = ToolsKit.isEmpty(telegramDto.getRequest()) ? telegramDto.getResponse().getRequestId() : telegramDto.getRequest().getRequestId();
-            if(ToolsKit.isNotEmpty(callback) && ToolsKit.isNotEmpty(requestId)) {
+           // 只有在actionKey不为空的情况下才进行回调处理
+            String actionKey = telegramDto.getActionKey();
+            if(ToolsKit.isNotEmpty(callback) &&
+                    ToolsKit.isNotEmpty(requestId) &&
+                    ToolsKit.isNotEmpty(actionKey)) {
                 // 回调机制，告诉系统这条指令可以完结了。
                 try {
-                    callback.call(deviceId, requestId);
+                    callback.call(actionKey, requestId);
                 } catch (Exception e) {
                     throw new AgvException(e.getMessage(), e);
                 }

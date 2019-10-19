@@ -23,19 +23,22 @@ public class HandshakeTelegramDto implements Serializable {
     private IResponse response;
     /**注册回调事件*/
     private ICallback callback;
+    /**指令动作列表名称*/
+    private String actionKey;
 
     public HandshakeTelegramDto(HandshakeTelegramDto dto) {
-        this(dto.getRequest(), dto.getResponse(),dto.getCallback());
+        this(dto.getRequest(), dto.getResponse(),dto.getCallback(), dto.getActionKey());
     }
 
     public HandshakeTelegramDto(IResponse response) {
         this.response = response;
     }
 
-    public HandshakeTelegramDto(IRequest request, IResponse response, ICallback callback) {
+    public HandshakeTelegramDto(IRequest request, IResponse response, ICallback callback, String actionKey) {
         this.request = request;
         this.response = response;
         this.callback = callback;
+        this.actionKey = actionKey;
     }
 
     public IRequest getRequest() {
@@ -60,6 +63,14 @@ public class HandshakeTelegramDto implements Serializable {
 
     public void setCallback(ICallback callback) {
         this.callback = callback;
+    }
+
+    public String getActionKey() {
+        return actionKey;
+    }
+
+    public void setActionKey(String actionKey) {
+        this.actionKey = actionKey;
     }
 
     @Override

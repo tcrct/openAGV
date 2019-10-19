@@ -18,8 +18,6 @@ import org.apache.log4j.Logger;
  */
 public class AccountHandler {
 
-    private final static Logger logger = Logger.getLogger(AccountHandler.class);
-
     private static final Object[] NULL_ARGS = new Object[0];		// 默认参数
 
     private static class AccountHandlerHolder {
@@ -40,13 +38,11 @@ public class AccountHandler {
         try {
             if (ToolsKit.SERVICE_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
                 Object resultObj = ReflectUtil.invoke(object, target, request, response);
-                logger.info("逻辑处理后返回报文：" + resultObj);
                 response.write(resultObj);
             } else if (ToolsKit.CONTROLLER_FIELD.equalsIgnoreCase(AppContext.getInvokeClassType())) {
                 BaseController controllerObj = (BaseController) route.getInjectObject();
                 controllerObj.init(request, response);
                 Object resultObj = ReflectUtil.invoke(controllerObj, target, request);
-                logger.info("openAGV返回报文：" + resultObj);
                 controllerObj.getRender(resultObj).setContext(request, response).render();
             }
         } catch (Exception e) {
