@@ -93,7 +93,25 @@ public class HandshakeTelegramQueue {
         }
     }
 
-    public boolean containsKey(String key) {
-        return HANDSHAKE_TELEGRAM_QUEUE.containsKey(key) && !HANDSHAKE_TELEGRAM_QUEUE.get(key).isEmpty();
+    /**
+     * 验证是否存在队列中
+     * @param deviceId
+     * @param key
+     * @return
+     */
+    public boolean containsKey(String deviceId, String key) {
+
+        LinkedBlockingQueue<HandshakeTelegramDto> queue = HANDSHAKE_TELEGRAM_QUEUE.get(deviceId);
+
+        if(null != queue && !queue.isEmpty()) {
+            HandshakeTelegramDto dto = queue.peek();
+            if(ToolsKit.isEmpty(dto)) {
+                return false;
+            }
+            return key.equals(dto.getResponse().getHandshakeKey());
+        }
+
+        return  false;
+
     }
 }
