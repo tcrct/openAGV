@@ -7,6 +7,7 @@ import cn.hutool.log.LogFactory;
 import cn.hutool.setting.Setting;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
 import com.openagv.route.RouteHelper;
@@ -18,6 +19,11 @@ import java.util.Set;
 /**
  * 自动注入对象，基于google guice
  * 每个Service必须要实现一个接口且注明@Service注解
+ *
+ * 注入泛型
+ * https://blog.csdn.net/chuanli5157/article/details/100755428
+ * 第一个方法是，在TestFoo的IFoo接口成员声明时，去掉泛型参数，这样Guice在运行时查找匹配的实现时就会按照IFoo的实现类去查找，而不是按照IFoo<Integer> 或 IFoo<String> 这样的带有泛型参数的接口去查找
+ * 第二个方法是，在FooModule中configure函数里，在bind的时候使用TypeLiteral类来在注册的时候保持泛型参数信息进行注册，这样就可以保证注册的信息里是以带有泛型参数的接口注册的，代码例子如下:
  *
  * @author Laotang
  */
@@ -51,6 +57,7 @@ public class AutoImportModule extends AbstractModule {
         try {
             if(ToolsKit.isInjectServiceClass(clazz)) {
                 Class<T> serviceInterfaceClass = (Class<T>) clazz.getInterfaces()[0];
+//                bind(new TypeLiteral<Object>()).to(clazz).in(Scopes.SINGLETON);
                 bind(serviceInterfaceClass).to(clazz).in(Scopes.SINGLETON);
             }
         } catch (Exception e){
