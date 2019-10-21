@@ -49,9 +49,10 @@ public class Main {
                 public void run() {
                     try {
                         // TODO 这里的request ,response是否需要copy
-                        IRequest copyRequest = ObjectUtil.cloneByStream(request);
-                        IResponse copyResponse = ObjectUtil.cloneByStream(response);
-                        doAfterHandler(copyRequest, copyResponse);
+//                        IRequest copyRequest = ObjectUtil.cloneByStream(request);
+//                        IResponse copyResponse = ObjectUtil.cloneByStream(response);
+//                        doAfterHandler(copyRequest, copyResponse);
+                        doAfterHandler(request, response);
                     } catch (Exception e) {
                         logger.error("执行后置处理器时发生异常: "+ e.getMessage(), e);
                     }

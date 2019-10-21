@@ -1,5 +1,7 @@
 package com.openagv.tools;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openagv.core.AppContext;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
@@ -12,17 +14,57 @@ import com.openagv.opentcs.telegrams.StateRequest;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class ToolsKit {
 
+    private static final Logger logger = LoggerFactory.getLogger(ToolsKit.class);
+
     public static final String CONTROLLER_FIELD = "Controller";
     public static final String  SERVICE_FIELD = "Service";
     private static final String  SERVICE_IMPL_FIELD = "ServiceImpl";
     private static IDecomposeTelegram decomposeTelegram;
+
+    public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * json字符串转换为对象
+     * @param jsonStr   json格式的字符串
+     * @param clazz 待转换的对象
+     * @param <T>  返回泛型值
+     * @return
+     * @throws Exception
+     */
+    public static <T> T jsonParseObject(String jsonStr, Class<T> clazz)  {
+        try {
+            return objectMapper.readValue(jsonStr, clazz);
+        } catch (Exception e) {
+            throw new AgvException(e.getMessage() ,e);
+        }
+    }
+
+    public static <T> List<T> jsonParseArray(String jsonStr, TypeReference<T> typeReference)  {
+        try {
+            return objectMapper.readValue(jsonStr, typeReference);
+        } catch (Exception e) {
+            throw new AgvException(e.getMessage(), e);
+        }
+    }
+
+
+    public static String toJsonString(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new AgvException(e.getMessage(), e);
+        }
+    }
 
     /***
      * 判断传入的对象是否为空
@@ -221,4 +263,6 @@ public class ToolsKit {
         java.util.Objects.requireNonNull(vehicleName, "车辆名称不能为空");
         return AppContext.getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
     }
+
+
 }
