@@ -1,7 +1,15 @@
 package com.openagv.tools;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openagv.core.AppContext;
 import com.openagv.core.annotations.Controller;
 import com.openagv.core.annotations.Service;
@@ -32,6 +40,25 @@ public class ToolsKit {
     private static IDecomposeTelegram decomposeTelegram;
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        /**过滤对象的null属性*/
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        /**过滤map中的null key*/
+        objectMapper.getSerializerProvider().setNullKeySerializer(new JsonSerializer<Object>() {
+            @Override
+            public void serialize(Object value, JsonGenerator generator, SerializerProvider serializers) throws IOException, JsonProcessingException {
+                generator.writeFieldName("");
+            }
+        });
+        /**过滤map中的null值*/
+        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
+            @Override
+            public void serialize(Object value, JsonGenerator generator, SerializerProvider serializers) throws IOException, JsonProcessingException {
+                generator.writeString("");
+            }
+        });
+    }
 
     /**
      * json字符串转换为对象
