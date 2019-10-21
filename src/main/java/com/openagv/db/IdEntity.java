@@ -1,7 +1,7 @@
 package com.openagv.db;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.makerwit.db.annotation.Id;
-import com.makerwit.db.annotation.Param;
+import com.openagv.db.annotation.Id;
+import com.openagv.db.annotation.Param;
 
 import java.util.Date;
 
