@@ -22,9 +22,6 @@ public class IdEntity implements java.io.Serializable {
     public static final String UPDATEUSERID_FIELD = "updateuserid";
     public static final String STATUS_FIELD = "status";
     public static final String SOURCE_FIELD = "source";
-    public static final String DEPARTIMENTID_FIELD = "departmentId";
-    public static final String PROJECTID_FIELD = "projectId";
-    public static final String COMPANYID_FIELD = "companyId";
     public static final String STATUS_FIELD_SUCCESS = "审核通过";
     public static final String STATUS_FIELD_DELETE = "已删除";
 
@@ -36,22 +33,22 @@ public class IdEntity implements java.io.Serializable {
      * 创建时间
      */
     @Param(label = "创建时间", desc = "该记录的创建时间")
-    private Date createtime;
+    private Date createTime;
     /**
      * 创建人ID
      */
     @Param(label = "创建人ID", desc = "该记录的创建人ID")
-    private String createuserid;
+    private String createUserId;
     /**
      * 更新时间
      */
     @Param(label = "更新时间", desc = "该记录的更新时间")
-    private Date updatetime;
+    private Date updateTime;
     /**
      * 更新人ID
      */
     @Param(label = "更新人ID", desc = "该记录的更新人ID")
-    private String updateuserid;
+    private String updateUserId;
     /**
      * 数据状态(查数据字典)
      */
@@ -62,35 +59,16 @@ public class IdEntity implements java.io.Serializable {
      */
     @Param(label = "数据来源", desc = "该记录的数据来源")
     private String source;
-    /**
-     * 公司id标识
-     */
-    @Param(label = "公司id标识", desc = "该记录的公司id标识")
-    private String companyId;
-    /**
-     * 项目id标识
-     */
-    @Param(label = "项目id标识", desc = "该记录的项目id标识")
-    private String projectId;
-    /**
-     * 部门id标识
-     */
-    @Param(label = "部门id标识", desc = "该记录的部门id标识")
-    private String departmentId;
 
-    public IdEntity(String id, Date createtime, String createuserid,
-                    Date updatetime, String updateuserid, String status, String source, String departmentId, String projectId, String companyId) {
+    public IdEntity(String id, Date createTime, String createUserId, Date updateTime, String updateUserId, String status, String source) {
         super();
         this.id = id;
-        this.createtime = createtime;
-        this.createuserid = createuserid;
-        this.updatetime = updatetime;
-        this.updateuserid = updateuserid;
+        this.createTime = createTime;
+        this.createUserId = createUserId;
+        this.updateTime = updateTime;
+        this.updateUserId = updateUserId;
         this.status = status;
         this.source = source;
-        this.departmentId = departmentId;
-        this.projectId = projectId;
-        this.companyId = companyId;
     }
 
     public IdEntity() {
@@ -109,36 +87,36 @@ public class IdEntity implements java.io.Serializable {
         this.id = id+"";
     }
 
-    public Date getCreatetime() {
-        return createtime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public String getCreateuserid() {
-        return createuserid;
+    public String getCreateUserId() {
+        return createUserId;
     }
 
-    public void setCreateuserid(String createuserid) {
-        this.createuserid = createuserid;
+    public void setCreateUserId(String createUserId) {
+        this.createUserId = createUserId;
     }
 
-    public Date getUpdatetime() {
-        return updatetime;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
-    public String getUpdateuserid() {
-        return updateuserid;
+    public String getUpdateUserId() {
+        return updateUserId;
     }
 
-    public void setUpdateuserid(String updateuserid) {
-        this.updateuserid = updateuserid;
+    public void setUpdateUserId(String updateUserId) {
+        this.updateUserId = updateUserId;
     }
 
     public String getStatus() {
@@ -157,43 +135,16 @@ public class IdEntity implements java.io.Serializable {
         this.source = source;
     }
 
-    public String getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
-    }
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(String departmentId) {
-        this.departmentId = departmentId;
-    }
-
     @Override
     public String toString() {
         return "IdEntity{" +
                 "id='" + id + '\'' +
-                ", createtime=" + createtime +
-                ", createuserid='" + createuserid + '\'' +
-                ", updatetime=" + updatetime +
-                ", updateuserid='" + updateuserid + '\'' +
+                ", createtime=" + createTime +
+                ", createuserid='" + createUserId + '\'' +
+                ", updatetime=" + updateTime +
+                ", updateuserid='" + updateUserId + '\'' +
                 ", status='" + status + '\'' +
                 ", source='" + source + '\'' +
-                ", departmentId='" + departmentId + '\'' +
-                ", projectId='" + projectId + '\'' +
-                ", companyId='" + companyId + '\'' +
                 '}';
     }
 }
