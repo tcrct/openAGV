@@ -8,6 +8,9 @@ import java.util.Map;
  */
 public interface IRequest extends java.io.Serializable{
 
+    /**传感器对象，放在paramMap里*/
+    String SENSOR_FIELD = "_sensor";
+
     /**唯一的请求ID，用ObjectId作标识*/
     String getRequestId();
 

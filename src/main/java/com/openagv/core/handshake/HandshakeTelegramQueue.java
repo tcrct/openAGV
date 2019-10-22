@@ -1,6 +1,7 @@
 package com.openagv.core.handshake;
 
 import com.openagv.core.interfaces.ICallback;
+import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.exceptions.AgvException;
 import com.openagv.tools.ToolsKit;
@@ -51,15 +52,42 @@ public class HandshakeTelegramQueue {
      * @param cmdKey  指令名称
      * @param params  指令参数
      */
-    public void removeByCmd(String deviceId, String cmdKey, String params) {
+    public void removeByCmd(String deviceId, String cmdKey, String[] params) {
         requireNonNull(deviceId, "设备ID不能为空");
         requireNonNull(cmdKey, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
         LinkedBlockingQueue<HandshakeTelegramDto> queue =  requireNonNull(HANDSHAKE_TELEGRAM_QUEUE.get(deviceId), "handshake queue is null");
         HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null");
-        IResponse response = requireNonNull(toBeDeleteDto.getResponse(),"response in null");
-        String protocolString = response.toString();
+        IRequest request = requireNonNull(toBeDeleteDto.getRequest(),"request is null");
+        Sensor sensor = requireNonNull((Sensor) request.getPropertiesMap().get(IRequest.SENSOR_FIELD), "Sensor is null");
         // 根据报文对比参数是否允许删除
+        boolean isWith = sensor.isWith(params);
+        if(!isWith) {
+            throw new AgvException("对比的索引值不一致，请注意第一位元素数据的索引从0开始即：Array[0]为第一位");
+        }
+        callBackAndRemove(deviceId, queue, toBeDeleteDto);
+    }
 
+    private void callBackAndRemove(String deviceId, LinkedBlockingQueue<HandshakeTelegramDto> queue, HandshakeTelegramDto toBeDeleteDto) {
+        //先复制 ??
+        HandshakeTelegramDto telegramDto = new HandshakeTelegramDto(toBeDeleteDto);
+        // 再移除第一位元素对象
+        queue.remove();
+        logger.info("remove vehicle["+deviceId+"] telegramDto["+telegramDto.toString()+"] is success!");
+        // 指令队列中移除后再发送下一个指令
+        ICallback callback =telegramDto.getCallback();
+        String requestId = ToolsKit.isEmpty(telegramDto.getRequest()) ? telegramDto.getResponse().getRequestId() : telegramDto.getRequest().getRequestId();
+        // 只有在actionKey不为空的情况下才进行回调处理
+        String actionKey = telegramDto.getActionKey();
+        if(ToolsKit.isNotEmpty(callback) &&
+                ToolsKit.isNotEmpty(requestId) &&
+                ToolsKit.isNotEmpty(actionKey)) {
+            // 回调机制，告诉系统这条指令可以完结了。
+            try {
+                callback.call(actionKey, requestId);
+            } catch (Exception e) {
+                throw new AgvException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -77,26 +105,7 @@ public class HandshakeTelegramQueue {
         if(ToolsKit.isNotEmpty(queue) &&
                 ToolsKit.isNotEmpty(handshakeKey) &&
                 handshakeKey.equals(key)) {
-            //先复制 ??
-            HandshakeTelegramDto telegramDto = new HandshakeTelegramDto(toBeDeleteDto);
-            // 再移除第一位元素对象
-            queue.remove();
-            logger.info("remove vehicle["+deviceId+"] telegramDto["+telegramDto.toString()+"] is success!");
-            // 指令队列中移除后再发送下一个指令
-            ICallback callback =telegramDto.getCallback();
-            String requestId = ToolsKit.isEmpty(telegramDto.getRequest()) ? telegramDto.getResponse().getRequestId() : telegramDto.getRequest().getRequestId();
-           // 只有在actionKey不为空的情况下才进行回调处理
-            String actionKey = telegramDto.getActionKey();
-            if(ToolsKit.isNotEmpty(callback) &&
-                    ToolsKit.isNotEmpty(requestId) &&
-                    ToolsKit.isNotEmpty(actionKey)) {
-                // 回调机制，告诉系统这条指令可以完结了。
-                try {
-                    callback.call(actionKey, requestId);
-                } catch (Exception e) {
-                    throw new AgvException(e.getMessage(), e);
-                }
-            }
+            callBackAndRemove(deviceId, queue, toBeDeleteDto);
         }
         if(ToolsKit.isEmpty(handshakeKey)) {
             throw new AgvException("握手key不能为空");
