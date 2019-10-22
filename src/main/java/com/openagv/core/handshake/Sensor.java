@@ -60,26 +60,11 @@ public class Sensor implements java.io.Serializable {
         private List<Integer> indexs = new ArrayList<>();
         private List<String> values = new ArrayList<>();
 
-        public Builder index(Integer index) {
-            this.indexs.add(index);
+        public Builder element(Integer index, String value) {
+            this.map.put(index, value);
             return this;
-        }
-
-        public Builder value(String value) {
-            this.values.add(value);
-            return this;
-        }
-
-        public void toMap() {
-            if(indexs.size() != values.size()) {
-                throw new IllegalArgumentException("必须同步设置index方法与value方法");
-            }
-            for(int i=0; i<indexs.size(); i++) {
-                this.map.put(indexs.get(i), values.get(i));
-            }
         }
         public Sensor build() {
-            toMap();
             return new Sensor(map);
         }
     }
