@@ -42,6 +42,26 @@ public class HandshakeTelegramQueue {
         queue.add(telegramDto);
         HANDSHAKE_TELEGRAM_QUEUE.put(deviceId, queue);
     }
+
+    /**
+     * 根据指令名称与参数规则移除元素
+     * 一般是用于rptmt，提交传感器开关时用
+     *
+     * @param deviceId 设备ID
+     * @param cmdKey  指令名称
+     * @param params  指令参数
+     */
+    public void removeByCmd(String deviceId, String cmdKey, String params) {
+        requireNonNull(deviceId, "设备ID不能为空");
+        requireNonNull(cmdKey, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
+        LinkedBlockingQueue<HandshakeTelegramDto> queue =  requireNonNull(HANDSHAKE_TELEGRAM_QUEUE.get(deviceId), "handshake queue is null");
+        HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null");
+        IResponse response = requireNonNull(toBeDeleteDto.getResponse(),"response in null");
+        String protocolString = response.toString();
+        // 根据报文对比参数是否允许删除
+
+    }
+
     /**
      * 移除元素
      * @param deviceId 设备ID
@@ -52,7 +72,7 @@ public class HandshakeTelegramQueue {
         requireNonNull(key, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
         LinkedBlockingQueue<HandshakeTelegramDto> queue =  requireNonNull(HANDSHAKE_TELEGRAM_QUEUE.get(deviceId), "handshake queue is null");
         HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null");
-        IResponse response = requireNonNull(toBeDeleteDto.getResponse(),"");
+        IResponse response = requireNonNull(toBeDeleteDto.getResponse(),"response in null");
         String handshakeKey = response.getHandshakeKey();
         if(ToolsKit.isNotEmpty(queue) &&
                 ToolsKit.isNotEmpty(handshakeKey) &&
@@ -114,7 +134,8 @@ public class HandshakeTelegramQueue {
             if(ToolsKit.isEmpty(dto)) {
                 return false;
             }
-            return key.equals(dto.getResponse().getHandshakeKey());
+            //return key.equals(dto.getResponse().getHandshakeKey());
+            return key.equals(dto.getResponse().getCmdKey());
         }
 
         return  false;

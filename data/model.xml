@@ -1,75 +1,72 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model version="0.0.2" name="Roller">
-    <point name="1" xPosition="6000" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="1 --- 2"/>
-        <property name="direction" value="m"/>
-        <property name="stopMode" value="s"/>
-    </point>
-    <point name="2" xPosition="36000" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="2 --- 1"/>
+<model version="0.0.2" name="SMT">
+    <point name="123" xPosition="14000" yPosition="-6000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="123 --- 237"/>
         <property name="direction" value="m"/>
         <property name="orientation" value="b"/>
         <property name="stopMode" value="s"/>
     </point>
-    <path name="1 --- 2" sourcePoint="1" destinationPoint="2" length="1000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="2 --- 1" sourcePoint="2" destinationPoint="1" length="1000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <vehicle name="A010" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
-        <property name="host" value="192.168.8.162"/>
+    <point name="237" xPosition="4000" yPosition="-7000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="237 --- 123"/>
+        <property name="direction" value="m"/>
+    </point>
+    <path name="123 --- 237" sourcePoint="123" destinationPoint="237" length="10050" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="237 --- 123" sourcePoint="237" destinationPoint="123" length="10050" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <vehicle name="A009" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
+        <property name="host" value="127.0.0.1"/>
         <property name="port" value="60000"/>
         <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
     </vehicle>
     <locationType name="LType-0001">
         <allowedOperation name="NOP"/>
-        <allowedOperation name="RollerLeft"/>
+        <allowedOperation name="StartPoint"/>
     </locationType>
     <locationType name="LType-0002">
         <allowedOperation name="NOP"/>
-        <allowedOperation name="RollerRight"/>
+        <allowedOperation name="SmtWorkBench"/>
     </locationType>
-    <location name="load" xPosition="8000" yPosition="17000" zPosition="0" type="LType-0002">
-        <link point="1"/>
-        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC"/>
+    <location name="SmtWorkBench" xPosition="26500" yPosition="-10500" zPosition="0" type="LType-0002">
+        <link point="123"/>
+        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
-    <location name="unload" xPosition="10000" yPosition="15000" zPosition="0" type="LType-0001">
-        <link point="2"/>
+    <location name="StartPoint" xPosition="4000" yPosition="-10500" zPosition="0" type="LType-0001">
+        <link point="237"/>
         <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC"/>
     </location>
     <visualLayout name="VLayout-1" scaleX="50.0" scaleY="50.0">
-        <modelLayoutElement visualizedObjectName="1" layer="0">
+        <modelLayoutElement visualizedObjectName="123" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="35250"/>
-            <property name="POSITION_Y" value="17250"/>
+            <property name="POSITION_X" value="26750"/>
+            <property name="POSITION_Y" value="-7250"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="1 --- 2" layer="0">
-            <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="700,-170;60,-170"/>
+        <modelLayoutElement visualizedObjectName="123 --- 237" layer="0">
+            <property name="CONN_TYPE" value="DIRECT"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="2" layer="0">
+        <modelLayoutElement visualizedObjectName="237" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="2750"/>
-            <property name="POSITION_Y" value="17250"/>
+            <property name="POSITION_X" value="4000"/>
+            <property name="POSITION_Y" value="-7000"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="2 --- 1" layer="0">
-            <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="50,-160;700,-170"/>
+        <modelLayoutElement visualizedObjectName="237 --- 123" layer="0">
+            <property name="CONN_TYPE" value="DIRECT"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="A010" layer="0">
+        <modelLayoutElement visualizedObjectName="A009" layer="0">
             <property name="ROUTE_COLOR" value="#FF0000"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="load" layer="0">
-            <property name="LABEL_OFFSET_X" value="0"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="24250"/>
-            <property name="POSITION_Y" value="16250"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="unload" layer="0">
+        <modelLayoutElement visualizedObjectName="SmtWorkBench" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="13750"/>
-            <property name="POSITION_Y" value="16250"/>
+            <property name="POSITION_X" value="26750"/>
+            <property name="POSITION_Y" value="-14250"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="StartPoint" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="4250"/>
+            <property name="POSITION_Y" value="-14250"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-10-18T11:37:26.717Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-10-22T02:51:47.265Z"/>
 </model>
