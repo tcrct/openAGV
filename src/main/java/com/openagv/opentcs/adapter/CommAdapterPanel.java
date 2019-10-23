@@ -31,6 +31,11 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 import static org.opentcs.virtualvehicle.I18nLoopbackCommAdapter.BUNDLE_PATH;
 
+/***
+ * 控制中心的新增面板
+ *
+ * @author Laotang
+ */
 public class CommAdapterPanel extends VehicleCommAdapterPanel {
 
     private final static Logger logger = LoggerFactory.getLogger(CommAdapter.class);
@@ -1226,7 +1231,7 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
             sendCommAdapterCommand(new com.openagv.opentcs.commands.SetVehiclePausedCommand(true));
         }
         else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetVehiclePausedCommand(false));
+            sendCommAdapterCommand(new SetVehiclePausedCommand(false));
         }
     }//GEN-LAST:event_pauseVehicleCheckBoxItemStateChanged
 

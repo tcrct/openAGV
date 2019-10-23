@@ -6,6 +6,7 @@ import com.openagv.core.interfaces.*;
 import com.openagv.opentcs.enums.LoadAction;
 import com.openagv.opentcs.enums.LoadState;
 import com.openagv.opentcs.model.ProcessModel;
+import com.openagv.opentcs.model.VehicleModelTO;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.StateRequesterTask;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
@@ -499,10 +500,11 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
 
     /**
-     * 必须实现，用于将值传递到控制中心的自定义面板
+     * 覆盖实现
+     * 用于将值传递到控制中心的自定义面板
      * 启动时，面板点击更新后均会触发
      * @return
-
+     */
     @Override
     protected VehicleModelTO createCustomTransferableProcessModel() {
         // 发送到其他软件（如控制中心或工厂概览）时，添加车辆的附加信息
@@ -517,7 +519,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                 .setUnloadOperation(getProcessModel().getUnloadOperation())
                 .setVehiclePaused(getProcessModel().isVehiclePaused());
     }
-     */
 
 }
 

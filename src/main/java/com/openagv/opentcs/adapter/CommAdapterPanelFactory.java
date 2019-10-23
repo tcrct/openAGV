@@ -72,7 +72,9 @@ public class CommAdapterPanelFactory implements VehicleCommAdapterPanelFactory {
         requireNonNull(vehicle, "vehicle");
         requireNonNull(processModel, "processModel");
 
-        // TODO  必须先实现CommAdapter里的createCustomTransferableProcessModel方法，否则(processModel instanceof VehicleModelTO)会返回false
+        /**
+         * 必须先实现CommAdapter里的createCustomTransferableProcessModel方法，否则(processModel instanceof VehicleModelTO)会返回false
+         */
        if(!providesPanelsFor(description, processModel)) {
             logger.warn("无法为具有'{}'适配器的'{}'提供面板.", description.getDescription(), processModel.getVehicleName());
            return new ArrayList<>();
