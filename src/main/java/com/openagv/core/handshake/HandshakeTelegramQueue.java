@@ -52,19 +52,21 @@ public class HandshakeTelegramQueue {
      * @param cmdKey  指令名称
      * @param params  指令参数
      */
-    public void removeByCmd(String deviceId, String cmdKey, String[] params) {
+    public boolean removeByCmd(String deviceId, String cmdKey, String[] params) {
         requireNonNull(deviceId, "设备ID不能为空");
         requireNonNull(cmdKey, "标识字段不能为空，一般是指验证码之类的唯一标识字段");
         LinkedBlockingQueue<HandshakeTelegramDto> queue =  requireNonNull(HANDSHAKE_TELEGRAM_QUEUE.get(deviceId), "handshake queue is null");
-        HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null");
+        HandshakeTelegramDto toBeDeleteDto = requireNonNull(queue.peek(), "handshake telegram dto is null, cmdKey: "+ cmdKey);
         IRequest request = requireNonNull(toBeDeleteDto.getRequest(),"request is null");
         Sensor sensor = requireNonNull((Sensor) request.getPropertiesMap().get(IRequest.SENSOR_FIELD), "Sensor is null");
         // 根据报文对比参数是否允许删除
-        boolean isWith = sensor.isWith(params);
-        if(!isWith) {
-            throw new AgvException("对比的索引值不一致，请注意第一位元素数据的索引从0开始即：Array[0]为第一位");
+        if(sensor.isWith(params)) {
+            callBackAndRemove(deviceId, queue, toBeDeleteDto);
+            return false;
         }
-        callBackAndRemove(deviceId, queue, toBeDeleteDto);
+        logger.info("该指令不是监听提交或对比的索引值不一致，请注意第一位元素数据的索引从0开始即：Array[0]为第一位");
+        return true;
+
     }
 
     private void callBackAndRemove(String deviceId, LinkedBlockingQueue<HandshakeTelegramDto> queue, HandshakeTelegramDto toBeDeleteDto) {
@@ -134,7 +136,7 @@ public class HandshakeTelegramQueue {
      * @param key
      * @return
      */
-    public boolean containsKey(String deviceId, String key) {
+    public boolean containsCmdKey(String deviceId, String key) {
 
         LinkedBlockingQueue<HandshakeTelegramDto> queue = HANDSHAKE_TELEGRAM_QUEUE.get(deviceId);
 
@@ -143,8 +145,29 @@ public class HandshakeTelegramQueue {
             if(ToolsKit.isEmpty(dto)) {
                 return false;
             }
-            //return key.equals(dto.getResponse().getHandshakeKey());
             return key.equals(dto.getResponse().getCmdKey());
+        }
+
+        return  false;
+
+    }
+
+    /**
+     * 验证是否存在队列中
+     * @param deviceId
+     * @param key
+     * @return
+     */
+    public boolean containsHandshakeKey(String deviceId, String key) {
+
+        LinkedBlockingQueue<HandshakeTelegramDto> queue = HANDSHAKE_TELEGRAM_QUEUE.get(deviceId);
+
+        if(null != queue && !queue.isEmpty()) {
+            HandshakeTelegramDto dto = queue.peek();
+            if(ToolsKit.isEmpty(dto)) {
+                return false;
+            }
+            return key.equals(dto.getResponse().getHandshakeKey());
         }
 
         return  false;

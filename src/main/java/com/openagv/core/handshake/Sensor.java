@@ -16,8 +16,8 @@ import java.util.*;
  */
 public class Sensor implements java.io.Serializable {
 
-//    private static final String LINK_CHARACTER = "_";
-//    private static final String SQLIT_CHARACTER = "|";
+    private static final String LINK_CHARACTER = "_";
+    private static final String SQLIT_CHARACTER = "|";
 
     private Map<Integer, String> map;
 
@@ -25,14 +25,14 @@ public class Sensor implements java.io.Serializable {
         this.map = map;
     }
 
-//    public Sensor(String paramStr) {
-//        String[] paramsArray = paramStr.split(SQLIT_CHARACTER);
-//        map = new TreeMap();
-//        for(String paramItem : paramsArray) {
-//            String[] paramItemArray = paramItem.split(LINK_CHARACTER);
-//            map.put(Integer.parseInt(paramItemArray[0]), paramItemArray[1]);
-//        }
-//    }
+    public Sensor(String paramStr) {
+        String[] paramsArray = paramStr.split(SQLIT_CHARACTER);
+        map = new TreeMap();
+        for(String paramItem : paramsArray) {
+            String[] paramItemArray = paramItem.split(LINK_CHARACTER);
+            map.put(Integer.parseInt(paramItemArray[0]), paramItemArray[1]);
+        }
+    }
 
     public boolean isWith(String[] params) {
         List<Boolean> booleanList = new ArrayList<>(map.size());
@@ -69,16 +69,17 @@ public class Sensor implements java.io.Serializable {
         }
     }
 
-//    @Override
-//    public String toString() {
-//        StringBuilder sb = new StringBuilder();
-//        for(Iterator<Map.Entry<Integer, String>> iterator = map.entrySet().iterator(); iterator.hasNext();) {
-//            Map.Entry<Integer, String> entry = iterator.next();
-//            sb.append(entry.getKey()).append(LINK_CHARACTER).append(entry.getValue()).append(SQLIT_CHARACTER);
-//        }
-//        if(sb.length() > 1) {
-//            sb = sb.deleteCharAt(SQLIT_CHARACTER.length());
-//        }
-//        return sb.toString();
-//    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(Iterator<Map.Entry<Integer, String>> iterator = map.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<Integer, String> entry = iterator.next();
+            sb.append(entry.getKey()).append(LINK_CHARACTER).append(entry.getValue()).append(SQLIT_CHARACTER);
+        }
+        String resultString = "";
+        if(sb.length() > 1) {
+            resultString = sb.substring(0, sb.length()-1);
+        }
+        return resultString;
+    }
 }

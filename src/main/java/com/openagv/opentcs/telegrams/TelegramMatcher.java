@@ -110,11 +110,12 @@ public class TelegramMatcher {
             return true;
         }
 
-        if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
-            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getNextPointName()+"， 队列与最新对应的请求对象不匹配");
-        } else {
-            logger.info("接收到请求ID["+responseTelegram.getRequestId()+"]的响应，但没有请求正在等响应");
-        }
+//        if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
+//            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getNextPointName()+"， 队列与最新对应的请求对象不匹配");
+//        }
+//        else {
+//            logger.info("接收到请求ID["+responseTelegram.getRequestId()+"]的响应，但没有请求正在等响应");
+//        }
 
         return false;
 
