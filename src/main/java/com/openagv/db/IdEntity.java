@@ -16,10 +16,10 @@ public class IdEntity implements java.io.Serializable {
 
     public static final String ENTITY_ID_FIELD = "id";
     public static final String ID_FIELD = "_id";
-    public static final String CREATETIME_FIELD = "createtime";
-    public static final String CREATEUSERID_FIELD = "createuserid";
-    public static final String UPDATETIME_FIELD = "updatetime";
-    public static final String UPDATEUSERID_FIELD = "updateuserid";
+    public static final String CREATETIME_FIELD = "createTime";
+    public static final String CREATEUSERID_FIELD = "createUserId";
+    public static final String UPDATETIME_FIELD = "updateTime";
+    public static final String UPDATEUSERID_FIELD = "updateUserId";
     public static final String STATUS_FIELD = "status";
     public static final String SOURCE_FIELD = "source";
     public static final String STATUS_FIELD_SUCCESS = "审核通过";
