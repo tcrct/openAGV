@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
+import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.data.order.Route;
@@ -60,7 +61,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     // 定时发送任务器
     private StateRequesterTask stateRequesterTask;
 
-    //允许单步执行,默认为不允许，即没有选中
+    //面板中的下一步控制开发
     private boolean singleStepExecutionAllowed = false;
 
     private final Map<MovementCommand, String> commandMap = new ConcurrentHashMap<>();
@@ -149,6 +150,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         // 调用父类开启
         super.enable();
+        AppContext.setCommAdapter(this);
         AppContext.getAgvConfigure().getConnectionEventListener().onConnect();
     }
 
@@ -171,9 +173,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         return serialPortManager;
     }
 
-    public synchronized void trigger() {
-        stateRequesterTask.disable();
-        getProcessModel().setSingleStepModeEnabled(true);
+    // 面板中的下一步按钮
+    public synchronized void nextStepButton() {
+        singleStepExecutionAllowed = true;
     }
     /**
      * 是否可以发送下一条指令
@@ -183,7 +185,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     protected synchronized boolean canSendNextCommand() {
-        return super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled());
+        return super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
+//        boolean isCanSendNextCommand =  super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
+//        logger.info("canSendNextCommand："+ isCanSendNextCommand);
+//        return isCanSendNextCommand;
     }
 
     /**
@@ -194,6 +199,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         requireNonNull(cmd, "移动命令不能为空");
+        singleStepExecutionAllowed = false;
         logger.info("sendCommand:" + cmd);
         try {
             // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
@@ -236,9 +242,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         logger.info("###########connectVehicle");
         // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
 //        getProcessModel().setVehiclePosition("36");
-//        getProcessModel().setVehiclePosition("1");
+        getProcessModel().setVehiclePosition("1");
 //        getProcessModel().setVehiclePosition("705");
-        getProcessModel().setVehiclePosition("237");
+//        getProcessModel().setVehiclePosition("237");
+//        getProcessModel().setVehiclePosition("Point-0001");
+//        Point point = ToolsKit.getPoint("Point-0001");
+//        point.setVehicleOrientationAngle(-90);
+
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         getProcessModel().setVehicleIdle(true);
 
@@ -285,6 +295,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             }
             channelManager = null;
             telegramMatcher = null;
+            // TODO 对当前车辆停止，是否要全部定时器也停？
             stateRequesterTask.disable();
             clearCommandQueue();
             logger.warn("断开车辆连接 " + getName() + " 成功");
@@ -394,8 +405,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // Update GUI.
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
-//            Route.Step step = currentCmd.getStep();
-//            Vehicle.Orientation orientation = step.getVehicleOrientation();
+            Route.Step step = currentCmd.getStep();
+            Vehicle.Orientation orientation = step.getVehicleOrientation();
+            System.out.println("########orientation: " + orientation);
+            System.out.println("####orientation angle: " + step.getDestinationPoint().getVehicleOrientationAngle());
 //            long pathLength = step.getPath().getLength();
 //            int maxVelocity;
 //            switch (orientation) {
@@ -490,8 +503,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
-        // 取消单步执行状态
-        getProcessModel().setSingleStepModeEnabled(false);
+//        // 取消单步执行状态
+//        getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
         commandMap.remove(cmd);
         getProcessModel().commandExecuted(cmd);

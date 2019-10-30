@@ -66,7 +66,6 @@ public class HandshakeTelegramQueue {
         }
         logger.info("该指令不是监听提交或对比的索引值不一致，请注意第一位元素数据的索引从0开始即：Array[0]为第一位");
         return true;
-
     }
 
     private void callBackAndRemove(String deviceId, LinkedBlockingQueue<HandshakeTelegramDto> queue, HandshakeTelegramDto toBeDeleteDto) {

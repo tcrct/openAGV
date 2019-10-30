@@ -1,6 +1,7 @@
 package com.openagv.opentcs.adapter;
 
 import com.google.inject.assistedinject.Assisted;
+import com.openagv.opentcs.commands.NextStepButtonCommand;
 import com.openagv.opentcs.enums.Attribute;
 import com.openagv.opentcs.model.VehicleModelTO;
 import com.openagv.tools.SettingUtils;
@@ -705,6 +706,7 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         controlTabPanel.add(flowModeRadioButton, gridBagConstraints);
 
+        // 下 一步
         triggerButton.setText(BUNDLE.getString("loopbackCommAdapterPanel.button_nextStep.text")); // NOI18N
         triggerButton.setEnabled(false);
         triggerButton.setName("triggerButton"); // NOI18N
@@ -1026,12 +1028,12 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
             triggerButton.setEnabled(false);
 
             sendCommAdapterCommand(new com.openagv.opentcs.commands.SetSingleStepModeEnabledCommand(false));
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.TriggerCommand());
+//            sendCommAdapterCommand(new com.openagv.opentcs.commands.TriggerCommand());
         }
     }//GEN-LAST:event_flowModeRadioButtonActionPerformed
-
+    //下一步按钮
     private void triggerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_triggerButtonActionPerformed
-        sendCommAdapterCommand(new com.openagv.opentcs.commands.TriggerCommand());
+        sendCommAdapterCommand(new NextStepButtonCommand());
     }//GEN-LAST:event_triggerButtonActionPerformed
 
     private void chkBoxEnableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkBoxEnableActionPerformed
@@ -1207,7 +1209,7 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
                     logger.warn("Exception parsing orientation angle value '{}'", input, e);
                     return;
                 }
-
+                // TODO 改变车头方向
                 sendCommAdapterCommand(new SetOrientationAngleCommand(angle));
             }
         }

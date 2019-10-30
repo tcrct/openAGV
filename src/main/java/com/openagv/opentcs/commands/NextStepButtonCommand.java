@@ -4,7 +4,7 @@ import com.openagv.opentcs.adapter.CommAdapter;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
-public class TriggerCommand
+public class NextStepButtonCommand
         implements AdapterCommand {
 
     @Override
@@ -13,7 +13,7 @@ public class TriggerCommand
             return;
         }
 
-        CommAdapter loopbackAdapter = (CommAdapter) adapter;
-        loopbackAdapter.trigger();
+        CommAdapter commAdapter = (CommAdapter) adapter;
+        commAdapter.nextStepButton();
     }
 }

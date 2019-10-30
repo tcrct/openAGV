@@ -4,13 +4,10 @@ import cn.hutool.core.lang.Filter;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import cn.hutool.setting.Setting;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.openagv.core.annotations.Controller;
-import com.openagv.core.annotations.Service;
-import com.openagv.route.RouteHelper;
+import com.openagv.db.IDao;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 
@@ -56,9 +53,8 @@ public class AutoImportModule extends AbstractModule {
         java.util.Objects.requireNonNull(clazz,"要注入的class不能为null");
         try {
             if(ToolsKit.isInjectServiceClass(clazz)) {
-                Class<T> serviceInterfaceClass = (Class<T>) clazz.getInterfaces()[0];
-//                bind(new TypeLiteral<Object>()).to(clazz).in(Scopes.SINGLETON);
-                bind(serviceInterfaceClass).to(clazz).in(Scopes.SINGLETON);
+                Class<T> interfaceClass = (Class<T>) clazz.getInterfaces()[0];
+                bind(interfaceClass).to(clazz).in(Scopes.SINGLETON);
             }
         } catch (Exception e){
             logger.error("bind is fail : " + e.getMessage(), e);

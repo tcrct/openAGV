@@ -16,6 +16,7 @@ import com.openagv.core.annotations.Service;
 import com.openagv.core.command.SendCommand;
 import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
+import com.openagv.db.annotation.Entity;
 import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
@@ -263,7 +264,8 @@ public class ToolsKit {
     public static boolean isInjectClass(Class<?> clazz) {
         return null != clazz && (
                 clazz.isAnnotationPresent(Controller.class) ||
-                        clazz.isAnnotationPresent(Service.class));
+                        clazz.isAnnotationPresent(Service.class)) ||
+                        clazz.isAnnotationPresent(Entity.class);
     }
 
 
