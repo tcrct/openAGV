@@ -61,6 +61,7 @@
     <mockito.version>1.9.5</mockito.version>
     <slf4j.version>1.7.28</slf4j.version>
     <log4j.version>1.2.17</log4j.version>
+    <morphia.version>1.3.2</morphia.version>
   </properties>
 
   <dependencies>
@@ -192,6 +193,11 @@
       <artifactId>log4j</artifactId>
       <version>${log4j.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.mongodb.morphia</groupId>-->
+<!--      <artifactId>morphia</artifactId>-->
+<!--      <version>${morphia.version}</version>-->
+<!--    </dependency>-->
 
 
     <!-- logback-->

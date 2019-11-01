@@ -7,7 +7,9 @@ import cn.hutool.log.LogFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 import com.openagv.db.IDao;
+import com.openagv.db.annotation.ClientId;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 
