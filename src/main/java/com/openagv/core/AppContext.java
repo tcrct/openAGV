@@ -180,10 +180,24 @@ public class AppContext {
         if(null == STATE_REQUEST_CMD_KEY) {
             STATE_REQUEST_CMD_KEY = SettingUtils.getString("state.request.cmd");
             if(ToolsKit.isEmpty(STATE_REQUEST_CMD_KEY)) {
-                throw new NullPointerException("该值不能为空，请先在app.setting设置[state.request.target]值，该值是车辆移动指令的标识！");
+                throw new NullPointerException("该值不能为空，请先在app.setting设置[state.request.cmd]值，该值是车辆移动指令的标识！");
             }
         }
         return STATE_REQUEST_CMD_KEY;
+    }
+
+    /**
+     * 上报车辆移动到达指令的key
+     */
+    private static String VEHICLE_ARRIVAL_CMD_KEY;
+    public static String getVehicleArrivalCmdKey() {
+        if(null == VEHICLE_ARRIVAL_CMD_KEY) {
+            VEHICLE_ARRIVAL_CMD_KEY = SettingUtils.getString("vehicle.arrival.cmd");
+            if(ToolsKit.isEmpty(VEHICLE_ARRIVAL_CMD_KEY)) {
+                throw new NullPointerException("该值不能为空，请先在app.setting设置[vehicle.arrival.cmd]值，该值是车辆移动指令的标识！");
+            }
+        }
+        return VEHICLE_ARRIVAL_CMD_KEY;
     }
 
     private static OpenAgvConfigure CONFIGURE;

@@ -10,7 +10,6 @@ import com.openagv.opentcs.model.VehicleModelTO;
 import com.openagv.opentcs.telegrams.StateRequest;
 import com.openagv.opentcs.telegrams.StateRequesterTask;
 import com.openagv.opentcs.telegrams.TelegramMatcher;
-import com.openagv.core.handshake.HandshakeTelegramDto;
 import com.openagv.plugins.serialport.SerialPortManager;
 import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
@@ -18,23 +17,18 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
-import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.data.order.Route;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.util.ExplainedBoolean;
-import org.opentcs.virtualvehicle.VelocityController;
 
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static java.util.Objects.requireNonNull;
@@ -64,8 +58,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     //面板中的下一步控制开发
     private boolean singleStepExecutionAllowed = false;
 
-    private final Map<MovementCommand, String> commandMap = new ConcurrentHashMap<>();
-
+    // 该条线路所有StateRequest，将所有指令整合成一条返回
+    private final  static LinkedBlockingQueue<MovementCommand> commandQueue = new LinkedBlockingQueue<>();
     private TCSObjectService objectService;
 
     /***
@@ -75,7 +69,12 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Inject
     public CommAdapter(@Assisted Vehicle vehicle, TCSObjectService objectService, ComponentsFactory componentsFactory) {
-        super(new ProcessModel(vehicle), 3, 2, LoadAction.CHARGE);
+        /**
+         *commandQueueCapacity: 此通信适配器的命令队列接受的命令数。必须至少为1。
+         * sentQueueCapacity: 要发送给车辆的最大订单数。
+         * 设置为100，即允许可以执行100个点的线路
+         */
+        super(new ProcessModel(vehicle), 100, 100, LoadAction.CHARGE);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.objectService = requireNonNull(objectService, "objectService");
         AppContext.setCommAdapter(this);
@@ -201,24 +200,30 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         requireNonNull(cmd, "移动命令不能为空");
         singleStepExecutionAllowed = false;
         logger.info("sendCommand:" + cmd);
-        try {
-            // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
-            IResponse response = ToolsKit.sendCommand(
-                    new StateRequest.Builder()
-                            .command(cmd)
-                            .model(getProcessModel())
-                            .build());
-            if(response.getStatus() != HttpResponseStatus.OK.code()) {
-                telegramMatcher.getTelegramSender().sendTelegram(response);
-                throw new IllegalArgumentException(response.toString());
+        commandQueue.add(cmd);
+//        if(!cmd.isFinalMovement()){
+//            getProcessModel().commandExecuted(getSentQueue().poll());
+//        }
+        if(cmd.isFinalMovement()) {
+            try {
+                // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
+                IResponse response = ToolsKit.sendCommand(
+                        new StateRequest.Builder()
+                                .commandQuery(commandQueue)
+                                .finalCmd(cmd)
+                                .model(getProcessModel())
+                                .build());
+                if(response.getStatus() != HttpResponseStatus.OK.code()) {
+                    telegramMatcher.getTelegramSender().sendTelegram(response);
+                    throw new IllegalArgumentException(response.toString());
+                }
+                // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
+                telegramMatcher.enqueueRequestTelegram(response);
+                logger.info(getName()+": 将车辆移动报文提交到消息队列完成");
+                commandQueue.clear(); //清空该命令队列对象
+            } catch (Exception e) {
+                logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
             }
-            // 将移动命令放入缓存池
-            commandMap.put(cmd, response.getRequestId());
-            // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
-            telegramMatcher.enqueueRequestTelegram(response);
-            logger.info(getName()+": 将车辆移动报文提交到消息队列完成");
-        } catch (Exception e) {
-            logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
         }
     }
     /**
@@ -226,7 +231,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     public synchronized void clearCommandQueue() {
-        commandMap.clear();
         AppContext.getAgvConfigure().getHandshakeTelegramQueue().clearQueue();
         logger.error("清除握手队列成功");
         super.clearCommandQueue();
@@ -388,15 +392,17 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     /**
      * 检查车辆位置并更新
-     * @param response
+     * @param response 车辆回复的协议
      */
     public void checkForVehiclePositionUpdate(IResponse response) {
 
         // 将报告的位置ID映射到点名称
-        String currentPosition = response.getNextPointName();
-        // 更新位置，但前提是它不能是空
-        if (ToolsKit.isNotEmpty(currentPosition)) {
-            getProcessModel().setVehiclePosition(currentPosition);
+        List<String> currentPositionList = response.getNextPointNames();
+        String postNextPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
+        String deviceId = response.getDeviceId();
+        // 更新位置，但前提是它不能是空且是相等的
+        if (telegramMatcher.checkForVehiclePosition(deviceId, postNextPoint)) {
+            getProcessModel().setVehiclePosition(postNextPoint);
         } else {
             logger.warn("车辆移动点不能为空，请确保response.setTargetPointName()设置了下一个移动点名称");
             return;
@@ -406,26 +412,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
             Route.Step step = currentCmd.getStep();
-            Vehicle.Orientation orientation = step.getVehicleOrientation();
-            System.out.println("########orientation: " + orientation);
-            System.out.println("####orientation angle: " + step.getDestinationPoint().getVehicleOrientationAngle());
-//            long pathLength = step.getPath().getLength();
-//            int maxVelocity;
-//            switch (orientation) {
-//                case BACKWARD:
-//                    maxVelocity = step.getPath().getMaxReverseVelocity();
-//                    break;
-//                default:
-//                    maxVelocity = step.getPath().getMaxVelocity();
-//                    break;
-//            }
-//            String pointName = step.getDestinationPoint().getName();
-//            getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
-//            getProcessModel().getVelocityController().addWayEntry(new VelocityController.WayEntry(pathLength,
-//                    maxVelocity,
-//                    pointName,
-//                    orientation));
-//            System.out.println("#########$$$$$$$$$$$$$$$$$$$$$orientation: " + orientation.name());
+            System.out.println("#########orientation: " + step.getVehicleOrientation().name());
+            System.out.println("#########orientation: " + step.getDestinationPoint().getVehicleOrientationAngle());
+            System.out.println("#########orientation: " + getProcessModel().getVehicleOrientationAngle());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!currentCmd.isWithoutOperation() && currentCmd.isFinalMovement() && isContainActionsKey(currentCmd)) {
                 /*
@@ -506,7 +495,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //        // 取消单步执行状态
 //        getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
-        commandMap.remove(cmd);
         getProcessModel().commandExecuted(cmd);
         logger.info("Vehicle[" + getName() + "] move to " + cmd.getStep().getDestinationPoint().getName() + " point is success!");
     }

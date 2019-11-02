@@ -1,5 +1,6 @@
 package com.openagv.core.interfaces;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,16 +62,16 @@ public interface IResponse extends java.io.Serializable{
     String toString();
 
     /**
-     * 设置目标位置点名称
+     * 设置目标位置点名称集合
      * @return 目标点名称
      */
-    void setNextPointName(String pointName);
+    void setNextPointNames(List<String> pointNameList);
 
     /**
      * 取目标位置点名称
      * @return
      */
-    String getNextPointName();
+    List<String> getNextPointNames();
 
     /**
      * 设置请求指令

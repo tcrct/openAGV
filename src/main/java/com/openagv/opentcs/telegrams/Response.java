@@ -2,9 +2,11 @@ package com.openagv.opentcs.telegrams;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.openagv.core.interfaces.IResponse;
+import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,13 +81,14 @@ public class Response implements IResponse {
     }
 
     @Override
-    public void setNextPointName(String pointName) {
-        params.put(IResponse.TARGET_POINT_NAME, pointName);
+    public void setNextPointNames(List<String> pointNameList) {
+        params.put(IResponse.TARGET_POINT_NAME, pointNameList);
     }
 
     @Override
-    public String getNextPointName() {
-        return String.valueOf(params.get(IResponse.TARGET_POINT_NAME));
+    public List<String> getNextPointNames() {
+        Object obj =  params.get(IResponse.TARGET_POINT_NAME);
+        return ToolsKit.isEmpty(obj) ? null :  (List<String>)obj;
     }
 
     @Override

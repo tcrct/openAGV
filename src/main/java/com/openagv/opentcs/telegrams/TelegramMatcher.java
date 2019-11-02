@@ -9,9 +9,9 @@ import com.openagv.tools.ToolsKit;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.util.Objects.requireNonNull;
 
@@ -26,7 +26,7 @@ public class TelegramMatcher {
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
-
+    private final Map<String, Queue<String>> nextPointMap = new ConcurrentHashMap<>();
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
     /**握手对象*/
@@ -48,13 +48,21 @@ public class TelegramMatcher {
     public void enqueueRequestTelegram(@Nonnull IResponse requestTelegram) {
         requireNonNull(requestTelegram, "requestTelegram");
 
+        /*
         boolean emptyQueueBeforeEnqueue = requests.isEmpty();
         requests.add(requestTelegram);
         logger.info("添加到队列成功: "+ requestTelegram.toString());
-
         if (emptyQueueBeforeEnqueue) {
             checkForSendingNextRequest();
         }
+        */
+        // 将所有经过的点(不包括起始点)放入队列中
+        nextPointMap.put(requestTelegram.getDeviceId(), new LinkedBlockingQueue<>(requestTelegram.getNextPointNames()));
+        if(AppContext.isHandshakeListener()) {
+            handshakeTelegramQueue.add(new HandshakeTelegramDto(requestTelegram));
+            logger.info("添加到握手队列["+requestTelegram.getDeviceId()+"]成功: "+ requestTelegram.getHandshakeKey());
+        }
+        telegramSender.sendTelegram(requestTelegram);
     }
 
     /**检查是否发送下一个请求*/
@@ -98,27 +106,44 @@ public class TelegramMatcher {
 
         java.util.Objects.requireNonNull(responseTelegram, "responseTelegram");
 
-        //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
-        IResponse currentRequestTelegram = requests.peek();
-        // 判断该回复里的请求到达点与队列里的是否一致，如果一致，则返回true
-        if(ToolsKit.isNotEmpty(currentRequestTelegram) &&
-//                responseTelegram.getHandshakeKey().equals(currentRequestTelegram.getHandshakeKey()) ||
-                responseTelegram.getNextPointName().equals(currentRequestTelegram.getNextPointName())) {
-            // 在队列中移除第一位的
-            requests.remove();
-            logger.info("匹配成功，在队列中移除第一位的元素记录");
+        String cmdKey = responseTelegram.getCmdKey();
+        boolean isVehicleArrivalCmd = AppContext.getVehicleArrivalCmdKey().equals(cmdKey);
+        if(isVehicleArrivalCmd) {
             return true;
         }
-
-//        if(ToolsKit.isNotEmpty(currentRequestTelegram)) {
-//            logger.warn("请求队列没有{}的请求对象，传参的请求对象"+currentRequestTelegram.getNextPointName()+"， 队列与最新对应的请求对象不匹配");
-//        }
-//        else {
-//            logger.info("接收到请求ID["+responseTelegram.getRequestId()+"]的响应，但没有请求正在等响应");
+//        //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
+//        IResponse currentRequestTelegram = requests.peek();
+//        // 判断该回复里的请求到达点与队列里的是否一致，如果一致，则返回true
+//        if (ToolsKit.isNotEmpty(currentRequestTelegram) &&
+//                AppContext.getStateRequestCmdKey().equals(cmdKey) &&
+//                responseTelegram.getHandshakeKey().equals(currentRequestTelegram.getHandshakeKey())) {
+////                responseTelegram.getNextPointNames().equals(currentRequestTelegram.getNextPointNames())) {
+//            // 在队列中移除第一位的
+//            requests.remove();
+//            logger.info("匹配成功，在队列中移除车辆行驶路径记录");
+//            return true;
 //        }
 
         return false;
-
     }
 
+    /**
+     * 检查下一个点是否存在队列中
+     * @param deviceId  设备ID
+     * @param postNextPoint 提交上来的下一个点名称
+     * @return  如果存在则返回true
+     */
+    public boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
+        if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
+            Queue<String> nextPointQueue = nextPointMap.get(deviceId);
+            String nextPoint = nextPointQueue.peek();
+            if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(nextPoint)) {
+                nextPointQueue.remove();
+                return true;
+            }
+        } else {
+            logger.warn("车辆移动点不能为空，请确保response.setNextPointNames()设置了所有移动点名称");
+        }
+        return false;
+    }
 }
