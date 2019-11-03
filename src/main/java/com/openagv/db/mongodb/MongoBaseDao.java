@@ -70,7 +70,7 @@ public class MongoBaseDao<T> implements IDao<T> {
     public void print() {
         DbClient dbClient = cls.getAnnotation(DbClient.class);
         if(null != dbClient) {
-            System.out.println("#################Named: " + dbClient.id());
+            System.out.println("#################print: " + dbClient.id());
         }
     }
 
