@@ -2,21 +2,11 @@ package com.openagv.core;
 
 import cn.hutool.core.lang.Filter;
 import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.inject.*;
-import com.google.inject.binder.ScopedBindingBuilder;
-import com.google.inject.name.Named;
-import com.openagv.db.IDao;
-import com.openagv.db.annotation.ClientId;
-import com.openagv.db.mongodb.MongoDao;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Set;
 
 /**
@@ -48,14 +38,6 @@ public class AutoImportModule extends AbstractModule {
             binder(clazz);
         }
         AppContext.getInjectClassSet().addAll(classSet);
-
-//        try {
-//            for (Class clazz : AppContext.getInjectClassSet()) {
-//                InjectDao(clazz);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     /**
@@ -69,39 +51,9 @@ public class AutoImportModule extends AbstractModule {
             if(ToolsKit.isInjectServiceClass(clazz)) {
                 Class<T> interfaceClass = (Class<T>) clazz.getInterfaces()[0];
                 bind(interfaceClass).to(clazz).in(Scopes.SINGLETON);
-//                InjectDao(clazz);
             }
         } catch (Exception e){
             logger.error("bind is fail : " + e.getMessage(), e);
         }
     }
-
-    private void InjectDao(Class<?> clazz) throws Exception {
-        Field[] fields = clazz.getDeclaredFields();
-        for(Field field : fields) {
-            boolean isInjectAnn = field.isAnnotationPresent(Inject.class) || field.isAnnotationPresent(javax.inject.Inject.class);
-            if(isInjectAnn && MongoDao.class.equals(field.getType())) {
-                ParameterizedType paramType = (ParameterizedType) field.getGenericType();
-                Type[] types = paramType.getActualTypeArguments();
-                if(ToolsKit.isNotEmpty(types)) {
-                    // <>里的泛型类
-                    Class<?> paramTypeClass = ClassUtil.loadClass(types[0].getTypeName());
-//                    String key = ToolsKit.isEmpty(importAnnot.client()) ? DbClientFactory.getMongoDefaultClientId() : importAnnot.client();
-                    Object daoObj = ReflectUtil.newInstance(MongoDao.class, paramTypeClass); //MongoUtils.getMongoDao(key, paramTypeClass, proxyList);
-//                    Object serviceObj = AppContext.getGuiceInjector().getExistingBinding(Key.get(clazz));
-//                    Key key = AppContext.getGuiceInjector().getBinding(clazz).getKey();
-//                    Object serviceObj = AppContext.getGuiceInjector().getExistingBinding(key);
-                    Object serviceObj = AppContext.getGuiceInjector().getBinding(clazz);
-//                    Object serviceObj = ReflectUtil.newInstance(clazz.getName());
-                    if(null != daoObj) {
-                        field.setAccessible(true);
-                        field.set(serviceObj, daoObj);
-                    }
-                }
-            }
-        }
-    }
-
-
-
 }

@@ -1,14 +1,6 @@
 package com.openagv.db.mongodb;
 
 
-import cn.hutool.core.util.ReflectUtil;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.openagv.db.annotation.ClientId;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-
 public class MongoDao<T> extends MongoBaseDao<T>  {
 
     public MongoDao(){

@@ -1,11 +1,13 @@
 package com.openagv;
 
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IAction;
+import com.openagv.ioc.IocHelper;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.core.interfaces.IHandler;
 import com.openagv.core.interfaces.IPlugin;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Hello world!
@@ -62,7 +65,7 @@ public class Application {
         return this;
     }
 
-    private void guiceInjector() {
+    private void guiceInjector() throws Exception {
         if(null == AppContext.getGuiceInjector()){
             AppContext.getModules().add(new AutoImportModule());
             AppContext.setGuiceInjector(Guice.createInjector(AppContext.getModules()));
@@ -98,6 +101,10 @@ public class Application {
         RouteHelper.getRoutes();
     }
 
+    private void injectDao() throws Exception{
+        IocHelper.ioc();
+    }
+
     private void startOpenTcs() throws Exception{
         // 启动内核
         RunKernel.main(null);
@@ -121,6 +128,8 @@ public class Application {
         guiceInjector();
         // 映射路由
         route();
+        // 注入Dao
+        injectDao();
         // 启动OpenTCS
         startOpenTcs();
     }

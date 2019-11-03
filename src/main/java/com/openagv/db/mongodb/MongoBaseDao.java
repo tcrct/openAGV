@@ -1,11 +1,7 @@
 package com.openagv.db.mongodb;
 
-import cn.hutool.core.util.ReflectUtil;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import com.openagv.db.IDao;
-import com.openagv.db.annotation.ClientId;
+import com.openagv.db.annotation.DbClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +68,9 @@ public class MongoBaseDao<T> implements IDao<T> {
     }
 
     public void print() {
-        ClientId clientId = cls.getAnnotation(ClientId.class);
-        if(null != clientId) {
-            System.out.println("#################Named: " + clientId.value());
+        DbClient dbClient = cls.getAnnotation(DbClient.class);
+        if(null != dbClient) {
+            System.out.println("#################Named: " + dbClient.id());
         }
     }
 
