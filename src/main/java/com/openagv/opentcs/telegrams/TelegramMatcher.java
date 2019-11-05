@@ -140,6 +140,9 @@ public class TelegramMatcher {
             if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(nextPoint)) {
                 nextPointQueue.remove();
                 return true;
+            } else {
+                logger.warn("车辆上报的点["+postNextPoint+"]，系统中的点["+nextPoint+"]不一致");
+                return false;
             }
         } else {
             logger.warn("车辆移动点不能为空，请确保response.setNextPointNames()设置了所有移动点名称");
