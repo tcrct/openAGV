@@ -141,7 +141,7 @@ public class TelegramMatcher {
                 nextPointList.remove(postNextPoint);
                 return true;
             } else {
-                logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在");
+                logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在或已经上报处理");
                 return false;
             }
         } else {

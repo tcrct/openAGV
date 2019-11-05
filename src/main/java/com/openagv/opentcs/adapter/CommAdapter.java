@@ -439,7 +439,13 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                         break;
                 }
                  */
-                executeCustomCmds(currentCmd.getOperation());
+                // 如果动作指令操作未运行则可以运行
+                String operation = currentCmd.getOperation();
+                if (!CUSTOM_ACTIONS_MAP.containsKey(operation)) {
+                    executeCustomCmds(operation);
+                } else {
+                    logger.info("不能重复执行该操作，因该动作指令已经运行，作丢弃处理！");
+                }
             } else {
                 executeNextMoveCmd(null);
             }
@@ -484,14 +490,9 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
             // 设置为允许单步执行，即等待自定义命令执行完成或某一指令取消单步操作模式后，再发送移动车辆命令。
             getProcessModel().setSingleStepModeEnabled(true);
-            // 如果不存在则运行
-            if (!CUSTOM_ACTIONS_MAP.containsKey(operation)) {
-                // 执行自定义指令队列
-                AppContext.getCustomActionsQueue().get(operation).execute();
-                CUSTOM_ACTIONS_MAP.put(operation, operation);
-            } else {
-                logger.info("不能重复执行该操作，因该动作指令已经运行，作丢弃处理！");
-            }
+            // 执行自定义指令队列
+            AppContext.getCustomActionsQueue().get(operation).execute();
+            CUSTOM_ACTIONS_MAP.put(operation, operation);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
