@@ -59,8 +59,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     private boolean singleStepExecutionAllowed = false;
 
     // 该条线路所有StateRequest，将所有指令整合成一条返回
-    private final  static LinkedBlockingQueue<MovementCommand> commandQueue = new LinkedBlockingQueue<>();
+    private final static LinkedBlockingQueue<MovementCommand> commandQueue = new LinkedBlockingQueue<>();
     private TCSObjectService objectService;
+
+    /**
+     * 自定义动作是否运行
+     * 如果key存在，则正在运行该指定的动作组合
+     */
+    private final static Map<String,String>  CUSTOM_ACTIONS_MAP = new java.util.concurrent.ConcurrentHashMap<>();
 
     /***
      * 构造函数
@@ -435,7 +441,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                  */
                 executeCustomCmds(currentCmd.getOperation());
             } else {
-                executeNextMoveCmd();
+                executeNextMoveCmd(null);
             }
             // 唤醒处于等待状态的线程
             CommAdapter.this.notify();
@@ -478,8 +484,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
             // 设置为允许单步执行，即等待自定义命令执行完成或某一指令取消单步操作模式后，再发送移动车辆命令。
             getProcessModel().setSingleStepModeEnabled(true);
-            // 执行自定义指令队列
-            AppContext.getCustomActionsQueue().get(operation).execute();
+            // 如果不存在则运行
+            if (!CUSTOM_ACTIONS_MAP.containsKey(operation)) {
+                // 执行自定义指令队列
+                AppContext.getCustomActionsQueue().get(operation).execute();
+                CUSTOM_ACTIONS_MAP.put(operation, operation);
+            } else {
+                logger.info("不能重复执行该操作，因该动作指令已经运行，作丢弃处理！");
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -488,7 +500,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     /**
      * 执行下一步移动车辆
      */
-    public void executeNextMoveCmd() {
+    public void executeNextMoveCmd(String actionKey) {
         logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
@@ -496,6 +508,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
         getProcessModel().commandExecuted(cmd);
+        //移除指定动作的名称
+        if(ToolsKit.isNotEmpty(actionKey)) {
+            CUSTOM_ACTIONS_MAP.remove(actionKey);
+        }
     }
 
 

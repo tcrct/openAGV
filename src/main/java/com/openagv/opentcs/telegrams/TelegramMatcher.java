@@ -26,7 +26,7 @@ public class TelegramMatcher {
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
-    private final Map<String, Queue<String>> nextPointMap = new ConcurrentHashMap<>();
+    private final Map<String, List<String>> nextPointMap = new ConcurrentHashMap<>();
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
     /**握手对象*/
@@ -57,7 +57,7 @@ public class TelegramMatcher {
         }
         */
         // 将所有经过的点(不包括起始点)放入队列中
-        nextPointMap.put(requestTelegram.getDeviceId(), new LinkedBlockingQueue<>(requestTelegram.getNextPointNames()));
+        nextPointMap.put(requestTelegram.getDeviceId(), new ArrayList<>(requestTelegram.getNextPointNames()));
         if(AppContext.isHandshakeListener()) {
             handshakeTelegramQueue.add(new HandshakeTelegramDto(requestTelegram));
             logger.info("添加到握手队列["+requestTelegram.getDeviceId()+"]成功: "+ requestTelegram.getHandshakeKey());
@@ -128,28 +128,25 @@ public class TelegramMatcher {
     }
 
     /**
-     * 检查下一个点是否存在队列中
+     * 检查下一个点是否存在列表中
      * @param deviceId  设备ID
      * @param postNextPoint 提交上来的下一个点名称
      * @return  如果存在则返回true
      */
     public boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
-        return true;
-        /*
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
-            Queue<String> nextPointQueue = nextPointMap.get(deviceId);
-            String nextPoint = nextPointQueue.peek();
-            if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(nextPoint)) {
-                nextPointQueue.remove();
+            List<String> nextPointList = nextPointMap.get(deviceId);
+            boolean isContains = nextPointList.contains(postNextPoint);
+            if(ToolsKit.isNotEmpty(postNextPoint) && isContains) {
+                nextPointList.remove(postNextPoint);
                 return true;
             } else {
-                logger.warn("车辆上报的点["+postNextPoint+"]，系统中的点["+nextPoint+"]不一致");
+                logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在");
                 return false;
             }
         } else {
-            logger.warn("车辆移动点不能为空，请确保response.setNextPointNames()设置了所有移动点名称");
+            logger.warn("提交上来的车辆移动点不能为空，请确保在response.setNextPointNames()设置了接收到的到达点名称");
         }
         return false;
-        */
     }
 }
