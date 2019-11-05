@@ -134,6 +134,8 @@ public class TelegramMatcher {
      * @return  如果存在则返回true
      */
     public boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
+        return true;
+        /*
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
             Queue<String> nextPointQueue = nextPointMap.get(deviceId);
             String nextPoint = nextPointQueue.peek();
@@ -148,5 +150,6 @@ public class TelegramMatcher {
             logger.warn("车辆移动点不能为空，请确保response.setNextPointNames()设置了所有移动点名称");
         }
         return false;
+        */
     }
 }

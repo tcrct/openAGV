@@ -400,11 +400,11 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         List<String> currentPositionList = response.getNextPointNames();
         String postNextPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
         String deviceId = response.getDeviceId();
-        // 更新位置，但前提是它不能是空且是相等的
+        // 更新位置，但前提是它不能是空且就系统中是存在的相等的
         if (telegramMatcher.checkForVehiclePosition(deviceId, postNextPoint)) {
             getProcessModel().setVehiclePosition(postNextPoint);
+            logger.info("Vehicle[" + getName() + "] move to " + postNextPoint+ " point is success!");
         } else {
-            logger.warn("车辆移动点不能为空，请确保response.setTargetPointName()设置了下一个移动点名称");
             return;
         }
 
@@ -435,7 +435,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                  */
                 executeCustomCmds(currentCmd.getOperation());
             } else {
-                executeMoveVehicleCmd();
+                executeNextMoveCmd();
             }
             // 唤醒处于等待状态的线程
             CommAdapter.this.notify();
@@ -486,17 +486,16 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     }
 
     /**
-     * 执行移动车辆命令
+     * 执行下一步移动车辆
      */
-    public void executeMoveVehicleCmd() {
+    public void executeNextMoveCmd() {
         logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
 //        // 取消单步执行状态
-//        getProcessModel().setSingleStepModeEnabled(false);
+        getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
         getProcessModel().commandExecuted(cmd);
-        logger.info("Vehicle[" + getName() + "] move to " + cmd.getStep().getDestinationPoint().getName() + " point is success!");
     }
 
 

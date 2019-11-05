@@ -216,6 +216,7 @@
         <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
     </vehicle>
     <locationType name="LType-0001">
+        <allowedOperation name="JackingDown"/>
         <allowedOperation name="JackingUp"/>
         <allowedOperation name="NOP"/>
     </locationType>
@@ -924,5 +925,5 @@
             <property name="POSITION_Y" value="5250"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-11-05T07:30:48.228Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-11-05T09:17:05.781Z"/>
 </model>
