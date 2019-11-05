@@ -277,6 +277,33 @@ public class ToolsKit {
         return AppContext.getOpenTcsObjectService().fetchObject(Point.class, pointName);
     }
 
+    /**
+     * 是否停止点，默认点
+     * @param point 点对象
+     * @return 是停车点返回true
+     */
+    public static boolean isHaltPoint(Point point) {
+        return Point.Type.HALT_POSITION.name().equals(point.getType().name());
+    }
+
+    /**
+     * 是否报告点
+     * @param point
+     * @return
+     */
+    public static boolean isReportPoint(Point point) {
+        return Point.Type.REPORT_POSITION.name().equals(point.getType().name());
+    }
+
+    /**
+     * 是否停车点
+     * @param point
+     * @return
+     */
+    public static boolean isParkPoint(Point point) {
+        return Point.Type.PARK_POSITION.name().equals(point.getType().name());
+    }
+
     /***
      * 根据线名称取openTCS线路图上的线
      */

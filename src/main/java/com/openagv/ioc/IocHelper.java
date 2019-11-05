@@ -13,6 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +36,7 @@ public class IocHelper {
                     if (ToolsKit.isNotEmpty(types)) {
                         // <>里的泛型类
                         Class<?> paramTypeClass = ClassUtil.loadClass(types[0].getTypeName());
-                        Object daoObj = getDbInjectDao(field, paramTypeClass); //MongoUtils.getMongoDao(key, paramTypeClass, proxyList);
+                        Object daoObj = getDbInjectDao(field, paramTypeClass);
                         if (null != daoObj) {
                             field.setAccessible(true);
                             field.set(serviceObj, daoObj);
@@ -51,9 +52,10 @@ public class IocHelper {
         String key = paramTypeClass.getName();
         Object dbDaoObj = DB_DAO_MAP.get(key);
         if(ToolsKit.isEmpty(dbDaoObj)) {
-            // TODO 如果需要多数据源，可以在这里动手脚
-//            DbClient dbClient = field.getAnnotation(DbClient.class);
-//            String dbClientId = dbClient.id();
+            DbClient dbClient = field.getAnnotation(DbClient.class);
+            String dbClientId = ToolsKit.isNotEmpty(dbClient) ? dbClient.id() : "";
+            List<?> proxyList = null;
+//            dbDaoObj =  MongoUtils.getMongoDao(dbClientId, paramTypeClass, proxyList);
             dbDaoObj = ReflectUtil.newInstance(MongoDao.class, paramTypeClass);
             DB_DAO_MAP.put(key, dbDaoObj);
         }
