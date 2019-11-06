@@ -62,8 +62,9 @@ public interface IResponse extends java.io.Serializable{
     String toString();
 
     /**
-     * 设置目标位置点名称集合
-     * @return 目标点名称
+     * 设置所有下一个目标点名称的集合
+     * 切记不包括起始点，起始点除外，即1为起始点，2为1的下一个点，则List集合里只包含2。
+     * @return 目标点名称集合
      */
     void setNextPointNames(List<String> pointNameList);
 

@@ -413,16 +413,16 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             MovementCommand currentCmd = getSentQueue().peek();
             Route.Step step = currentCmd.getStep();
             //如果提交的点并不是最终点
-            boolean isFinalMovement = currentCmd.isFinalMovement() &&
-                    postCurrentPoint.equals(step.getSourcePoint());
+//            boolean isFinalMovement = currentCmd.isFinalMovement() &&
+//                    postCurrentPoint.equals(step.getSourcePoint());
 
 //            System.out.println("#########orientation: " + step.getVehicleOrientation().name());
 //            System.out.println("#########orientation: " + step.getDestinationPoint().getVehicleOrientationAngle());
 //            System.out.println("#########orientation: " + getProcessModel().getVehicleOrientationAngle());
-            System.out.println("###############: "  + isFinalMovement+"                 "+step.getSourcePoint().getName()+"             "+ currentCmd.getFinalDestination().getName());
+//            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+step.getSourcePoint().getName()+"             "+ currentCmd.getFinalDestination().getName());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!currentCmd.isWithoutOperation() &&
-                    isFinalMovement &&
+                    currentCmd.isFinalMovement()  &&
                     isContainActionsKey(currentCmd)) {
                 /*
                 Route.Step step = currentCmd.getStep();
@@ -509,7 +509,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //        // 取消单步执行状态
         getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
-        System.out.println("cmd.getStep().getSourcePoint(): " + cmd.getStep().getSourcePoint());
+//        System.out.println("cmd.getStep().getSourcePoint(): " + cmd.getStep().getSourcePoint());
         getProcessModel().commandExecuted(cmd);
         //移除指定动作的名称
         if(ToolsKit.isNotEmpty(actionKey)) {
