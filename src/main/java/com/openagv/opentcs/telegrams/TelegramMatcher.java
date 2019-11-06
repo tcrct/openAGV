@@ -109,7 +109,10 @@ public class TelegramMatcher {
         String cmdKey = responseTelegram.getCmdKey();
         boolean isVehicleArrivalCmd = AppContext.getVehicleArrivalCmdKey().equals(cmdKey);
         if(isVehicleArrivalCmd) {
-            return true;
+            List<String> currentPositionList = responseTelegram.getNextPointNames();
+            String postNextPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
+            String deviceId = responseTelegram.getDeviceId();
+            return checkForVehiclePosition(deviceId, postNextPoint);
         }
 //        //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
 //        IResponse currentRequestTelegram = requests.peek();
@@ -133,7 +136,7 @@ public class TelegramMatcher {
      * @param postNextPoint 提交上来的下一个点名称
      * @return  如果存在则返回true
      */
-    public boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
+    private boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
             List<String> nextPointList = nextPointMap.get(deviceId);
             boolean isContains = nextPointList.contains(postNextPoint);

@@ -4,8 +4,7 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.openagv.core.handshake.HandshakeTelegramQueue;
-import com.openagv.core.interfaces.IDecomposeTelegram;
-import com.openagv.core.interfaces.IHandshakeListener;
+import com.openagv.core.interfaces.*;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
@@ -47,6 +46,7 @@ public abstract class OpenAgvConfigure {
     public abstract IDecomposeTelegram getDecomposeTelegram();
     public abstract IHandshakeListener getHandshakeListener();
     public abstract HandshakeTelegramQueue getHandshakeTelegramQueue();
+    public abstract IProrocol getProtocol();
 
 //    public static void main(String[] args) {
 //        new OpenTcsConfigure();

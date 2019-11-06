@@ -397,22 +397,17 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     }
 
     /**
-     * 检查车辆位置并更新
+     *车辆位置更新并执行自定义指令
      * @param response 车辆回复的协议
      */
-    public void checkForVehiclePositionUpdate(IResponse response) {
+    public void updateVehiclePositionAndExecuteCmd(IResponse response) {
 
         // 将报告的位置ID映射到点名称
         List<String> currentPositionList = response.getNextPointNames();
         String postNextPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
-        String deviceId = response.getDeviceId();
-        // 更新位置，但前提是它不能是空且就系统中是存在的相等的
-        if (telegramMatcher.checkForVehiclePosition(deviceId, postNextPoint)) {
-            getProcessModel().setVehiclePosition(postNextPoint);
-            logger.info("Vehicle[" + getName() + "] move to " + postNextPoint+ " point is success!");
-        } else {
-            return;
-        }
+        if(ToolsKit.isEmpty(postNextPoint)) { return;}
+        getProcessModel().setVehiclePosition(postNextPoint);
+        logger.info("Vehicle[" + getName() + "] move to " + postNextPoint+ " point is success!");
 
         // Update GUI.
         synchronized (CommAdapter.this) {
