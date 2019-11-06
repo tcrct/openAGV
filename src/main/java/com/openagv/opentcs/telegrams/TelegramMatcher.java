@@ -26,7 +26,7 @@ public class TelegramMatcher {
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
-    private final Map<String, List<String>> nextPointMap = new ConcurrentHashMap<>();
+    private final Map<String, LinkedBlockingQueue<String>> nextPointMap = new ConcurrentHashMap<>();
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
     /**握手对象*/
@@ -57,7 +57,7 @@ public class TelegramMatcher {
         }
         */
         // 将所有经过的点(不包括起始点)放入队列中
-        nextPointMap.put(requestTelegram.getDeviceId(), new ArrayList<>(requestTelegram.getNextPointNames()));
+        nextPointMap.put(requestTelegram.getDeviceId(), new LinkedBlockingQueue<>(requestTelegram.getNextPointNames()));
         if(AppContext.isHandshakeListener()) {
             handshakeTelegramQueue.add(new HandshakeTelegramDto(requestTelegram));
             logger.info("添加到握手队列["+requestTelegram.getDeviceId()+"]成功: "+ requestTelegram.getHandshakeKey());
@@ -138,10 +138,10 @@ public class TelegramMatcher {
      */
     private boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
-            List<String> nextPointList = nextPointMap.get(deviceId);
-            boolean isContains = nextPointList.contains(postNextPoint);
-            if(ToolsKit.isNotEmpty(postNextPoint) && isContains) {
-                nextPointList.remove(postNextPoint);
+            LinkedBlockingQueue<String> nextPointQueue = nextPointMap.get(deviceId);
+            String pointName = nextPointQueue.peek();
+            if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(pointName)) {
+                nextPointQueue.remove();
                 return true;
             } else {
                 logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在或已经上报处理");
