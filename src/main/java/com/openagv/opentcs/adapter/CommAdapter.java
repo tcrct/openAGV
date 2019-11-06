@@ -190,10 +190,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      */
     @Override
     protected synchronized boolean canSendNextCommand() {
-//        return super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
-        boolean isCanSendNextCommand =  super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
-        logger.info("canSendNextCommand："+ isCanSendNextCommand);
-        return isCanSendNextCommand;
+        return super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
+//        boolean isCanSendNextCommand =  super.canSendNextCommand() && (!getProcessModel().isSingleStepModeEnabled() || singleStepExecutionAllowed);
+//        logger.info("canSendNextCommand："+ isCanSendNextCommand);
+//        return isCanSendNextCommand;
     }
 
     /**
