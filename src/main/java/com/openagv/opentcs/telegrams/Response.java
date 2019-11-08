@@ -2,6 +2,7 @@ package com.openagv.opentcs.telegrams;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.openagv.core.interfaces.IResponse;
+import com.openagv.dto.PathStepDto;
 import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
@@ -130,9 +131,18 @@ public class Response implements IResponse {
         this.isHandshakeList = isHandshakeList;
     }
 
-
     @Override
     public boolean isHandshakeList() {
         return isHandshakeList;
+    }
+
+    /**
+     * 设置参数步骤集合，主要用于路径运行一半后，出现故障或其它原因停止修复，修复后需要没执行的参数重发至客户端
+     * @param stepList
+     */
+    @Override
+    public void setPathStepList(List<PathStepDto> stepList) {
+        java.util.Objects.requireNonNull(stepList, "步骤集合不能为空");
+        getParams().put(PARAM_POINT_STEP, stepList);
     }
 }

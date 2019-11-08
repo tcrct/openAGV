@@ -1,5 +1,7 @@
 package com.openagv.core.interfaces;
 
+import com.openagv.dto.PathStepDto;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +12,7 @@ public interface IResponse extends java.io.Serializable{
 
     String TARGET_POINT_NAME = "OA_NPN";
     String HANDSHAKE_NAME = "OA_HS_KEY";
+    String PARAM_POINT_STEP = "OA_PPS";
 
     /**
      * 设置请求ID
@@ -111,5 +114,7 @@ public interface IResponse extends java.io.Serializable{
 
     boolean isHandshakeList();
     void setHandshakeListener(boolean isHandshakeList);
+
+    void setPathStepList(List<PathStepDto> stepList);
 
 }

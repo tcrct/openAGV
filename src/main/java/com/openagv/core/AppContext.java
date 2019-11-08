@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.*;
+import com.openagv.dto.PathStepDto;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
@@ -15,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.opentcs.components.kernel.services.TCSObjectService;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -42,6 +44,8 @@ public class AppContext {
     private static final Map<String, IAction> CUSTOM_ACTION_QUEYE = new HashMap<>();
     /**插件开启回调*/
     private static final List<IEnable> PLUGIN_ENABLE_LIST = new ArrayList<>();
+    /**所有需要执行的路径步骤集合， Key为车辆或设备ID*/
+    private static final Map<String, List<PathStepDto>> PATH_STEP_MAP = new ConcurrentHashMap<>();
 
     /**guice的injector*/
     private static Injector injector;
@@ -259,7 +263,16 @@ public class AppContext {
      * */
     private static HandshakeTelegramQueue HANDSHAKE_TELEGRAM_QUEUE = null;
 
-//    /***
+    /***
+     * 如需要重发未执行的路径时，可以遍历对应的List取到每个PathStepDto对象，根据isExceute属性确定是否已经执行。值为true时为已经执行。
+     *
+     * @return 路径步骤集合
+     */
+    public static Map<String, List<PathStepDto>> getPathStepMap() {
+        return PATH_STEP_MAP;
+    }
+
+    //    /***
 //     * 返回集合中指定队列中第一个元素
 //     * @param deviceId 设备ID
 //     */

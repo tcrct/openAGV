@@ -5,6 +5,7 @@ import com.openagv.core.handshake.HandshakeTelegramDto;
 import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.core.interfaces.ITelegramSender;
+import com.openagv.dto.PathStepDto;
 import com.openagv.tools.ToolsKit;
 import org.apache.log4j.Logger;
 
@@ -26,7 +27,9 @@ public class TelegramMatcher {
 
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
+    /**所有经过的点的队列*/
     private final Map<String, LinkedBlockingQueue<String>> nextPointMap = new ConcurrentHashMap<>();
+
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
     /**握手对象*/
@@ -43,10 +46,10 @@ public class TelegramMatcher {
 
     /**
      *  将请求电报加入队列中
-     * @param requestTelegram   请求电报,经过业务逻辑处理返回的IResponse，其实就是逻辑处理完成后返回的请求报文信息
+     * @param responseTelegram   请求电报,经过业务逻辑处理返回的IResponse，其实就是逻辑处理完成后返回的请求报文信息
      */
-    public void enqueueRequestTelegram(@Nonnull IResponse requestTelegram) {
-        requireNonNull(requestTelegram, "requestTelegram");
+    public void enqueueRequestTelegram(@Nonnull IResponse responseTelegram) {
+        requireNonNull(responseTelegram, "requestTelegram");
 
         /*
         boolean emptyQueueBeforeEnqueue = requests.isEmpty();
@@ -57,12 +60,17 @@ public class TelegramMatcher {
         }
         */
         // 将所有经过的点(不包括起始点)放入队列中
-        nextPointMap.put(requestTelegram.getDeviceId(), new LinkedBlockingQueue<>(requestTelegram.getNextPointNames()));
-        if(AppContext.isHandshakeListener()) {
-            handshakeTelegramQueue.add(new HandshakeTelegramDto(requestTelegram));
-            logger.info("添加到握手队列["+requestTelegram.getDeviceId()+"]成功: "+ requestTelegram.getHandshakeKey());
+        nextPointMap.put(responseTelegram.getDeviceId(), new LinkedBlockingQueue<>(responseTelegram.getNextPointNames()));
+        // 将所有执行步骤放入队列
+        List<PathStepDto> stepDtoList = (List<PathStepDto>) responseTelegram.getParams().get(IResponse.PARAM_POINT_STEP);
+        if(ToolsKit.isNotEmpty(stepDtoList)) {
+            AppContext.getPathStepMap().put(responseTelegram.getDeviceId(), stepDtoList);
         }
-        telegramSender.sendTelegram(requestTelegram);
+        if(AppContext.isHandshakeListener()) {
+            handshakeTelegramQueue.add(new HandshakeTelegramDto(responseTelegram));
+            logger.info("添加到握手队列["+responseTelegram.getDeviceId()+"]成功: "+ responseTelegram.getHandshakeKey());
+        }
+        telegramSender.sendTelegram(responseTelegram);
     }
 
     /**检查是否发送下一个请求*/
@@ -141,7 +149,20 @@ public class TelegramMatcher {
             LinkedBlockingQueue<String> nextPointQueue = nextPointMap.get(deviceId);
             String pointName = nextPointQueue.peek();
             if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(pointName)) {
+                // 移除点
                 nextPointQueue.remove();
+                // 将路径步骤对应的点对象标识为已经执行，如需要重发未执行的路径时，
+                // 可以遍历对应的List取到每个PathStepDto对象，根据isExceute属性确定是否已经执行。值为true时为已经执行。
+                List<PathStepDto> stepDtoList = AppContext.getPathStepMap().get(deviceId);
+                if(ToolsKit.isNotEmpty(stepDtoList)) {
+                    for(PathStepDto stepDto : stepDtoList) {
+                        if(stepDto.getPointName().equals(pointName)){
+                            // 标识为已经执行
+                            stepDto.setExceuteToTrue();
+                            break;
+                        }
+                    }
+                }
                 return true;
             } else {
                 logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
