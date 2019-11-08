@@ -304,6 +304,10 @@ public class ToolsKit {
         return Point.Type.PARK_POSITION.name().equals(point.getType().name());
     }
 
+    public static boolean isParkPoint(Point.Type pointType) {
+        return Point.Type.PARK_POSITION.name().equals(pointType.name());
+    }
+
     /***
      * 根据线名称取openTCS线路图上的线
      */
