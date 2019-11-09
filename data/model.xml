@@ -15,7 +15,7 @@
         <outgoingPath name="368 --- 367"/>
         <outgoingPath name="368 --- 378"/>
         <outgoingPath name="368 --- 452"/>
-        <property name="rotate" value="c"/>
+        <property name="rotate" value="a"/>
     </point>
     <point name="370" xPosition="50000" yPosition="3000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="370 --- 379"/>
@@ -33,7 +33,6 @@
         <outgoingPath name="373 --- 374"/>
         <outgoingPath name="373 --- 450"/>
         <outgoingPath name="373 --- 452"/>
-        <property name="rotate" value="c"/>
     </point>
     <point name="374" xPosition="39000" yPosition="17500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="374 --- 373"/>
@@ -43,6 +42,7 @@
         <outgoingPath name="375 --- 374"/>
         <outgoingPath name="375 --- 377"/>
         <outgoingPath name="375 --- 453"/>
+        <property name="rotate" value="c"/>
     </point>
     <point name="377" xPosition="50000" yPosition="12500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="377 --- 375"/>
@@ -103,6 +103,7 @@
     <point name="481" xPosition="47500" yPosition="4000" zPosition="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <outgoingPath name="481 --- 453"/>
         <outgoingPath name="481 --- 480"/>
+        <property name="rotate" value="a"/>
     </point>
     <path name="1 --- 4" sourcePoint="1" destinationPoint="4" length="5000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="3 --- 368" sourcePoint="3" destinationPoint="368" length="5000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
@@ -692,5 +693,5 @@
             <property name="POSITION_Y" value="3000"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-11-08T07:07:12.774Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-11-09T02:59:25.445Z"/>
 </model>
