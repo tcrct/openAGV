@@ -265,7 +265,7 @@ public class AppContext {
 
     /***
      * 如需要重发未执行的路径时，可以遍历对应的List取到每个PathStepDto对象，根据isExceute属性确定是否已经执行。值为true时为已经执行。
-     *
+     * key：为车辆/设备id
      * @return 路径步骤集合
      */
     public static Map<String, List<PathStepDto>> getPathStepMap() {

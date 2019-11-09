@@ -158,7 +158,7 @@ public class TelegramMatcher {
                     for(PathStepDto stepDto : stepDtoList) {
                         if(stepDto.getPointName().equals(pointName)){
                             // 标识为已经执行
-                            stepDto.setExceuteToTrue();
+                            stepDto.setExecuteToTrue();
                             break;
                         }
                     }

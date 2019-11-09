@@ -13,17 +13,17 @@ public class PathStepDto implements java.io.Serializable {
     /**点对应的动作指令*/
     private String pointAction;
     /**是否已经执行，默认没执行，在上报卡号后，需要更改其状态为true*/
-    private Boolean isExceute = false;
+    private Boolean isExecute = false;
 
     public PathStepDto(String pointName, String pointAction) {
         this.pointName = pointName;
         this.pointAction = pointAction;
     }
 
-    public PathStepDto(String pointName, String pointAction, Boolean isExceute) {
+    public PathStepDto(String pointName, String pointAction, Boolean isExecute) {
         this.pointName = pointName;
         this.pointAction = pointAction;
-        this.isExceute = isExceute;
+        this.isExecute = isExecute;
     }
 
     public String getPointName() {
@@ -34,12 +34,16 @@ public class PathStepDto implements java.io.Serializable {
         return pointAction;
     }
 
-    public Boolean getExceute() {
-        return isExceute;
+    /**
+     * false时为没执行，true时为已执行
+     * @return
+     */
+    public Boolean isExecute() {
+        return isExecute;
     }
 
     /**将值更改为已经执行或操作*/
-    public void setExceuteToTrue() {
-        isExceute = true;
+    public void setExecuteToTrue() {
+        isExecute = true;
     }
 }
