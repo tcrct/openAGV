@@ -1,5 +1,6 @@
 package com.openagv.plugins.serialport;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IPlugin;
@@ -135,7 +136,6 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
-        logger.info("串口["+ AppContext.getSerialPort().getName()+"]发送报文: "+response.toString());
         SerialPortManager.duang().sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }
