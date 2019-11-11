@@ -1,7 +1,7 @@
 package com.openagv.core.interfaces;
 
-public interface ICallback {
+public interface ICallback<T> {
 
-    void call(String deviceId, String requestId) throws Exception;
+    void call(String deviceId, T object) throws Exception;
 
 }
