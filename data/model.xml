@@ -23,6 +23,7 @@
     <point name="371" xPosition="9500" yPosition="16500" zPosition="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <outgoingPath name="371 --- 372"/>
         <outgoingPath name="371 --- 396"/>
+        <property name="rotate" value="a"/>
     </point>
     <point name="372" xPosition="19500" yPosition="17000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="372 --- 371"/>
@@ -42,7 +43,6 @@
         <outgoingPath name="375 --- 374"/>
         <outgoingPath name="375 --- 377"/>
         <outgoingPath name="375 --- 453"/>
-        <property name="rotate" value="a"/>
     </point>
     <point name="377" xPosition="50000" yPosition="12500" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="377 --- 375"/>
@@ -56,6 +56,7 @@
         <outgoingPath name="379 --- 370"/>
         <outgoingPath name="379 --- 377"/>
         <outgoingPath name="379 --- 378"/>
+        <property name="rotate" value="c"/>
     </point>
     <point name="396" xPosition="8500" yPosition="-1000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="396 --- 371"/>
@@ -65,6 +66,7 @@
         <outgoingPath name="4 --- 1"/>
         <outgoingPath name="4 --- 367"/>
         <outgoingPath name="4 --- 446"/>
+        <property name="rotate" value="c"/>
     </point>
     <point name="446" xPosition="10000" yPosition="20000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="446 --- 371"/>
@@ -85,6 +87,7 @@
     <point name="454" xPosition="8500" yPosition="3000" zPosition="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <outgoingPath name="454 --- 396"/>
         <outgoingPath name="454 --- 478"/>
+        <property name="rotate" value="c"/>
     </point>
     <point name="478" xPosition="18500" yPosition="3000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="478 --- 454"/>
@@ -94,6 +97,7 @@
         <outgoingPath name="479 --- 450"/>
         <outgoingPath name="479 --- 478"/>
         <outgoingPath name="479 --- 480"/>
+        <property name="rotate" value="a"/>
     </point>
     <point name="480" xPosition="37500" yPosition="4000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="480 --- 479"/>
@@ -692,5 +696,5 @@
             <property name="POSITION_Y" value="3000"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-11-09T09:44:17.292Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-11-12T06:12:11.066Z"/>
 </model>

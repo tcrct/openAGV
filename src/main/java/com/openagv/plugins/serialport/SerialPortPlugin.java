@@ -136,6 +136,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+        logger.info("串口发送报文: "+response.toString());
         SerialPortManager.duang().sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }
 }
