@@ -7,6 +7,7 @@ import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IAction;
+import com.openagv.enums.EnvEnum;
 import com.openagv.ioc.IocHelper;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.core.interfaces.IHandler;
@@ -62,6 +63,11 @@ public class Application {
         for(IAction action : actions) {
             AppContext.getCustomActionsQueue().put(action.actionKey(), action);
         }
+        return this;
+    }
+
+    public Application env(EnvEnum envEnum) {
+        AppContext.setEnvModel(envEnum);
         return this;
     }
 

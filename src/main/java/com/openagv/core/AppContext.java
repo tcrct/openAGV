@@ -5,6 +5,7 @@ import com.google.inject.Module;
 import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.*;
 import com.openagv.dto.PathStepDto;
+import com.openagv.enums.EnvEnum;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
@@ -17,7 +18,6 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 上下文及映射容器
@@ -52,7 +52,7 @@ public class AppContext {
     /**injector的Module集合*/
     private final static Set<Module> MODULES = new HashSet<>();
 
-
+    private static EnvEnum envEnum = EnvEnum.DEV;
 
     public static void setGuiceInjector(Injector injector) {
         AppContext.injector = injector;
@@ -287,4 +287,13 @@ public class AppContext {
 //        }
 //        return null;
 //    }
+
+    public static void setEnvModel(EnvEnum envEnum) {
+        AppContext.envEnum = envEnum;
+    }
+
+    //是否开发环境
+    public static boolean isDev() {
+        return EnvEnum.DEV.equals(envEnum);
+    }
 }
