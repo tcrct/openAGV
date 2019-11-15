@@ -1,5 +1,6 @@
 package com.openagv.tools;
 
+import com.duangframework.db.annotation.Entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -16,7 +17,6 @@ import com.openagv.core.annotations.Service;
 import com.openagv.core.command.SendCommand;
 import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
-import com.openagv.db.annotation.Entity;
 import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
