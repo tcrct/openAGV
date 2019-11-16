@@ -2,10 +2,11 @@ package com.openagv.ioc;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.duangframework.db.annotation.DbClient;
+import com.duangframework.db.core.IDbClient;
+import com.duangframework.db.mongodb.MongoDao;
 import com.google.inject.Inject;
 import com.openagv.core.AppContext;
-import com.openagv.db.annotation.DbClient;
-import com.openagv.db.mongodb.MongoDao;
 import com.openagv.tools.ToolsKit;
 
 import java.lang.reflect.Field;

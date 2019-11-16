@@ -52,7 +52,8 @@ public class AppContext {
     /**injector的Module集合*/
     private final static Set<Module> MODULES = new HashSet<>();
 
-    private static EnvEnum envEnum = EnvEnum.DEV;
+    /**开发环境 */
+    private static EnvEnum envEnum = null;
 
     public static void setGuiceInjector(Injector injector) {
         AppContext.injector = injector;
@@ -294,6 +295,10 @@ public class AppContext {
 
     //是否开发环境
     public static boolean isDev() {
+        if(null == envEnum) {
+            String envString =  SettingUtils.getString("env", "dev");
+            envEnum = EnvEnum.valueOf(envString.toUpperCase());
+        }
         return EnvEnum.DEV.equals(envEnum);
     }
 }
