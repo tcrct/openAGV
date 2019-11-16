@@ -117,11 +117,11 @@ public class Application {
         logger.warn("启动内核完成");
 
         // 启动内核心控制中心
-        RunKernelControlCenter.main(null);
+//        RunKernelControlCenter.main(null);
         logger.warn("启动内核心控制中心完成");
 
         // 启动工厂概述控制中心
-        RunPlantOverview.main(null);
+//        RunPlantOverview.main(null);
         logger.warn("启动工厂概述控制中心完成");
     }
 
