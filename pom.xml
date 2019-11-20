@@ -65,7 +65,7 @@
     <junit.version>4.11</junit.version>
     <guice.version>4.2.2</guice.version>
     <hutool.version>4.6.7</hutool.version>
-    <netty.version>4.1.21.Final</netty.version>
+    <netty.version>4.1.42.Final</netty.version>
     <opentcs.version>4.16.1</opentcs.version>
     <guava.version>25.1-android</guava.version>
     <findbugs.version>3.0.1</findbugs.version>
