@@ -23,6 +23,7 @@ import com.openagv.opentcs.telegrams.StateRequest;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.guing.util.ResourceBundleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static org.opentcs.guing.util.I18nPlantOverview.MENU_PATH;
 
 public class ToolsKit {
 
@@ -324,7 +327,9 @@ public class ToolsKit {
         return AppContext.getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
     }
 
+//    private static final ResourceBundleUtil BUNDLE = ResourceBundleUtil.getBundle(MENU_PATH);
     public static String getWebEndPoint() {
+
         return "http://127.0.0.1:55200/v1";
     }
 
