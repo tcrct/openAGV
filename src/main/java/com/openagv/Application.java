@@ -1,13 +1,13 @@
 package com.openagv;
 
 
-import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IAction;
 import com.openagv.enums.EnvEnum;
+import com.openagv.enums.StartTypeEnum;
 import com.openagv.ioc.IocHelper;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.core.interfaces.IHandler;
@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * Hello world!
@@ -71,6 +70,11 @@ public class Application {
         return this;
     }
 
+    public Application startType(StartTypeEnum startTypeEnum) {
+        AppContext.setStartTypeEnum(startTypeEnum);
+        return this;
+    }
+
     private void guiceInjector() throws Exception {
         if(null == AppContext.getGuiceInjector()){
             AppContext.getModules().add(new AutoImportModule());
@@ -112,16 +116,19 @@ public class Application {
     }
 
     private void startOpenTcs() throws Exception{
-        // 启动内核
-        RunKernel.main(null);
-        logger.warn("启动内核完成");
+        // 以服务器方式启动
+        if (StartTypeEnum.SERVER.equals(AppContext.getStartTypeEnum())) {
+            // 启动内核
+            RunKernel.main(null);
+            logger.warn("启动内核完成");
 
-        // 启动内核心控制中心
-//        RunKernelControlCenter.main(null);
-        logger.warn("启动内核心控制中心完成");
+            // 启动内核心控制中心
+            RunKernelControlCenter.main(null);
+            logger.warn("启动内核心控制中心完成");
+        }
 
         // 启动工厂概述控制中心
-//        RunPlantOverview.main(null);
+        RunPlantOverview.main(null);
         logger.warn("启动工厂概述控制中心完成");
     }
 

@@ -1,6 +1,7 @@
 package com.openagv.opentcs.adapter;
 
 import com.google.inject.assistedinject.Assisted;
+import com.openagv.opentcs.commands.ContinueVehicleMoveCommand;
 import com.openagv.opentcs.commands.NextStepButtonCommand;
 import com.openagv.opentcs.enums.Attribute;
 import com.openagv.opentcs.model.VehicleModelTO;
@@ -1279,8 +1280,10 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
         sendCommAdapterCommand(new PublishEventCommand(event));
     }//GEN-LAST:event_dispatchEventButtonActionPerformed
 
+    // todo 重发车辆调度命令，即车辆故障后，在当前位置上继续执行余下的路径指令
     private void dispatchCommandFailedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dispatchCommandFailedButtonActionPerformed
-        sendCommAdapterCommand(new CurrentMovementCommandFailedCommand());
+//        sendCommAdapterCommand(new CurrentMovementCommandFailedCommand());
+        sendCommAdapterCommand(new ContinueVehicleMoveCommand());
     }//GEN-LAST:event_dispatchCommandFailedButtonActionPerformed
 
     private void propSetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_propSetButtonActionPerformed

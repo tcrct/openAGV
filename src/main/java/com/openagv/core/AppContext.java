@@ -6,6 +6,7 @@ import com.openagv.core.handshake.HandshakeTelegramQueue;
 import com.openagv.core.interfaces.*;
 import com.openagv.dto.PathStepDto;
 import com.openagv.enums.EnvEnum;
+import com.openagv.enums.StartTypeEnum;
 import com.openagv.opentcs.OpenAgvConfigure;
 import com.openagv.opentcs.adapter.CommAdapter;
 import com.openagv.opentcs.enums.CommunicationType;
@@ -54,6 +55,8 @@ public class AppContext {
 
     /**开发环境 */
     private static EnvEnum envEnum = null;
+    /**启动方式*/
+    private static StartTypeEnum startTypeEnum = null;
 
     public static void setGuiceInjector(Injector injector) {
         AppContext.injector = injector;
@@ -300,5 +303,13 @@ public class AppContext {
             envEnum = EnvEnum.valueOf(envString.toUpperCase());
         }
         return EnvEnum.DEV.equals(envEnum);
+    }
+
+    public static StartTypeEnum getStartTypeEnum() {
+        return startTypeEnum;
+    }
+
+    public static void setStartTypeEnum(StartTypeEnum startTypeEnum) {
+        AppContext.startTypeEnum = startTypeEnum;
     }
 }

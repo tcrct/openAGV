@@ -324,5 +324,10 @@ public class ToolsKit {
         return AppContext.getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
     }
 
+    public static String getWebEndPoint() {
+        return "http://127.0.0.1:55200/v1";
+    }
+
+
 
 }
