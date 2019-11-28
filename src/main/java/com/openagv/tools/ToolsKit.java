@@ -82,7 +82,7 @@ public class ToolsKit {
 
     public static <T> List<T> jsonParseArray(String jsonStr, TypeReference<T> typeReference)  {
         try {
-            return objectMapper.readValue(jsonStr, typeReference);
+            return (List<T>)objectMapper.readValue(jsonStr, typeReference);
         } catch (Exception e) {
             throw new AgvException(e.getMessage(), e);
         }

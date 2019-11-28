@@ -1,5 +1,6 @@
 package com.openagv.opentcs.adapter;
 
+import com.openagv.core.AppContext;
 import com.openagv.opentcs.model.VehicleModelTO;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.data.TCSObjectReference;
@@ -38,6 +39,7 @@ public class CommAdapterPanelFactory implements VehicleCommAdapterPanelFactory {
     @Inject
     public CommAdapterPanelFactory(KernelServicePortal servicePortal, PanelComponentsFactory componentsFactory) {
         this.servicePortal = requireNonNull(servicePortal, "servicePortal");
+        AppContext.setKernelServicePortal(servicePortal);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
     }
 
