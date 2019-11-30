@@ -189,6 +189,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public synchronized void nextStepButton() {
         singleStepExecutionAllowed = true;
     }
+
     /**
      * 是否可以发送下一条指令
      * 已发送的命令数小于车辆的容量，并且队列中至少有一个命令正在等待发送
