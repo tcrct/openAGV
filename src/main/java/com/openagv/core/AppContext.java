@@ -15,6 +15,7 @@ import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 import gnu.io.SerialPort;
 import org.apache.log4j.Logger;
+import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.TCSObjectService;
 
 import java.util.*;
@@ -311,5 +312,13 @@ public class AppContext {
 
     public static void setStartTypeEnum(StartTypeEnum startTypeEnum) {
         AppContext.startTypeEnum = startTypeEnum;
+    }
+
+    private static KernelServicePortal kernelServicePortal;
+    public static void setKernelServicePortal(KernelServicePortal servicePortal) {
+        kernelServicePortal = servicePortal;
+    }
+    public static KernelServicePortal getKernelServicePortal() {
+        return kernelServicePortal ;
     }
 }

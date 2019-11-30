@@ -27,7 +27,7 @@ public class SetSingleStepModeEnabledCommand
             return;
         }
 
-        CommAdapter loopbackAdapter = (CommAdapter) adapter;
-        loopbackAdapter.getProcessModel().setSingleStepModeEnabled(enabled);
+        CommAdapter commAdapter = (CommAdapter) adapter;
+        commAdapter.getProcessModel().setSingleStepModeEnabled(enabled);
     }
 }
