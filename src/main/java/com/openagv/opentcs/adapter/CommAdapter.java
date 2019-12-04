@@ -82,7 +82,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
          * sentQueueCapacity: 要发送给车辆的最大订单数。
          * 设置为100，即允许可以执行100个点的线路
          */
-        super(new ProcessModel(vehicle), 100, 100, LoadAction.CHARGE);
+        super(new ProcessModel(vehicle), ToolsKit.getCommandQueueCapacity(), ToolsKit.getSentQueueCapacity(), LoadAction.CHARGE);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.objectService = requireNonNull(objectService, "objectService");
         AppContext.setCommAdapter(this);
@@ -214,32 +214,44 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         requireNonNull(cmd, "移动命令不能为空");
         singleStepExecutionAllowed = false;
         logger.info("sendCommand:" + cmd);
+        // 如果是交通管制，则生成出来的路径协议就是两个点两点的下发
+        boolean isTrafficControl = ToolsKit.isTrafficControl(getProcessModel());
         commandQueue.add(cmd);
-//        if(!cmd.isFinalMovement()){
-//            getProcessModel().commandExecuted(getSentQueue().poll());
-//        }
-        if(cmd.isFinalMovement()) {
-            try {
-                // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
-                IResponse response = ToolsKit.sendCommand(
-                        new StateRequest.Builder()
-                                .commandQuery(commandQueue)
-                                .finalCmd(cmd)
-                                .model(getProcessModel())
-                                .build());
-                if(response.getStatus() != HttpResponseStatus.OK.code()) {
-                    telegramMatcher.getTelegramSender().sendTelegram(response);
-                    throw new IllegalArgumentException(response.toString());
-                }
-                // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
-                telegramMatcher.enqueueRequestTelegram(response);
-                logger.info(getName()+": 将车辆移动报文提交到消息队列完成");
-                commandQueue.clear(); //清空该命令队列对象
-            } catch (Exception e) {
-                logger.error(getName()+"构建指令或将订单报文提交到消息队列失败: "+ e.getMessage(), e);
-            }
+        if (isTrafficControl) {
+            sendStateRequest(cmd);
+        } else if (cmd.isFinalMovement()) {
+            sendStateRequest(cmd);
         }
     }
+
+    /**
+     * 发送车辆移动请求
+     * @param cmd
+     */
+    private void  sendStateRequest(MovementCommand cmd) {
+        try {
+            // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
+            IResponse response = ToolsKit.sendCommand(
+                    new StateRequest.Builder()
+                            .commandQuery(commandQueue)
+                            .finalCmd(cmd)
+                            .model(getProcessModel())
+                            .build());
+            if (response.getStatus() != HttpResponseStatus.OK.code()) {
+                telegramMatcher.getTelegramSender().sendTelegram(response);
+                throw new IllegalArgumentException(response.toString());
+            }
+            // 把请求加入队列。请求发送规则是FIFO。这确保我们总是等待响应，直到发送新请求。
+            telegramMatcher.enqueueRequestTelegram(response);
+            logger.info(getName() + ": 将车辆移动报文提交到消息队列完成");
+        } catch (Exception e) {
+            logger.error(getName() + "构建指令或将订单报文提交到消息队列失败: " + e.getMessage(), e);
+        } finally {
+            commandQueue.clear(); //成功失败都需要清空该命令队列对象
+        }
+    }
+
+
     /**
      * 清理命令队列
      */

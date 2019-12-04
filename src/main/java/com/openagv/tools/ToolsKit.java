@@ -18,6 +18,7 @@ import com.openagv.core.command.SendCommand;
 import com.openagv.core.interfaces.IDecomposeTelegram;
 import com.openagv.core.interfaces.IRequest;
 import com.openagv.exceptions.AgvException;
+import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
 import org.opentcs.data.model.Path;
@@ -334,5 +335,41 @@ public class ToolsKit {
     }
 
 
+    /**
+     * 是否矩形地图，则顶升AGV
+     * @param processModel
+     * @return
+     */
+    public static boolean isMatrix(ProcessModel processModel) {
+        String matrixVehice = SettingUtils.getStringByGroup("vehicle", "matrix", "");
+        boolean isMatrix =processModel.getVehicle().getName().equals(matrixVehice);
+        return isMatrix;
+    }
+
+
+    public static boolean isTrafficControl(ProcessModel processModel) {
+//        String matrixVehice = SettingUtils.getStringByGroup("vehicle", "matrix", "");
+//        boolean isMatrix =processModel.getVehicle().getName().equals(matrixVehice);
+        return false;
+    }
+
+
+    /**
+     * 此通信适配器的命令队列接受的命令数。必须至少为1。
+     * @return
+     */
+    public static int getCommandQueueCapacity(){
+            return 100;
+//            return isTrafficControl(AppContext.getCommAdapter().getProcessModel()) ? 3 :100;
+    }
+
+    /**
+     * 要发送给车辆的最大订单数。
+     * @return
+     */
+    public static int getSentQueueCapacity() {
+            return 100;
+//            return isTrafficControl(AppContext.getCommAdapter().getProcessModel()) ? 2 :100;
+    }
 
 }
