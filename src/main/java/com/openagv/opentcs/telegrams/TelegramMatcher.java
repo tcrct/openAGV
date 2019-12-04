@@ -28,7 +28,7 @@ public class TelegramMatcher {
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
     /**所有经过的点的队列*/
-    private final Map<String, LinkedBlockingQueue<String>> nextPointMap = new ConcurrentHashMap<>();
+    private final Map<String, LinkedBlockingQueue<String>> pointMap = new ConcurrentHashMap<>();
 
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
@@ -60,7 +60,7 @@ public class TelegramMatcher {
         }
         */
         // 将所有经过的点(不包括起始点)放入队列中
-        nextPointMap.put(responseTelegram.getDeviceId(), new LinkedBlockingQueue<>(responseTelegram.getNextPointNames()));
+        pointMap.put(responseTelegram.getDeviceId(), new LinkedBlockingQueue<>(responseTelegram.getNextPointNames()));
         // 将所有执行步骤放入队列
         List<PathStepDto> stepDtoList = (List<PathStepDto>) responseTelegram.getParams().get(IResponse.PARAM_POINT_STEP);
         if(ToolsKit.isNotEmpty(stepDtoList)) {
@@ -153,14 +153,14 @@ public class TelegramMatcher {
     /**
      * 检查下一个点是否存在列表中
      * @param deviceId  设备ID
-     * @param postNextPoint 提交上来的下一个点名称
+     * @param postPoint 提交上来的点名称
      * @return  如果存在则返回true
      */
-    private boolean checkForVehiclePosition(String deviceId, String postNextPoint, boolean isVehicleArrivalCmd) {
-        if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
-            LinkedBlockingQueue<String> nextPointQueue = nextPointMap.get(deviceId);
-            String pointName = nextPointQueue.peek();
-            if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(pointName)) {
+    private boolean checkForVehiclePosition(String deviceId, String postPoint, boolean isVehicleArrivalCmd) {
+        if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postPoint)) {
+            LinkedBlockingQueue<String> pointQueue = pointMap.get(deviceId);
+            String pointName = pointQueue.peek();
+            if(ToolsKit.isNotEmpty(postPoint) && postPoint.equals(pointName)) {
                 // 将路径步骤对应的点对象标识为已经执行，如需要重发未执行的路径时，
                 // 可以遍历对应的List取到每个PathStepDto对象，根据isExceute属性确定是否已经执行。值为true时为已经执行。
                 List<PathStepDto> stepDtoList = AppContext.getPathStepMap().get(deviceId);
@@ -182,15 +182,12 @@ public class TelegramMatcher {
                             currentStepDto.getPointAction().startsWith("s")) {
                         return false;
                     }
-
                 }
-
-
                 // 移除点
-                nextPointQueue.remove();
+                pointQueue.remove();
                 return true;
             } else {
-                logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
+                logger.warn("车辆上报的点["+postPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
                 return false;
             }
         } else {

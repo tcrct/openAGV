@@ -431,7 +431,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // Update GUI.
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
-            Route.Step step = currentCmd.getStep();
+//            Route.Step step = currentCmd.getStep();
             //如果提交的点并不是最终点
 //            boolean isFinalMovement = currentCmd.isFinalMovement() &&
 //                    postCurrentPoint.equals(step.getSourcePoint());
@@ -526,7 +526,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
-//        // 取消单步执行状态
+        // 取消单步执行状态
         getProcessModel().setSingleStepModeEnabled(false);
         MovementCommand cmd = getSentQueue().poll();
 //        System.out.println("cmd.getStep().getSourcePoint(): " + cmd.getStep().getSourcePoint());
