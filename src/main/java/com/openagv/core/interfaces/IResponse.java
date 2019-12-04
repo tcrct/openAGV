@@ -103,6 +103,12 @@ public interface IResponse extends java.io.Serializable{
     void setDeviceId(String deviceId);
 
     /**
+     * 通讯方向
+     * @param drection
+     */
+    void setDirection(String drection);
+    String getDirection();
+    /**
      * 设置握手标识字段
      * @param key 标识字段
      */

@@ -21,6 +21,7 @@ public class Response implements IResponse {
     private String cmdKey;
     private Object returnObj;
     private String deviceId;
+    private String direction;
     private boolean isHandshakeList;
 
     public Response() {
@@ -109,6 +110,15 @@ public class Response implements IResponse {
     @Override
     public String getDeviceId() {
         return deviceId;
+    }
+
+
+   public  void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public  String  getDirection() {
+        return direction;
     }
 
     @Override
