@@ -209,6 +209,20 @@ public class AppContext {
         return VEHICLE_ARRIVAL_CMD_KEY;
     }
 
+    /**
+     * 车辆预停车成功的指令key
+     */
+    private static String VEHICLE_PRESTOP_SUCCESS_CMD_KEY;
+    public static String getVehiclePreStopSuccessCmdKey() {
+        if(null == VEHICLE_PRESTOP_SUCCESS_CMD_KEY) {
+            VEHICLE_PRESTOP_SUCCESS_CMD_KEY = SettingUtils.getString("vehicle.prestop.success.cmd");
+            if(ToolsKit.isEmpty(VEHICLE_PRESTOP_SUCCESS_CMD_KEY)) {
+                throw new NullPointerException("该值不能为空，请先在app.setting设置[vehicle.arrival.cmd]值，该值是车辆移动指令的标识！");
+            }
+        }
+        return VEHICLE_PRESTOP_SUCCESS_CMD_KEY;
+    }
+
     private static OpenAgvConfigure CONFIGURE;
     public static void setAgvConfigure(OpenAgvConfigure configure) {
         if(null == CONFIGURE) {

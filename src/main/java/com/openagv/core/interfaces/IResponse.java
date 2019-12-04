@@ -13,6 +13,7 @@ public interface IResponse extends java.io.Serializable{
     String TARGET_POINT_NAME = "OA_NPN";
     String HANDSHAKE_NAME = "OA_HS_KEY";
     String PARAM_POINT_STEP = "OA_PPS";
+    String PARAM_STRING = "OA_PS";
 
     /**
      * 设置请求ID

@@ -115,12 +115,24 @@ public class TelegramMatcher {
         java.util.Objects.requireNonNull(responseTelegram, "responseTelegram");
 
         String cmdKey = responseTelegram.getCmdKey();
+        //  车辆移动到达指令的key(rptac)
         boolean isVehicleArrivalCmd = AppContext.getVehicleArrivalCmdKey().equals(cmdKey);
-        if(isVehicleArrivalCmd) {
+        // 车辆预停车成功(rptrtp)
+        boolean isVehiclePreSotpSuccessCmd = AppContext.getVehiclePreStopSuccessCmdKey().equals(cmdKey);
+        if(isVehicleArrivalCmd  || isVehiclePreSotpSuccessCmd) {
             List<String> currentPositionList = responseTelegram.getNextPointNames();
             String postNextPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
             String deviceId = responseTelegram.getDeviceId();
-            return checkForVehiclePosition(deviceId, postNextPoint);
+
+            if(isVehiclePreSotpSuccessCmd) {
+                String params = String.valueOf(responseTelegram.getParams().get(IResponse.PARAM_STRING));
+                //最后一个参数为1时，代表预停车成功，如果不是1，则返回false;
+                if(!params.endsWith("1")) {
+                    return false;
+                }
+            }
+
+            return checkForVehiclePosition(deviceId, postNextPoint, isVehicleArrivalCmd);
         }
 //        //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
 //        IResponse currentRequestTelegram = requests.peek();
@@ -144,25 +156,38 @@ public class TelegramMatcher {
      * @param postNextPoint 提交上来的下一个点名称
      * @return  如果存在则返回true
      */
-    private boolean checkForVehiclePosition(String deviceId, String postNextPoint) {
+    private boolean checkForVehiclePosition(String deviceId, String postNextPoint, boolean isVehicleArrivalCmd) {
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postNextPoint)) {
             LinkedBlockingQueue<String> nextPointQueue = nextPointMap.get(deviceId);
             String pointName = nextPointQueue.peek();
             if(ToolsKit.isNotEmpty(postNextPoint) && postNextPoint.equals(pointName)) {
-                // 移除点
-                nextPointQueue.remove();
                 // 将路径步骤对应的点对象标识为已经执行，如需要重发未执行的路径时，
                 // 可以遍历对应的List取到每个PathStepDto对象，根据isExceute属性确定是否已经执行。值为true时为已经执行。
                 List<PathStepDto> stepDtoList = AppContext.getPathStepMap().get(deviceId);
                 if(ToolsKit.isNotEmpty(stepDtoList)) {
+                    PathStepDto currentStepDto = null;
                     for(PathStepDto stepDto : stepDtoList) {
                         if(stepDto.getPointName().equals(pointName)){
                             // 标识为已经执行
                             stepDto.setExecuteToTrue();
+                            currentStepDto = stepDto;
                             break;
                         }
                     }
+                    // 如果不为空,并且是上报车辆到达的指令
+                    // 判断当前上报的点是否预停车的，如果是则直接返回false，让程序退出后续的处理
+                    // 让预停车成功后，再次提交时再放行
+                    if (isVehicleArrivalCmd &&
+                            ToolsKit.isNotEmpty(currentStepDto)  &&
+                            currentStepDto.getPointAction().startsWith("s")) {
+                        return false;
+                    }
+
                 }
+
+
+                // 移除点
+                nextPointQueue.remove();
                 return true;
             } else {
                 logger.warn("车辆上报的点["+postNextPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
