@@ -138,10 +138,10 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         }
 
         //如果是上行方向且是rpt开头的命令，则退出
-        if( "s".equalsIgnoreCase(response.getDirection()) &&
-                response.getCmdKey().toLowerCase().startsWith("rpt")) {
-            return;
-        }
+//        if( "s".equalsIgnoreCase(response.getDirection()) &&
+//                response.getCmdKey().toLowerCase().startsWith("rpt")) {
+//            return;
+//        }
         logger.info("串口发送报文: "+response.toString());
         SerialPortManager.duang().sendToPort(AppContext.getSerialPort(), response.toString().getBytes());
     }

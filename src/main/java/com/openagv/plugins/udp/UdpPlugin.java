@@ -90,6 +90,11 @@ public class UdpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+        //如果是上行方向且是rpt开头的命令，则退出
+//        if( "s".equalsIgnoreCase(response.getDirection()) &&
+//                response.getCmdKey().toLowerCase().startsWith("rpt")) {
+//            return;
+//        }
         logger.info("UDP发送报文: "+response.toString());
         udpServerChannelManager.send(response.toString());
     }

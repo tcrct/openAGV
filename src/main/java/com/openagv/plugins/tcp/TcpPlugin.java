@@ -86,6 +86,7 @@ public class TcpPlugin implements IPlugin, IEnable, ITelegramSender {
         if(null == response) {
             return;
         }
+
         logger.info("TCP发送报文: "+response.toString());
         tcpClientChannelManager.send(response.toString());
     }

@@ -48,12 +48,14 @@ public class AppContext {
     private static final List<IEnable> PLUGIN_ENABLE_LIST = new ArrayList<>();
     /**所有需要执行的路径步骤集合， Key为车辆或设备ID*/
     private static final Map<String, List<PathStepDto>> PATH_STEP_MAP = new ConcurrentHashMap<>();
-
     /**guice的injector*/
     private static Injector injector;
     /**injector的Module集合*/
     private final static Set<Module> MODULES = new HashSet<>();
-
+    /**所有工站/设备动作请求*/
+    private static final Map<String ,IRequest> ALL_ACTION_REQUEST = new HashMap<>();
+    /**所有超前上报的工站/设备动作请求集合*/
+    private static final Map<String ,IRequest> ADVANCE_REPORT_MAP = new HashMap<>();
     /**开发环境 */
     private static EnvEnum envEnum = null;
     /**启动方式*/
@@ -335,4 +337,15 @@ public class AppContext {
     public static KernelServicePortal getKernelServicePortal() {
         return kernelServicePortal ;
     }
+
+    // 所有工站/设备的动作请求，CRC验证码作为key
+    public static Map<String,IRequest> getActionRequests() {
+        return ALL_ACTION_REQUEST;
+    }
+
+    // 所有超前提交的工站/设备动作请求，key为CRC验证码
+    public static Map<String,IRequest> getAdvanceReportMap() {
+        return ADVANCE_REPORT_MAP;
+    }
+
 }
