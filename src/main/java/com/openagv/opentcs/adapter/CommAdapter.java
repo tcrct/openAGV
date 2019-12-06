@@ -191,7 +191,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     }
 
     /**
-     * 是否可以发送下一条指令
+     * 重写父类里的是否可以发送下一条指令
+     *
      * 已发送的命令数小于车辆的容量，并且队列中至少有一个命令正在等待发送
      * 并且不是单步模式
      * @return true可以发送
@@ -327,6 +328,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             telegramMatcher = null;
             // TODO 对当前车辆停止，是否要全部定时器也停？
             stateRequesterTask.disable();
+            // 清除命令队列
             clearCommandQueue();
             logger.warn("断开车辆连接 " + getName() + " 成功");
         } catch (Exception e) {
