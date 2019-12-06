@@ -345,6 +345,7 @@ public class AppContext {
 
     // 所有超前提交的工站/设备动作请求，key为CRC验证码
     public static Map<String,IRequest> getAdvanceReportMap() {
+        logger.info("ADVANCE_REPORT_MAP size: " + ADVANCE_REPORT_MAP.size());
         return ADVANCE_REPORT_MAP;
     }
 

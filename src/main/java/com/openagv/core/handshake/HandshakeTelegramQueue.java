@@ -195,7 +195,9 @@ public class HandshakeTelegramQueue {
     public void cacheAdvanceReportToMap(String requestType, String telegram, String cmdKey, String deviceId, String key) {
         IRequest advanceRequest = AppContext.getActionRequests().get(key);
         // 如果是MakerwitActionsAlgorithm发出的请求，则requestType有内容，不为空的。
-        boolean isAgvRequest = ToolsKit.isNotEmpty(requestType) && ("baseresponse".equalsIgnoreCase(requestType) || "baserequest".equalsIgnoreCase(requestType));
+        boolean isAgvRequest = ToolsKit.isNotEmpty(requestType) &&
+                ("baseresponse".equalsIgnoreCase(requestType) || "baserequest".equalsIgnoreCase(requestType));
+        System.out.println(isAgvRequest + "######cacheAdvanceReportToMap######: " +requestType);
         //如果不是MakerwitActionsAlgorithm发出的请求，则添加到缓存中
         if (!isAgvRequest && ToolsKit.isNotEmpty(advanceRequest) && cmdKey.equals(advanceRequest.getCmdKey())) {
             logger.info("设备[" + deviceId + "]上报的请求[" + telegram + "]不是在握手队列中的第一位，属于提前上报，先暂存放在AdvanceReportMap集合");
