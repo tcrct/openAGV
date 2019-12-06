@@ -77,13 +77,14 @@ public class HandshakeTelegramQueue {
         // 再移除第一位元素对象
         queue.remove();
         logger.info("remove vehicle[" + deviceId + "] telegramDto[" + telegramDto.toString() + "] is success!");
+        String crcCode = "";
         try {
             // 将提前上报的内容移除
-            String crcCode = toBeDeleteDto.getResponse().getHandshakeKey();
+            crcCode = toBeDeleteDto.getResponse().getHandshakeKey();
             AppContext.getAdvanceReportMap().remove(crcCode);
             logger.info("remove AppContext.getAdvanceReportMap[" + crcCode + "] toBeDeleteDto[" + toBeDeleteDto.toString() + "] is success!");
         } catch (Exception e) {
-            logger.info("remove vehicle[" + deviceId + "] telegramDto[" + telegramDto.toString() + "] is success!");
+            logger.info("remove advanceReportMap[" + crcCode + "] telegramDto[" + telegramDto.toString() + "] is fail: " + e.getMessage(), e);
         }
         // 指令队列中移除后再发送下一个指令
         ICallback callback = telegramDto.getCallback();
