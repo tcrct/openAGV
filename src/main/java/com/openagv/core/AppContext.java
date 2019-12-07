@@ -339,13 +339,13 @@ public class AppContext {
     }
 
     // 所有工站/设备的动作请求，CRC验证码作为key
-    public static Map<String,IRequest> getActionRequests() {
+    public static Map<String,IRequest> getCustomActionRequests() {
         return ALL_ACTION_REQUEST;
     }
 
     // 所有超前提交的工站/设备动作请求，key为CRC验证码
     public static Map<String,IRequest> getAdvanceReportMap() {
-        logger.info("ADVANCE_REPORT_MAP size: " + ADVANCE_REPORT_MAP.size());
+//        logger.info("ADVANCE_REPORT_MAP size: " + ADVANCE_REPORT_MAP.size());
         return ADVANCE_REPORT_MAP;
     }
 
