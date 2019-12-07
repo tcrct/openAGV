@@ -79,10 +79,12 @@ public class HandshakeTelegramQueue {
         logger.info("remove vehicle[" + deviceId + "] telegramDto[" + telegramDto.toString() + "] is success!");
         String crcCode = "";
         try {
-            // 将提前上报的内容移除
+            // 如果提前上报的缓存集合里存在对应的crcCode，则将提前上报的内容移除
             crcCode = toBeDeleteDto.getResponse().getHandshakeKey();
-            AppContext.getAdvanceReportMap().remove(crcCode);
-            logger.info("remove AppContext.getAdvanceReportMap[" + crcCode + "] toBeDeleteDto[" + toBeDeleteDto.toString() + "] is success!");
+            if(AppContext.getAdvanceReportMap().containsKey(crcCode)) {
+                AppContext.getAdvanceReportMap().remove(crcCode);
+                logger.info("remove AppContext.getAdvanceReportMap[" + crcCode + "] toBeDeleteDto[" + toBeDeleteDto.toString() + "] is success!");
+            }
         } catch (Exception e) {
             logger.info("remove advanceReportMap[" + crcCode + "] telegramDto[" + telegramDto.toString() + "] is fail: " + e.getMessage(), e);
         }
