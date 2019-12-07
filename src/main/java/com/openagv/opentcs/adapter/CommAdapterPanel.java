@@ -1107,12 +1107,16 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
 
         Vehicle.State currentState = processModel.getVehicleState();
         // Create panel and dialog
-        InputPanel panel = new DropdownListInputPanel.Builder<>(BUNDLE.getString("loopbackCommAdapterPanel.dialog_setState.title"),
+        InputPanel panel = new DropdownListInputPanel.Builder<>(
+//                BUNDLE.getString("loopbackCommAdapterPanel.dialog_setState.title"),
+                "设置车辆状态",
                 Arrays.asList(Vehicle.State.values()))
-                .setLabel(BUNDLE.getString("loopbackCommAdapterPanel.label_state.text"))
+//                .setLabel(BUNDLE.getString("loopbackCommAdapterPanel.label_state.text"))
+                .setLabel("State")
                 .setInitialSelection(currentState)
                 .build();
         InputDialog dialog = new InputDialog(panel);
+        dialog.setResizable(true);
         dialog.setVisible(true);
         // Get dialog results and set vahicle stare
         if (dialog.getReturnStatus() == InputDialog.ReturnStatus.ACCEPTED) {
@@ -1152,13 +1156,18 @@ public class CommAdapterPanel extends VehicleCommAdapterPanel {
             }
         }
         // Create panel and dialog
-        InputPanel panel = new DropdownListInputPanel.Builder<>(BUNDLE.getString("loopbackCommAdapterPanel.dialog_setPosition.title"), pointList)
-                .setLabel(BUNDLE.getString("loopbackCommAdapterPanel.label_position.text"))
+        InputPanel panel = new DropdownListInputPanel.Builder<>(
+//                BUNDLE.getString("loopbackCommAdapterPanel.dialog_setPosition.title"),
+                "设置车辆位置",
+                pointList)
+//                .setLabel(BUNDLE.getString("loopbackCommAdapterPanel.label_position.text"))
+                .setLabel("位置:")
                 .setEditable(true)
                 .setInitialSelection(currentPoint)
                 .setRenderer(new StringListCellRenderer<>(x -> x == null ? "" : x.getName()))
                 .build();
         InputDialog dialog = new InputDialog(panel);
+        dialog.setResizable(true);
         dialog.setVisible(true);
         // Get result from dialog and set vehicle position
         if (dialog.getReturnStatus() == InputDialog.ReturnStatus.ACCEPTED) {

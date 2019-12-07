@@ -60,6 +60,12 @@ public class Sensor implements java.io.Serializable {
         private List<Integer> indexs = new ArrayList<>();
         private List<String> values = new ArrayList<>();
 
+        /**
+         * 传感器参数
+         * @param index 索引位置，对于程序来讲0是第1位，对应参数的第1位
+         * @param value 值
+         * @return
+         */
         public Builder element(Integer index, String value) {
             this.map.put(index, value);
             return this;
