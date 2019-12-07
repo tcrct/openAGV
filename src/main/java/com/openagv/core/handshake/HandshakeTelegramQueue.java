@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -204,7 +203,7 @@ public class HandshakeTelegramQueue {
      * @param key  CRC验证码关键字
      */
     public void cacheAdvanceReportToMap(String requestType, String telegram, String cmdKey, String deviceId, String key) {
-        IRequest advanceRequest = AppContext.getActionRequests().get(key);
+        IRequest advanceRequest = AppContext.getCustomActionRequests().get(key);
         // 如果是MakerwitActionsAlgorithm发出的请求，则requestType有内容，不为空的。
         boolean isAgvRequest = ToolsKit.isNotEmpty(requestType) &&
                 ("baseresponse".equalsIgnoreCase(requestType) || "baserequest".equalsIgnoreCase(requestType));

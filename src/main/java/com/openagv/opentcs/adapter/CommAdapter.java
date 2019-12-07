@@ -260,6 +260,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public synchronized void clearCommandQueue() {
         AppContext.getAgvConfigure().getHandshakeTelegramQueue().clearQueue();
         logger.error("清除握手队列成功");
+        CUSTOM_ACTIONS_MAP.clear();
         super.clearCommandQueue();
         getProcessModel().setSingleStepModeEnabled(false);
         logger.info("###########clearCommandQueue");
@@ -273,8 +274,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         logger.info("###########connectVehicle");
         // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
 //        getProcessModel().setVehiclePosition("36");
-        getProcessModel().setVehiclePosition("1");
-//        getProcessModel().setVehiclePosition("705");
+//        getProcessModel().setVehiclePosition("1");
+        getProcessModel().setVehiclePosition("705");
 //        getProcessModel().setVehiclePosition("237");
 //        getProcessModel().setVehiclePosition("Point-0001");
 //        Point point = ToolsKit.getPoint("Point-0001");
