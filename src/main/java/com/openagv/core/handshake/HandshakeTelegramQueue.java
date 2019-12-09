@@ -26,6 +26,12 @@ public class HandshakeTelegramQueue {
 
     private final static Map<String, LinkedBlockingQueue<HandshakeTelegramDto>> HANDSHAKE_TELEGRAM_QUEUE = new java.util.concurrent.ConcurrentHashMap<>();
 
+    private final static HandshakeTelegramQueue handshakeTelegramQueue = new HandshakeTelegramQueue();
+
+    public static HandshakeTelegramQueue duang() {
+        return handshakeTelegramQueue;
+    }
+
     /**
      * 添加到队列
      *
