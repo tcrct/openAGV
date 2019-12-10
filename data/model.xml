@@ -123,20 +123,16 @@
         <allowedOperation name="SmtWorkBench"/>
         <allowedOperation name="StartPoint"/>
     </locationType>
-    <locationType name="Smt2"/>
-    <location name="SmtLeftIn" xPosition="37000" yPosition="17000" zPosition="0" type="Smt2">
+    <locationType name="Smt2">
+        <allowedOperation name="NOP"/>
+        <allowedOperation name="Smt2Left"/>
+        <allowedOperation name="Smt2Right"/>
+    </locationType>
+    <location name="Smt2Left" xPosition="37000" yPosition="17000" zPosition="0" type="Smt2">
         <link point="51"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
-    <location name="SmtLeftOut" xPosition="38000" yPosition="14000" zPosition="0" type="Smt2">
-        <link point="51"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
-    <location name="SmtRightIn" xPosition="37000" yPosition="8000" zPosition="0" type="RollerModel">
-        <link point="50"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
-    <location name="SmtRightOut" xPosition="38000" yPosition="2000" zPosition="0" type="Smt2">
+    <location name="Smt2Right" xPosition="37000" yPosition="8000" zPosition="0" type="Smt2">
         <link point="50"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
@@ -354,29 +350,17 @@
         <modelLayoutElement visualizedObjectName="A033" layer="0">
             <property name="ROUTE_COLOR" value="#FFFF00"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="SmtLeftIn" layer="0">
+        <modelLayoutElement visualizedObjectName="Smt2Left" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="37000"/>
-            <property name="POSITION_Y" value="17000"/>
+            <property name="POSITION_X" value="35750"/>
+            <property name="POSITION_Y" value="18750"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="SmtLeftOut" layer="0">
-            <property name="LABEL_OFFSET_X" value="-9"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="36799"/>
-            <property name="POSITION_Y" value="21250"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="SmtRightIn" layer="0">
+        <modelLayoutElement visualizedObjectName="Smt2Right" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="37000"/>
-            <property name="POSITION_Y" value="8000"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="SmtRightOut" layer="0">
-            <property name="LABEL_OFFSET_X" value="-9"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="36799"/>
-            <property name="POSITION_Y" value="3750"/>
+            <property name="POSITION_X" value="36250"/>
+            <property name="POSITION_Y" value="6750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="SmtWorkBench" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -421,5 +405,5 @@
             <property name="POSITION_Y" value="15500"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-12-09T02:36:22.512Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-12-10T00:57:03.733Z"/>
 </model>
