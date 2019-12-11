@@ -1,5 +1,6 @@
 package com.openagv.opentcs.adapter;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.core.AppContext;
 import com.openagv.core.interfaces.*;
@@ -501,10 +502,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     /**
      * 执行自定义指令组合
-     * @param operation 指令组合标识字符串
+     * @param operations 指令组合标识字符串
      */
-    private void executeCustomCmds(String operation)  {
-        operation = requireNonNull(operation, "operation is null");
+    private void executeCustomCmds(String operations)  {
+        final String operation = requireNonNull(operations, "operation is null");
         if (!isEnabled()) {
             return ;
         }
@@ -515,7 +516,16 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             // 设置为允许单步执行，即等待自定义命令执行完成或某一指令取消单步操作模式后，再发送移动车辆命令。
             getProcessModel().setSingleStepModeEnabled(true);
             // 执行自定义指令队列
-            AppContext.getCustomActionsQueue().get(operation).execute();
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        AppContext.getCustomActionsQueue().get(operation).execute();
+                    } catch (Exception e) {
+                        logger.error("执行自定义动作组合指令时出错: " + e.getMessage(), e);
+                    }
+                }
+            });
             CUSTOM_ACTIONS_MAP.put(operation, operation);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
