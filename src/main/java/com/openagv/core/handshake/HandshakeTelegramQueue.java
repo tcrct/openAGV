@@ -8,9 +8,10 @@ import com.openagv.exceptions.AgvException;
 import com.openagv.tools.ToolsKit;
 import org.apache.log4j.Logger;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,11 +34,28 @@ public class HandshakeTelegramQueue {
     }
 
     /**
-     * 添加到队列
+     * 添加到队列最后1位
      *
      * @param telegramDto 队列对象
      */
     public void add(HandshakeTelegramDto telegramDto) {
+        add(-1, telegramDto);
+    }
+
+    /**
+     * 添加到队列指定位置
+     * @param telegramDto
+     */
+    public void insert(HandshakeTelegramDto telegramDto) {
+        add(0, telegramDto);
+    }
+
+    /**
+     * 添加到队列指定位置
+     * @param index
+     * @param telegramDto
+     */
+    public void add(int index, HandshakeTelegramDto telegramDto) {
         if (ToolsKit.isEmpty(telegramDto)) {
             throw new NullPointerException("队列对象不能为空");
         }
@@ -47,8 +65,20 @@ public class HandshakeTelegramQueue {
         if (ToolsKit.isEmpty(queue)) {
             queue = new LinkedBlockingQueue<>();
         }
-        // 添加到队列
-        queue.add(telegramDto);
+        if (index > -1) {
+            List<HandshakeTelegramDto> dtoList = new ArrayList<>();
+            queue.forEach(new Consumer<HandshakeTelegramDto>() {
+                @Override
+                public void accept(HandshakeTelegramDto handshakeTelegramDto) {
+                    dtoList.add(handshakeTelegramDto);
+                }
+            });
+            dtoList.add(index, telegramDto);
+            queue.clear();
+            queue.addAll(dtoList);
+        } else {
+            queue.add(telegramDto);
+        }
         HANDSHAKE_TELEGRAM_QUEUE.put(deviceId, queue);
     }
 

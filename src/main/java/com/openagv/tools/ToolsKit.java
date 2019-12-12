@@ -350,7 +350,9 @@ public class ToolsKit {
     public static boolean isTrafficControl(ProcessModel processModel) {
 //        String matrixVehice = SettingUtils.getStringByGroup("vehicle", "matrix", "");
 //        boolean isMatrix =processModel.getVehicle().getName().equals(matrixVehice);
-        return false;
+
+        String vehicleName = processModel.getName();
+        return ("A001".equalsIgnoreCase(vehicleName) || "A002".equalsIgnoreCase(vehicleName)) ? true : false;
     }
 
 
@@ -359,7 +361,8 @@ public class ToolsKit {
      * @return
      */
     public static int getCommandQueueCapacity(){
-            return 100;
+//            return 100;
+            return 3;
 //            return isTrafficControl(AppContext.getCommAdapter().getProcessModel()) ? 3 :100;
     }
 
@@ -368,7 +371,8 @@ public class ToolsKit {
      * @return
      */
     public static int getSentQueueCapacity() {
-            return 100;
+//            return 100;
+            return 2;
 //            return isTrafficControl(AppContext.getCommAdapter().getProcessModel()) ? 2 :100;
     }
 

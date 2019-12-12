@@ -220,8 +220,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         boolean isTrafficControl = ToolsKit.isTrafficControl(getProcessModel());
         commandQueue.add(cmd);
         if (isTrafficControl) {
+            logger.info("该车辆需要进行交通管理，路径为单步发送");
             sendStateRequest(cmd);
         } else if (cmd.isFinalMovement()) {
+            logger.info("该车辆不需要进行交通管理，路径为全部发送");
             sendStateRequest(cmd);
         }
     }
@@ -276,11 +278,26 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // TODO 可以改为下拉选择的方式 ，待完成，目前先将起点位置设置为Point-0001
 //        getProcessModel().setVehiclePosition("36");
 //        getProcessModel().setVehiclePosition("1");
-        getProcessModel().setVehiclePosition("50");
+//        getProcessModel().setVehiclePosition("50");
 //        getProcessModel().setVehiclePosition("237");
 //        getProcessModel().setVehiclePosition("Point-0001");
 //        Point point = ToolsKit.getPoint("Point-0001");
 //        point.setVehicleOrientationAngle(-90);
+
+
+        String vehicleName = getProcessModel().getName();
+        if ("A001".equals(vehicleName)) {
+//            getProcessModel().setVehiclePosition("218");
+            getProcessModel().setVehiclePosition("223");
+        }
+        else if ("A002".equals(vehicleName)) {
+//            getProcessModel().setVehiclePosition("213");
+            getProcessModel().setVehiclePosition("230");
+        }
+        else if ("A033".equals(vehicleName)) {
+            getProcessModel().setVehiclePosition("50");
+        }
+
 
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         getProcessModel().setVehicleIdle(true);

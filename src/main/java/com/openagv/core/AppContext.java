@@ -20,6 +20,7 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 上下文及映射容器
@@ -56,6 +57,7 @@ public class AppContext {
     private static final Map<String ,IRequest> ALL_ACTION_REQUEST = new HashMap<>();
     /**所有超前上报的工站/设备动作请求集合*/
     private static final Map<String ,IRequest> ADVANCE_REPORT_MAP = new HashMap<>();
+
     /**开发环境 */
     private static EnvEnum envEnum = null;
     /**启动方式*/
