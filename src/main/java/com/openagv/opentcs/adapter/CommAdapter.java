@@ -452,7 +452,14 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         // Update GUI.
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
-//            Route.Step step = currentCmd.getStep();
+            if (currentCmd == null) return;
+            Route.Step step = currentCmd.getStep();
+            String cmdStepPointName = step.getSourcePoint().getName();
+            if (!cmdStepPointName.equals(postCurrentPoint) &&
+                    ToolsKit.isTrafficControl(getProcessModel())) {
+                getSentQueue().poll(); //移除第1个点
+                currentCmd = getSentQueue().peek();
+            }
             //如果提交的点并不是最终点
 //            boolean isFinalMovement = currentCmd.isFinalMovement() &&
 //                    postCurrentPoint.equals(step.getSourcePoint());
@@ -460,7 +467,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //            System.out.println("#########orientation: " + step.getVehicleOrientation().name());
 //            System.out.println("#########orientation: " + step.getDestinationPoint().getVehicleOrientationAngle());
 //            System.out.println("#########orientation: " + getProcessModel().getVehicleOrientationAngle());
-//            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+step.getSourcePoint().getName()+"             "+ currentCmd.getFinalDestination().getName());
+            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+step.getSourcePoint().getName()+"             "+ currentCmd.getFinalDestination().getName());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
             if(!currentCmd.isWithoutOperation() &&
                     currentCmd.isFinalMovement()  &&

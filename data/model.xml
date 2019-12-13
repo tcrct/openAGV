@@ -200,7 +200,7 @@
     <vehicle name="A001" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
         <property name="port" value="60000"/>
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory"/>
+        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
     </vehicle>
     <vehicle name="A002" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
@@ -250,15 +250,9 @@
     </locationType>
     <locationType name="TrafficControl">
         <allowedOperation name="NOP"/>
+        <allowedOperation name="UnLoadOne"/>
+        <allowedOperation name="UnLoadOne2"/>
     </locationType>
-    <location name="LoadOne" xPosition="17500" yPosition="-5000" zPosition="0" type="TrafficControl">
-        <link point="223"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
-    <location name="LoadTwo" xPosition="29000" yPosition="-5000" zPosition="0" type="TrafficControl">
-        <link point="213"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
     <location name="Smt2Left" xPosition="37000" yPosition="17000" zPosition="0" type="Smt2">
         <link point="51"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
@@ -279,12 +273,20 @@
         <link point="237"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
-    <location name="UnLoadOne" xPosition="89000" yPosition="500" zPosition="0" type="TrafficControl">
-        <link point="234"/>
+    <location name="UnLoadOne" xPosition="17500" yPosition="-5000" zPosition="0" type="TrafficControl">
+        <link point="225"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
-    <location name="UnLoadTwo" xPosition="102500" yPosition="-15500" zPosition="0" type="TrafficControl">
-        <link point="230"/>
+    <location name="UnLoadOne2" xPosition="89000" yPosition="500" zPosition="0" type="TrafficControl">
+        <link point="214"/>
+        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
+    </location>
+    <location name="UnLoadTwo" xPosition="29000" yPosition="-5000" zPosition="0" type="TrafficControl">
+        <link point="220"/>
+        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
+    </location>
+    <location name="UnLoadTwo2" xPosition="102500" yPosition="-15500" zPosition="0" type="TrafficControl">
+        <link point="212"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="injectionmoldingIn" xPosition="33500" yPosition="32000" zPosition="0" type="InjectionMolding">
@@ -721,18 +723,6 @@
         <modelLayoutElement visualizedObjectName="A033" layer="0">
             <property name="ROUTE_COLOR" value="#FFFF00"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="LoadOne" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="13750"/>
-            <property name="POSITION_Y" value="-4250"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="LoadTwo" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="24250"/>
-            <property name="POSITION_Y" value="-4250"/>
-        </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="Smt2Left" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
@@ -766,13 +756,25 @@
         <modelLayoutElement visualizedObjectName="UnLoadOne" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="96250"/>
+            <property name="POSITION_X" value="13750"/>
+            <property name="POSITION_Y" value="-12250"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="UnLoadOne2" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="81750"/>
             <property name="POSITION_Y" value="750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="UnLoadTwo" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="96250"/>
+            <property name="POSITION_X" value="23750"/>
+            <property name="POSITION_Y" value="-12250"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="UnLoadTwo2" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="82250"/>
             <property name="POSITION_Y" value="-17250"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="injectionmoldingIn" layer="0">
@@ -800,5 +802,5 @@
             <property name="POSITION_Y" value="15500"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-12-12T02:39:29.848Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-12-13T06:23:12.910Z"/>
 </model>
