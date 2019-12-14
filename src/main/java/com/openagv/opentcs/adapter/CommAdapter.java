@@ -455,11 +455,15 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             if (currentCmd == null) return;
             Route.Step step = currentCmd.getStep();
             String cmdStepPointName = step.getSourcePoint().getName();
-            if (!cmdStepPointName.equals(postCurrentPoint) &&
-                    ToolsKit.isTrafficControl(getProcessModel())) {
-                getSentQueue().poll(); //移除第1个点
-                currentCmd = getSentQueue().peek();
+            Iterator<MovementCommand> cmdIter = getSentQueue().iterator();
+            while (cmdIter.hasNext()) {
+                if (cmdStepPointName.equals(postCurrentPoint)) {
+                    currentCmd = cmdIter.next();
+                    break;
+                }
+                cmdIter.remove();
             }
+
             //如果提交的点并不是最终点
 //            boolean isFinalMovement = currentCmd.isFinalMovement() &&
 //                    postCurrentPoint.equals(step.getSourcePoint());
