@@ -362,7 +362,7 @@ public class ToolsKit {
      */
     public static int getCommandQueueCapacity(){
 //            return 100;
-            return 3;
+            return 2;
 //            return isTrafficControl(AppContext.getCommAdapter().getProcessModel()) ? 3 :100;
     }
 

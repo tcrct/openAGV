@@ -454,18 +454,19 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             MovementCommand currentCmd = getSentQueue().peek();
             if (currentCmd == null) return;
             Route.Step step = currentCmd.getStep();
-            String sourcePointName = step.getSourcePoint().getName();
-            if (!postCurrentPoint.equals(sourcePointName)) {
-                Iterator<MovementCommand> cmdIter = getSentQueue().iterator();
-                while (cmdIter.hasNext()) {
-                    MovementCommand cmdItem = cmdIter.next();
-                    sourcePointName = cmdItem.getStep().getSourcePoint().getName();
-                    if (postCurrentPoint.equals(sourcePointName)) {
-                        break;
-                    }
-                    cmdIter.remove();
-                }
-            }
+//            String sourcePointName = step.getSourcePoint().getName();
+//            if (!postCurrentPoint.equals(sourcePointName)) {
+//                Iterator<MovementCommand> cmdIter = getSentQueue().iterator();
+//                while (cmdIter.hasNext()) {
+//                    MovementCommand cmdItem = cmdIter.next();
+//                    sourcePointName = cmdItem.getStep().getSourcePoint().getName();
+//                    if (postCurrentPoint.equals(sourcePointName)) {
+//                        break;
+//                    }
+//                    cmdIter.remove();
+//                }
+//            }
+//            currentCmd = getSentQueue().peek();
 
             //如果提交的点并不是最终点
 //            boolean isFinalMovement = currentCmd.isFinalMovement() &&
