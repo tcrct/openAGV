@@ -5,10 +5,7 @@ import com.openagv.exceptions.AgvException;
 /**
  *
  */
-public interface IService<T> {
+public interface IService {
 
-    String MAIN_ACTION_NAME = "index";
-
-    T index(IRequest request) throws AgvException;
 
 }

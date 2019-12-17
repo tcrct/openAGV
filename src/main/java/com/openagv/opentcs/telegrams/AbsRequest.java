@@ -29,6 +29,8 @@ public abstract class AbsRequest implements IRequest {
     private String requestId = IdUtil.objectId();
     /**目标路径映射*/
     protected String target;
+    /**目标类*/
+    protected String deviceId;
     /**Order请求计数器*/
     private static final LongAdder orderRequestCount = new LongAdder();
     /**State请求计数器*/
@@ -73,6 +75,10 @@ public abstract class AbsRequest implements IRequest {
     public String getCmdKey(){
         return target;
     }
+    @Override
+    public String getDeviceId(){
+        return deviceId;
+    }
     public void setProtocol(Serializable bean) {
         this.bean = bean;
     }
@@ -85,6 +91,12 @@ public abstract class AbsRequest implements IRequest {
      * 目标请求路径，即协议指令里的功能命令
      */
     public abstract void setCmdKey(String target);
+
+    /**设备、车辆ID*/
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
 
     @Override
     public abstract String getRequestType();

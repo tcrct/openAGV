@@ -1,6 +1,7 @@
 package com.openagv.handlers;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.duangframework.db.utils.ObjectKit;
 import com.openagv.core.AppContext;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.BaseController;
@@ -8,10 +9,10 @@ import com.openagv.core.interfaces.IRequest;
 import com.openagv.core.interfaces.IResponse;
 import com.openagv.route.Route;
 import com.openagv.route.RouteHelper;
-import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import org.apache.log4j.Logger;
+
+import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * 访问处理器
@@ -29,7 +30,31 @@ public class AccountHandler {
         return AccountHandlerHolder.INSTANCE;
     }
 
-    public void doHandler(String target, IRequest request, IResponse response) throws Exception{
+
+    /**
+     * 执行方法
+     * @param deviceId  设备/车辆ID
+     * @param target    功能指令，即方法
+     * @param request 请求对象
+     * @param response 响应对象
+     * @throws Exception
+     */
+    public void doHandler(String deviceId, String target, IRequest request, IResponse response) throws Exception{
+        try {
+            Route route = Optional.ofNullable(RouteHelper.getRoutes().get(deviceId)).orElseThrow(NullPointerException::new);
+            Method method = route.getMethodMap().get(target.toLowerCase());
+            // 如果Service里没有实现该指令对应的方法，则执行公用的duang方法，直接返回响应协议，防止抛出异常
+            if(ToolsKit.isEmpty(method)) {
+                method = route.getMethodMap().get("duang");
+            }
+            Object resultObj = ReflectUtil.invoke(route.getInjectObject(), method, request, response);
+            response.write(resultObj);
+        } catch (Exception e) {
+            throw new AgvException(e.getMessage(),e);
+        }
+    }
+
+    public void doHandler2(String target, IRequest request, IResponse response) throws Exception{
         target = target.toUpperCase();
         Route route = RouteHelper.getRoutes().get(target);
         java.util.Objects.requireNonNull(route, "根据["+target+"]找不到对应路由映射");

@@ -4,6 +4,7 @@ package com.openagv;
 import com.google.inject.Guice;
 import com.openagv.core.AppContext;
 import com.openagv.core.AutoImportModule;
+import com.openagv.core.helper.ClassHelper;
 import com.openagv.core.interfaces.IEnable;
 import com.openagv.core.interfaces.IAction;
 import com.openagv.enums.EnvEnum;
@@ -82,6 +83,10 @@ public class Application {
         }
     }
 
+    private void seanClass() {
+        ClassHelper.duang().init();
+    }
+
     private void startPlugins() {
         try {
             for (Iterator<IPlugin> it = AppContext.getPluginList().iterator(); it.hasNext();) {
@@ -135,10 +140,12 @@ public class Application {
     public void run() throws Exception {
         // 设置OpenTCS所需要的配置文件
         java.util.Objects.requireNonNull(AppContext.getAgvConfigure(), "配置文件为空，请先进行设置再启动系统！");
+        // 扫描类
+        seanClass();
         // 启动插件
         startPlugins();
         // 依赖注入
-        guiceInjector();
+//        guiceInjector();
         // 映射路由
         route();
         // 注入Dao

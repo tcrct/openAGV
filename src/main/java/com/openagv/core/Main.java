@@ -29,8 +29,9 @@ public class Main {
     public static void doTask(IRequest request, IResponse response) {
         try {
             if(doBeforeHandler(request, response)) {
-                java.util.Objects.requireNonNull(request.getCmdKey(), "target值不能为空，必须设置，该值用于反射调用方法");
-                AccountHandler.duang().doHandler(request.getCmdKey(), request, response);
+                java.util.Objects.requireNonNull(request.getDeviceId(), "deviceId值不能为空，必须设置，该值用于反射调用类");
+                java.util.Objects.requireNonNull(request.getCmdKey(), "cmdKey值不能为空，必须设置，该值用于反射调用方法");
+                AccountHandler.duang().doHandler(request.getDeviceId(), request.getCmdKey(), request, response);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

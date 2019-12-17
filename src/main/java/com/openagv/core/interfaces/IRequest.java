@@ -26,9 +26,13 @@ public interface IRequest extends java.io.Serializable{
 
     /**设置请求目的路径，即指令名称*/
     void setCmdKey(String cmdKey);
+    /**车辆或设备名称*/
+    void setDeviceId(String deviceId);
 
     /**取请求目的路径*/
     String getCmdKey();
+    /**取请求的车辆或设备ID*/
+    String getDeviceId();
 //
     /**取报文的原始字符串*/
     String getOriginalTelegram();
