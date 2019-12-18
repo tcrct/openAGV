@@ -21,6 +21,7 @@ import com.openagv.exceptions.AgvException;
 import com.openagv.opentcs.model.ProcessModel;
 import com.openagv.opentcs.telegrams.OrderRequest;
 import com.openagv.opentcs.telegrams.StateRequest;
+import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
@@ -327,6 +328,14 @@ public class ToolsKit {
     public static Vehicle getVehicle(String vehicleName){
         java.util.Objects.requireNonNull(vehicleName, "车辆名称不能为空");
         return AppContext.getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
+    }
+
+    /***
+     * 根据线名称取openTCS线路图上的车辆
+     */
+    public static Location getLocation(String locationName){
+        java.util.Objects.requireNonNull(locationName, "位置名称不能为空");
+        return AppContext.getOpenTcsObjectService().fetchObject(Location.class, locationName);
     }
 
 //    private static final ResourceBundleUtil BUNDLE = ResourceBundleUtil.getBundle(MENU_PATH);

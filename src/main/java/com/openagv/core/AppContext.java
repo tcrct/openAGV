@@ -17,10 +17,10 @@ import gnu.io.SerialPort;
 import org.apache.log4j.Logger;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.util.event.EventSource;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 上下文及映射容器
@@ -338,6 +338,14 @@ public class AppContext {
     }
     public static KernelServicePortal getKernelServicePortal() {
         return kernelServicePortal ;
+    }
+
+    private static EventSource eventSource;
+    public static void setEventSource(EventSource event) {
+        eventSource = event;
+    }
+    public static EventSource getEventSource() {
+        return eventSource;
     }
 
     // 所有工站/设备的动作请求，CRC验证码作为key

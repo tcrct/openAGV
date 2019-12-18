@@ -1,7 +1,6 @@
 package com.openagv.handlers;
 
 import cn.hutool.core.util.ReflectUtil;
-import com.duangframework.db.utils.ObjectKit;
 import com.openagv.core.AppContext;
 import com.openagv.exceptions.AgvException;
 import com.openagv.mvc.BaseController;
@@ -52,7 +51,7 @@ public class AccountHandler {
         } catch (Exception e) {
             throw new AgvException(e.getMessage(),e);
         }
-    }
+}
 
     public void doHandler2(String target, IRequest request, IResponse response) throws Exception{
         target = target.toUpperCase();

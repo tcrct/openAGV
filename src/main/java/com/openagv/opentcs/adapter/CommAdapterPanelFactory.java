@@ -3,12 +3,14 @@ package com.openagv.opentcs.adapter;
 import com.openagv.core.AppContext;
 import com.openagv.opentcs.model.VehicleModelTO;
 import org.opentcs.access.KernelServicePortal;
+import org.opentcs.customizations.ApplicationEventBus;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 import org.opentcs.drivers.vehicle.management.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.management.VehicleCommAdapterPanelFactory;
 import org.opentcs.drivers.vehicle.management.VehicleProcessModelTO;
+import org.opentcs.util.event.EventSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +39,11 @@ public class CommAdapterPanelFactory implements VehicleCommAdapterPanelFactory {
 
 
     @Inject
-    public CommAdapterPanelFactory(KernelServicePortal servicePortal, PanelComponentsFactory componentsFactory) {
+    public CommAdapterPanelFactory(KernelServicePortal servicePortal,
+                                   PanelComponentsFactory componentsFactory,@ApplicationEventBus EventSource eventSource) {
         this.servicePortal = requireNonNull(servicePortal, "servicePortal");
         AppContext.setKernelServicePortal(servicePortal);
+        AppContext.setEventSource(eventSource);
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
     }
 

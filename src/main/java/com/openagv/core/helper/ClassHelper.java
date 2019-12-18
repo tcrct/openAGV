@@ -2,9 +2,12 @@ package com.openagv.core.helper;
 
 import cn.hutool.core.lang.Filter;
 import cn.hutool.core.util.ClassUtil;
+import com.openagv.core.annotations.Service;
+import com.openagv.core.interfaces.IService;
 import com.openagv.tools.SettingUtils;
 import com.openagv.tools.ToolsKit;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class ClassHelper {
@@ -38,6 +41,10 @@ public class ClassHelper {
         if (null != clazz) {
             for (AnnotationEnum annotationEnum : AnnotationEnum.values()) {
                 if (clazz.isAnnotationPresent(annotationEnum.getClazz())) {
+                    if (Service.class.equals(annotationEnum.getClazz())) {
+                        Type[] types = clazz.getSuperclass().getInterfaces();
+                        return (types.length > 0) && (IService.class.equals(types[0]));
+                    }
                     return true;
                 }
             }

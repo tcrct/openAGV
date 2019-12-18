@@ -2,6 +2,7 @@ package com.openagv.opentcs.telegrams;
 
 import com.openagv.core.AppContext;
 import com.openagv.opentcs.model.ProcessModel;
+import com.openagv.tools.SettingUtils;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
 import java.util.Queue;
@@ -74,7 +75,10 @@ public class StateRequest extends AbsRequest {
                     processModel,
                     movementCommandQueue
             );
+            //设置指令命令
             stateRequest.setCmdKey(AppContext.getStateRequestCmdKey());
+            // 设置标识号
+            stateRequest.setDeviceId(stateRequest.getVehicleName());
             return stateRequest;
         }
     }

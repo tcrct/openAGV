@@ -17,6 +17,7 @@ import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
 import org.opentcs.access.KernelServicePortal;
+import org.opentcs.access.rmi.KernelServicePortalBuilder;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
 import org.opentcs.customizations.ServiceCallWrapper;
@@ -93,11 +94,6 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         java.util.Objects.requireNonNull(objectService, "objectService is null");
         return objectService;
     }
-
-//    public KernelServicePortal getKernelServicePortal() {
-//        java.util.Objects.requireNonNull(kernelServicePortal, "objectService is null");
-//        return kernelServicePortal;
-//    }
 
     public TelegramMatcher getTelegramMatcher(){
         java.util.Objects.requireNonNull(telegramMatcher, "telegramMatcher is null");
