@@ -48,6 +48,8 @@ public class AccountHandler {
             }
             Object resultObj = ReflectUtil.invoke(route.getInjectObject(), method, request, response);
             response.write(resultObj);
+        } catch (NullPointerException npe) {
+            throw new AgvException("找不到对应的["+deviceId+"]类，请确保类存在: " + npe.getMessage(),npe);
         } catch (Exception e) {
             throw new AgvException(e.getMessage(),e);
         }

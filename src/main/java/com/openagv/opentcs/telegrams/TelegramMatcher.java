@@ -133,7 +133,9 @@ public class TelegramMatcher {
                     return false;
                 }
             }
-            requests.remove();
+            if (!requests.isEmpty()) {
+                requests.remove();
+            }
             return checkForVehiclePosition(deviceId, postNextPoint, isVehicleArrivalCmd);
         }
 //        //取出队列中的第一位的请求，该请求视为当前请求,放在队列里的是逻辑处理后返回的IResponse
