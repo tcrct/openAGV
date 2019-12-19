@@ -16,11 +16,8 @@ import com.openagv.plugins.udp.UdpServerChannelManager;
 import com.openagv.tools.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.log4j.Logger;
-import org.opentcs.access.KernelServicePortal;
-import org.opentcs.access.rmi.KernelServicePortalBuilder;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.TcpClientChannelManager;
-import org.opentcs.customizations.ServiceCallWrapper;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.data.order.Route;
@@ -63,7 +60,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     private boolean singleStepExecutionAllowed = false;
 
     // 该条线路所有StateRequest，将所有指令整合成一条返回
-    private final static LinkedBlockingQueue<MovementCommand> commandQueue = new LinkedBlockingQueue<>();
+    private final static Map<String, LinkedBlockingQueue<MovementCommand>> commandQueueMap = new ConcurrentHashMap<>();
     private TCSObjectService objectService;
 
     /**
@@ -153,6 +150,11 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         for(Iterator<IEnable> iterator = AppContext.getPluginEnableList().iterator(); iterator.hasNext();){
             IEnable enable = iterator.next();
             channelManager = enable.enable();
+
+            if (null == channelManager) {
+                return;
+            }
+
             // 开启链接或监听
             if(channelManager instanceof TcpClientChannelManager) {
                 tcpClientChannelManager = (TcpClientChannelManager) channelManager;
@@ -233,16 +235,22 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         requireNonNull(cmd, "移动命令不能为空");
         singleStepExecutionAllowed = false;
-        logger.info("sendCommand:" + cmd);
+        String key = getProcessModel().getName();
+        logger.info(key + "     sendCommand:" + cmd);
+        LinkedBlockingQueue<MovementCommand> commandQueue = commandQueueMap.get(key);
+        if (null == commandQueue) {
+            commandQueue = new LinkedBlockingQueue<>();
+        }
+        commandQueue.add(cmd);
+        commandQueueMap.put(key, commandQueue);
         // 如果是交通管制，则生成出来的路径协议就是两个点两点的下发
         boolean isTrafficControl = ToolsKit.isTrafficControl(getProcessModel());
-        commandQueue.add(cmd);
         if (isTrafficControl) {
             logger.info("该车辆需要进行交通管理，路径为单步发送");
-            sendStateRequest(cmd);
+            sendStateRequest(key, cmd);
         } else if (cmd.isFinalMovement()) {
             logger.info("该车辆不需要进行交通管理，路径为全部发送");
-            sendStateRequest(cmd);
+            sendStateRequest(key, cmd);
         }
     }
 
@@ -250,12 +258,17 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      * 发送车辆移动请求
      * @param cmd
      */
-    private void  sendStateRequest(MovementCommand cmd) {
+    private void  sendStateRequest(String vehicleName, MovementCommand cmd) {
+        LinkedBlockingQueue<MovementCommand> queue = commandQueueMap.get(vehicleName);
+        if (null == queue || queue.isEmpty()) {
+            logger.info("命令对列不能为空，退出生成协议方法");
+            return;
+        }
         try {
             // 将移动的参数转换为请求返回参数，这里需要调用对应的业务逻辑根据协议规则生成对应的请求返回对象
             IResponse response = ToolsKit.sendCommand(
                     new StateRequest.Builder()
-                            .commandQuery(commandQueue)
+                            .commandQuery(queue)
                             .finalCmd(cmd)
                             .model(getProcessModel())
                             .build());
@@ -269,7 +282,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         } catch (Exception e) {
             logger.error(getName() + "构建指令或将订单报文提交到消息队列失败: " + e.getMessage(), e);
         } finally {
-            commandQueue.clear(); //成功失败都需要清空该命令队列对象
+            queue.clear(); //成功失败都需要清空该命令队列对象
         }
     }
 
@@ -460,13 +473,19 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      * @param response 车辆回复的协议
      */
     public void updateVehiclePositionAndExecuteCmd(IResponse response) {
-
         // 将报告的位置ID映射到点名称
         List<String> currentPositionList = response.getNextPointNames();
+        logger.info(response.getDeviceId() + " 更新车辆位置"+ToolsKit.toJsonString(currentPositionList)+"并执行自定义动作指令");
         String postCurrentPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
-        if(ToolsKit.isEmpty(postCurrentPoint)) { return;}
-        getProcessModel().setVehiclePosition(postCurrentPoint);
-        logger.info("Vehicle[" + getName() + "] move to " + postCurrentPoint+ " point is success!");
+        if(ToolsKit.isEmpty(postCurrentPoint)) {
+            logger.info("currentPositionList empty is " + ToolsKit.isNotEmpty(currentPositionList )+"      postCurrentPoint is empty, so exit function......");
+            return;
+        }
+        AppContext.getKernelServicePortal().
+                getVehicleService().
+                fetchProcessModel(ToolsKit.getVehicle(response.getDeviceId()).getReference())
+                .setVehiclePosition(postCurrentPoint);
+        logger.info("Vehicle[" +response.getDeviceId() + "] move to " + postCurrentPoint+ " point is success!");
         // Update GUI.
         synchronized (CommAdapter.this) {
             MovementCommand currentCmd = getSentQueue().peek();
@@ -517,7 +536,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                 // 如果动作指令操作未运行则可以运行
                 String operation = currentCmd.getOperation();
                 if (!CUSTOM_ACTIONS_MAP.containsKey(operation)) {
-                    executeCustomCmds(operation);
+                    logger.info("车辆["+response.getDeviceId()+"]对应位置["+postCurrentPoint+"]上的设备开始执行动作["+operation+"]");
+                    executeCustomCmds(response.getDeviceId(), operation);
                 } else {
                     logger.info("不能重复执行该操作，因该动作指令已经运行，作丢弃处理！");
                 }
@@ -554,12 +574,12 @@ public class CommAdapter extends BasicVehicleCommAdapter {
      * 执行自定义指令组合
      * @param operations 指令组合标识字符串
      */
-    private void executeCustomCmds(String operations)  {
+    private void executeCustomCmds(String vehicleName, String operations)  {
         final String operation = requireNonNull(operations, "operation is null");
         if (!isEnabled()) {
             return ;
         }
-        logger.info(getName()+": 开始执行自定义指令集合["+operation+"]操作");
+        logger.info(vehicleName+": 开始执行自定义指令集合["+operation+"]操作");
         try {
             //设置为执行状态
             getProcessModel().setVehicleState(Vehicle.State.EXECUTING);

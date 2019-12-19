@@ -28,7 +28,7 @@ public class TelegramMatcher {
     /**请求队列*/
     private final Queue<IResponse> requests = new LinkedList<>();
     /**所有经过的点的队列*/
-    private final Map<String, LinkedBlockingQueue<String>> pointMap = new ConcurrentHashMap<>();
+    private static final Map<String, LinkedBlockingQueue<String>> POINT_MAP = new ConcurrentHashMap<>();
 
     /** 电报发送接口*/
     private ITelegramSender telegramSender;
@@ -61,7 +61,8 @@ public class TelegramMatcher {
          } else {
 
              // 将所有经过的点(不包括起始点)放入队列中
-             pointMap.put(responseTelegram.getDeviceId(), new LinkedBlockingQueue<>(responseTelegram.getNextPointNames()));
+             POINT_MAP.put(responseTelegram.getDeviceId(), new LinkedBlockingQueue<>(responseTelegram.getNextPointNames()));
+             logger.info(" 将所有经过的点(不包括起始点)放入队列中: " + ToolsKit.toJsonString(POINT_MAP));
              // 将所有执行步骤放入队列
              List<PathStepDto> stepDtoList = (List<PathStepDto>) responseTelegram.getParams().get(IResponse.PARAM_POINT_STEP);
              if (ToolsKit.isNotEmpty(stepDtoList)) {
@@ -130,10 +131,13 @@ public class TelegramMatcher {
                 String params = String.valueOf(responseTelegram.getParams().get(IResponse.PARAM_STRING));
                 //最后一个参数为1时，代表预停车成功，如果不是1，则返回false;
                 if(!params.endsWith("1")) {
+                    logger.info("车辆 ["+deviceId+"]预停车不成功，["+params+"]最后一位参数不为1");
                     return false;
                 }
+                logger.info("车辆 ["+deviceId+"]预停车成功");
             }
-            if (!requests.isEmpty()) {
+            if (!requests.isEmpty() && (null != requests.peek()) ) {
+                logger.info(deviceId+ "####### execute request.remove();");
                 requests.remove();
             }
             return checkForVehiclePosition(deviceId, postNextPoint, isVehicleArrivalCmd);
@@ -161,9 +165,15 @@ public class TelegramMatcher {
      * @return  如果存在则返回true
      */
     private boolean checkForVehiclePosition(String deviceId, String postPoint, boolean isVehicleArrivalCmd) {
+        logger.info("checkForVehiclePosition " +deviceId+",           "+ postPoint +"            "+isVehicleArrivalCmd);
         if ("A001".equals(deviceId)) return true;
         if (ToolsKit.isNotEmpty(deviceId) && ToolsKit.isNotEmpty(postPoint)) {
-            LinkedBlockingQueue<String> pointQueue = pointMap.get(deviceId);
+            LinkedBlockingQueue<String> pointQueue = POINT_MAP.get(deviceId);
+            if (null == pointQueue) {
+                logger.info("车辆["+deviceId+"]提交的点["+postPoint+"]队列在系统队列里不存在, 退出");
+                logger.info("pointMap: " + ToolsKit.toJsonString(POINT_MAP));
+                return false;
+            }
             String pointName = pointQueue.peek();
             if(ToolsKit.isNotEmpty(postPoint) && postPoint.equals(pointName)) {
                 // 将路径步骤对应的点对象标识为已经执行，如需要重发未执行的路径时，
@@ -192,7 +202,7 @@ public class TelegramMatcher {
                 pointQueue.remove();
                 return true;
             } else {
-                logger.warn("车辆上报的点["+postPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
+                logger.warn("车辆["+deviceId+"]上报的点["+postPoint+"]，在系统列表不存在或已经上报处理或该点是起始点");
                 if ("225".equals(postPoint) ){
                     return true;
                 }

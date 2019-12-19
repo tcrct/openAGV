@@ -83,9 +83,13 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
         }
     }
 
+    private SerialPortManager serialPortManager = null;
     @Override
     public Object enable() {
         final SerialPort serialPort = AppContext.getSerialPort();
+        if (null != serialPortManager) {
+            return serialPortManager;
+        }
         if(null == serialPort) {
             try {
                 start();
@@ -94,7 +98,7 @@ public class SerialPortPlugin implements IPlugin, IEnable, ITelegramSender {
             }
         }
         eventListener.onConnect();
-        SerialPortManager serialPortManager = SerialPortManager.duang();
+        serialPortManager = SerialPortManager.duang();
         serialPortManager.addListener(serialPort, new DataAvailableListener() {
             @Override
             public void dataAvailable() {
