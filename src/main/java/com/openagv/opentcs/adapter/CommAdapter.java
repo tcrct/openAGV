@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -61,6 +62,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 
     // 该条线路所有StateRequest，将所有指令整合成一条返回
     private final static Map<String, LinkedBlockingQueue<MovementCommand>> commandQueueMap = new ConcurrentHashMap<>();
+    // 车辆与工站的关系，key为车辆ID，value为移动命令最后一条指令，即工站所在的点
+    private final static Map<String, MovementCommand> finalCommandMap = new ConcurrentHashMap<>();
     private TCSObjectService objectService;
 
     /**
@@ -250,6 +253,7 @@ public class CommAdapter extends BasicVehicleCommAdapter {
             sendStateRequest(key, cmd);
         } else if (cmd.isFinalMovement()) {
             logger.info("该车辆不需要进行交通管理，路径为全部发送");
+            finalCommandMap.put(key, cmd); // is final movecommand
             sendStateRequest(key, cmd);
         }
     }
@@ -475,7 +479,8 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public void updateVehiclePositionAndExecuteCmd(IResponse response) {
         // 将报告的位置ID映射到点名称
         List<String> currentPositionList = response.getNextPointNames();
-        logger.info(response.getDeviceId() + " 更新车辆位置"+ToolsKit.toJsonString(currentPositionList)+"并执行自定义动作指令");
+        String deviceId = response.getDeviceId();
+        logger.info(deviceId + " 更新车辆位置"+ToolsKit.toJsonString(currentPositionList)+"并执行自定义动作指令");
         String postCurrentPoint = ToolsKit.isNotEmpty(currentPositionList ) ? currentPositionList.get(0) : "";
         if(ToolsKit.isEmpty(postCurrentPoint)) {
             logger.info("currentPositionList empty is " + ToolsKit.isNotEmpty(currentPositionList )+"      postCurrentPoint is empty, so exit function......");
@@ -483,56 +488,24 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         }
         AppContext.getKernelServicePortal().
                 getVehicleService().
-                fetchProcessModel(ToolsKit.getVehicle(response.getDeviceId()).getReference())
+                fetchProcessModel(ToolsKit.getVehicle(deviceId).getReference())
                 .setVehiclePosition(postCurrentPoint);
-        logger.info("Vehicle[" +response.getDeviceId() + "] move to " + postCurrentPoint+ " point is success!");
+        logger.info("Vehicle[" +deviceId + "] move to " + postCurrentPoint+ " point is success!");
         // Update GUI.
         synchronized (CommAdapter.this) {
-            MovementCommand currentCmd = getSentQueue().peek();
-            if (currentCmd == null) return;
+            MovementCommand currentCmd = ToolsKit.isTrafficControl(deviceId) ? getSentQueue().peek() : finalCommandMap.get(response.getDeviceId());
+            if (currentCmd == null) {
+                logger.info("根据车辆["+deviceId+"]取点["+postCurrentPoint+"]的MovementCommand对象为空！退出处理...");
+                return;
+            }
             Route.Step step = currentCmd.getStep();
-//            String sourcePointName = step.getSourcePoint().getName();
-//            if (!postCurrentPoint.equals(sourcePointName)) {
-//                Iterator<MovementCommand> cmdIter = getSentQueue().iterator();
-//                while (cmdIter.hasNext()) {
-//                    MovementCommand cmdItem = cmdIter.next();
-//                    sourcePointName = cmdItem.getStep().getSourcePoint().getName();
-//                    if (postCurrentPoint.equals(sourcePointName)) {
-//                        break;
-//                    }
-//                    cmdIter.remove();
-//                }
-//            }
-//            currentCmd = getSentQueue().peek();
-
-            //如果提交的点并不是最终点
-//            boolean isFinalMovement = currentCmd.isFinalMovement() &&
-//                    postCurrentPoint.equals(step.getSourcePoint());
-
-//            System.out.println("#########orientation: " + step.getVehicleOrientation().name());
-//            System.out.println("#########orientation: " + step.getDestinationPoint().getVehicleOrientationAngle());
-//            System.out.println("#########orientation: " + getProcessModel().getVehicleOrientationAngle());
-            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+step.getSourcePoint().getName()+"             "+ currentCmd.getFinalDestination().getName());
+            String sourcePointName = step.getSourcePoint().getName();
+            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+sourcePointName+"             "+ currentCmd.getFinalDestination().getName());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
-            if(!currentCmd.isWithoutOperation() &&
+            if(postCurrentPoint.equals(sourcePointName) &&
+                    !currentCmd.isWithoutOperation() &&
                     currentCmd.isFinalMovement()  &&
                     isContainActionsKey(currentCmd)) {
-                /*
-                Route.Step step = currentCmd.getStep();
-                Vehicle.Orientation orientation = step.getVehicleOrientation();
-                long pathLength = step.getPath().getLength();
-                int maxVelocity;
-                switch (orientation) {
-                    case BACKWARD:
-                        maxVelocity = step.getPath().getMaxReverseVelocity();
-                        logger.info(pathLength +"           "+BACKWARD+" maxVelocity："+maxVelocity+"               orientation"+orientation);
-                        break;
-                    default:
-                        maxVelocity = step.getPath().getMaxVelocity();
-                        logger.info(pathLength +"           maxVelocity: "+maxVelocity+"               orientation"+orientation);
-                        break;
-                }
-                 */
                 // 如果动作指令操作未运行则可以运行
                 String operation = currentCmd.getOperation();
                 if (!CUSTOM_ACTIONS_MAP.containsKey(operation)) {

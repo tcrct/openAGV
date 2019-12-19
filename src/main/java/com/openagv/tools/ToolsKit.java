@@ -361,10 +361,13 @@ public class ToolsKit {
 //        String matrixVehice = SettingUtils.getStringByGroup("vehicle", "matrix", "");
 //        boolean isMatrix =processModel.getVehicle().getName().equals(matrixVehice);
 
-        String vehicleName = processModel.getName();
-        return ("A001".equalsIgnoreCase(vehicleName) || "A002".equalsIgnoreCase(vehicleName)) ? true : false;
+        return isTrafficControl(processModel.getName());
     }
 
+
+    public static boolean isTrafficControl(String vehicleName) {
+        return ("A001".equalsIgnoreCase(vehicleName) || "A002".equalsIgnoreCase(vehicleName)) ? true : false;
+    }
 
     /**
      * 此通信适配器的命令队列接受的命令数。必须至少为1。
