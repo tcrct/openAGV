@@ -116,6 +116,24 @@ public class CommAdapter extends BasicVehicleCommAdapter {
         super.terminate();
     }
 
+    private boolean channelManagerEnabled() {
+        if(ToolsKit.isNotEmpty(channelManager)) {
+            if(channelManager instanceof TcpClientChannelManager) {
+                TcpClientChannelManager tcpClientChannelManager = (TcpClientChannelManager) channelManager;
+                return tcpClientChannelManager.isConnected();
+            }
+            else if(channelManager instanceof UdpServerChannelManager) {
+                UdpServerChannelManager udpServerChannelManager = (UdpServerChannelManager) channelManager;
+                return udpServerChannelManager.isConnected();
+            }
+            else if(channelManager instanceof SerialPortManager) {
+                SerialPortManager serialPortManager = (SerialPortManager) channelManager;
+                return serialPortManager.isConnected();
+            }
+        }
+        return false;
+    }
+
     /**
      * 内核控制中心列表enable列勾选复选框后触发
      */
@@ -123,6 +141,10 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     public synchronized void enable() {
         // 如果启用了则直接退出
         if (isEnabled()) {
+            return;
+        }
+        // 判断是否重复开启
+        if (channelManagerEnabled()) {
             return;
         }
         getProcessModel().getVelocityController().addVelocityListener(getProcessModel());
@@ -281,18 +303,18 @@ public class CommAdapter extends BasicVehicleCommAdapter {
 //        point.setVehicleOrientationAngle(-90);
 
 
-        String vehicleName = getProcessModel().getName();
-        if ("A001".equals(vehicleName)) {
-//            getProcessModel().setVehiclePosition("218");
-            getProcessModel().setVehiclePosition("223");
-        }
-        else if ("A002".equals(vehicleName)) {
-//            getProcessModel().setVehiclePosition("213");
-            getProcessModel().setVehiclePosition("230");
-        }
-        else if ("A033".equals(vehicleName)) {
-            getProcessModel().setVehiclePosition("50");
-        }
+//        String vehicleName = getProcessModel().getName();
+//        if ("A001".equals(vehicleName)) {
+////            getProcessModel().setVehiclePosition("218");
+//            getProcessModel().setVehiclePosition("223");
+//        }
+//        else if ("A002".equals(vehicleName)) {
+////            getProcessModel().setVehiclePosition("213");
+//            getProcessModel().setVehiclePosition("230");
+//        }
+//        else if ("A033".equals(vehicleName)) {
+//            getProcessModel().setVehiclePosition("50");
+//        }
 
 
         getProcessModel().setVehicleState(Vehicle.State.IDLE);

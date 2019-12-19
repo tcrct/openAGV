@@ -225,10 +225,10 @@
       <version>${log4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jdom</groupId>
-      <artifactId>jdom2</artifactId>
-      <version>${jdom2.version}</version>
-    </dependency>
+    <groupId>org.jdom</groupId>
+    <artifactId>jdom2</artifactId>
+    <version>${jdom2.version}</version>
+  </dependency>
     <dependency>
       <groupId>org.cfg4j</groupId>
       <artifactId>cfg4j-core</artifactId>

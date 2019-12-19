@@ -253,6 +253,14 @@
         <allowedOperation name="UnLoadOne"/>
         <allowedOperation name="UnLoadOne2"/>
     </locationType>
+    <location name="RollerLeft" xPosition="58000" yPosition="5500" zPosition="0" type="RollerModel">
+        <link point="2"/>
+        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
+    </location>
+    <location name="RollerRight" xPosition="77000" yPosition="6500" zPosition="0" type="RollerModel">
+        <link point="1"/>
+        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
+    </location>
     <location name="Smt2Left" xPosition="37000" yPosition="17000" zPosition="0" type="Smt2">
         <link point="51"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
@@ -278,7 +286,7 @@
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="UnLoadOne2" xPosition="89000" yPosition="500" zPosition="0" type="TrafficControl">
-        <link point="234"/>
+        <link point="214"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="UnLoadTwo" xPosition="29000" yPosition="-5000" zPosition="0" type="TrafficControl">
@@ -286,7 +294,7 @@
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="UnLoadTwo2" xPosition="102500" yPosition="-15500" zPosition="0" type="TrafficControl">
-        <link point="230"/>
+        <link point="212"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="injectionmoldingIn" xPosition="33500" yPosition="32000" zPosition="0" type="InjectionMolding">
@@ -297,24 +305,6 @@
         <link point="702"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_ALT_1"/>
     </location>
-    <location name="load" xPosition="77000" yPosition="6500" zPosition="0" type="InjectionMolding">
-        <link point="1"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
-    <location name="unload" xPosition="58000" yPosition="5500" zPosition="0" type="InjectionMolding">
-        <link point="2"/>
-        <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
-    </location>
-    <block name="Block-0001" type="SINGLE_VEHICLE_ONLY">
-        <member name="218 --- 228"/>
-        <member name="218 --- 229"/>
-        <member name="221 --- 226"/>
-        <member name="226 --- 221"/>
-        <member name="226 --- 229"/>
-        <member name="228 --- 218"/>
-        <member name="229 --- 218"/>
-        <member name="229 --- 226"/>
-    </block>
     <visualLayout name="VLayout-1" scaleX="50.0" scaleY="50.0">
         <modelLayoutElement visualizedObjectName="1" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -348,8 +338,8 @@
         <modelLayoutElement visualizedObjectName="212" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="82250"/>
-            <property name="POSITION_Y" value="-12250"/>
+            <property name="POSITION_X" value="82000"/>
+            <property name="POSITION_Y" value="-12000"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="212 --- 228" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
@@ -386,7 +376,7 @@
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="218 --- 228" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="1270,280;1330,240"/>
+            <property name="CONTROL_POINTS" value="1260,250;1330,240"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="218 --- 229" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
@@ -432,7 +422,7 @@
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="221 --- 226" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="420,450;450,480"/>
+            <property name="CONTROL_POINTS" value="360,480;450,480"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="223" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -493,7 +483,7 @@
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="229 --- 218" layer="0">
             <property name="CONN_TYPE" value="BEZIER"/>
-            <property name="CONTROL_POINTS" value="1010,380;1120,370"/>
+            <property name="CONTROL_POINTS" value="1010,380;1090,330"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="229 --- 226" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
@@ -733,8 +723,17 @@
         <modelLayoutElement visualizedObjectName="A033" layer="0">
             <property name="ROUTE_COLOR" value="#FFFF00"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="Block-0001" layer="0">
-            <property name="COLOR" value="#FF0000"/>
+        <modelLayoutElement visualizedObjectName="RollerLeft" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="60250"/>
+            <property name="POSITION_Y" value="15750"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="RollerRight" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="74750"/>
+            <property name="POSITION_Y" value="15750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="Smt2Left" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -775,8 +774,8 @@
         <modelLayoutElement visualizedObjectName="UnLoadOne2" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="96250"/>
-            <property name="POSITION_Y" value="1250"/>
+            <property name="POSITION_X" value="81750"/>
+            <property name="POSITION_Y" value="750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="UnLoadTwo" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -787,8 +786,8 @@
         <modelLayoutElement visualizedObjectName="UnLoadTwo2" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="96750"/>
-            <property name="POSITION_Y" value="-17750"/>
+            <property name="POSITION_X" value="82250"/>
+            <property name="POSITION_Y" value="-17250"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="injectionmoldingIn" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -802,18 +801,6 @@
             <property name="POSITION_X" value="54750"/>
             <property name="POSITION_Y" value="31750"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="load" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="74500"/>
-            <property name="POSITION_Y" value="15500"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="unload" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="60000"/>
-            <property name="POSITION_Y" value="15500"/>
-        </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-12-14T08:04:10.822Z"/>
+    <property name="tcs:modelFileLastModified" value="2019-12-18T08:15:36.962Z"/>
 </model>
