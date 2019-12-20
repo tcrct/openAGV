@@ -15,6 +15,15 @@ public interface IAction {
      */
     String actionKey();
 
+    /**车辆ID*/
+    String vehicleId();
+
+    /***
+     * 工站设备ID
+     * @return
+     */
+    String deviceId();
+
     /**
      *执行操作
      */

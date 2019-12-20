@@ -126,6 +126,7 @@ public class HandshakeTelegramQueue {
         // 指令队列中移除后再发送下一个指令
         ICallback callback = telegramDto.getCallback();
         String requestId = ToolsKit.isEmpty(telegramDto.getRequest()) ? telegramDto.getResponse().getRequestId() : telegramDto.getRequest().getRequestId();
+        String vechileName = ToolsKit.isEmpty(telegramDto.getRequest()) ? telegramDto.getResponse().getDeviceId() : telegramDto.getRequest().getVehicleId();
         // 只有在actionKey不为空的情况下才进行回调处理
         String actionKey = telegramDto.getActionKey();
         if (ToolsKit.isNotEmpty(callback) &&
@@ -133,7 +134,7 @@ public class HandshakeTelegramQueue {
                 ToolsKit.isNotEmpty(actionKey)) {
             // 回调机制，告诉系统这条指令可以完结了。
             try {
-                callback.call(actionKey, requestId);
+                callback.call(actionKey, requestId, vechileName);
             } catch (Exception e) {
                 throw new AgvException(e.getMessage(), e);
             }

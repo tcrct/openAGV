@@ -57,4 +57,6 @@ public interface IRequest extends java.io.Serializable{
     /**设置协议对象*/
     void setProtocol(java.io.Serializable bean);
 
+    /**车辆ID*/
+    String getVehicleId();
 }

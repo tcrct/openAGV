@@ -492,17 +492,19 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                 .setVehiclePosition(postCurrentPoint);
         logger.info("Vehicle[" +deviceId + "] move to " + postCurrentPoint+ " point is success!");
         // Update GUI.
+        boolean isTrafficControl = ToolsKit.isTrafficControl(deviceId);
         synchronized (CommAdapter.this) {
-            MovementCommand currentCmd = ToolsKit.isTrafficControl(deviceId) ? getSentQueue().peek() : finalCommandMap.get(response.getDeviceId());
+            MovementCommand currentCmd = isTrafficControl ? getSentQueue().peek() : finalCommandMap.get(response.getDeviceId());
             if (currentCmd == null) {
                 logger.info("根据车辆["+deviceId+"]取点["+postCurrentPoint+"]的MovementCommand对象为空！退出处理...");
                 return;
             }
             Route.Step step = currentCmd.getStep();
-            String sourcePointName = step.getSourcePoint().getName();
-            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+sourcePointName+"             "+ currentCmd.getFinalDestination().getName());
+            //最终点名称
+            String  finalPointName = currentCmd.getFinalDestination().getName();
+            System.out.println("###############: "  + currentCmd.isFinalMovement() +"                 "+currentCmd.getFinalDestinationLocation()+"             "+ currentCmd.getFinalDestination().getName()+"            "+currentCmd.getFinalOperation());
             //到达最终停车点后判断是否有自定义操作，如果有匹配的标识符，则执行自定义操作
-            if(postCurrentPoint.equals(sourcePointName) &&
+            if(postCurrentPoint.equals(finalPointName) &&
                     !currentCmd.isWithoutOperation() &&
                     currentCmd.isFinalMovement()  &&
                     isContainActionsKey(currentCmd)) {
@@ -515,7 +517,12 @@ public class CommAdapter extends BasicVehicleCommAdapter {
                     logger.info("不能重复执行该操作，因该动作指令已经运行，作丢弃处理！");
                 }
             } else {
-                executeNextMoveCmd(null);
+                if (isTrafficControl) {
+                    logger.info("交通管制方式，执行下一个移动命令");
+                    executeNextMoveCmd(deviceId, null);
+                } else {
+                    logger.info("当前点["+postCurrentPoint+"]不是工作站点["+finalPointName+"]，继续等待车辆运行到位");
+                }
             }
             // 唤醒处于等待状态的线程
             CommAdapter.this.notify();
@@ -578,14 +585,22 @@ public class CommAdapter extends BasicVehicleCommAdapter {
     /**
      * 执行下一步移动车辆
      */
-    public void executeNextMoveCmd(String actionKey) {
+    public void executeNextMoveCmd(String deviceId, String actionKey) {
         logger.info("成功执行自定义指令完成，则检查是否有下一订单，如有则继续执行");
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         // 取消单步执行状态
         getProcessModel().setSingleStepModeEnabled(false);
-        MovementCommand cmd = getSentQueue().poll();
+//        MovementCommand cmd = getSentQueue().poll();
+        Queue<MovementCommand> queue = getSentQueue();
+        for (int i=0; i<queue.size(); i++) {
+            MovementCommand cmdItem = queue.poll();
+            System.out.println("cmdItem: " + cmdItem);
+        }
+        boolean isTrafficControl = ToolsKit.isTrafficControl(deviceId);
+        MovementCommand cmd = isTrafficControl ? getSentQueue().poll() : finalCommandMap.get(deviceId);
 //        System.out.println("cmd.getStep().getSourcePoint(): " + cmd.getStep().getSourcePoint());
+        System.out.println("cmd: " + cmd);
         getProcessModel().commandExecuted(cmd);
         //移除指定动作的名称
         if(ToolsKit.isNotEmpty(actionKey)) {

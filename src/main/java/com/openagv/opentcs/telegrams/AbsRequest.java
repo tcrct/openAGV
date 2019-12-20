@@ -43,6 +43,8 @@ public abstract class AbsRequest implements IRequest {
     private Serializable bean;
     /**类似标识符，区分request/response对象*/
     protected String type;
+    /**接收的车辆D*/
+    private String vehicleId;
 
     public AbsRequest(TelegramType type) {
         if (TelegramType.ORDER.equals(type)) {
@@ -87,6 +89,14 @@ public abstract class AbsRequest implements IRequest {
         return bean;
     }
 
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    @Override
+    public String getVehicleId() {
+        return vehicleId;
+    }
     /**
      * 目标请求路径，即协议指令里的功能命令
      */
