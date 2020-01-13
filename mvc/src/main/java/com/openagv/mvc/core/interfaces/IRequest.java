@@ -8,6 +8,12 @@ import com.openagv.mvc.core.enums.ReqType;
 public interface IRequest {
 
     /**
+     * 取适配器
+     * @return
+     */
+    AgvCommonAdapter getAdapter();
+
+    /**
      * 设置请求ID
      * @param id
      */

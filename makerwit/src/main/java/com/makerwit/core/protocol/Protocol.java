@@ -54,7 +54,9 @@ public class Protocol implements IProtocol, java.io.Serializable {
         return code;
     }
 
-
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public static class Builder {
         private String deviceId;
