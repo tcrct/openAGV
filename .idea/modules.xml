@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/agv/agv.iml" filepath="$PROJECT_DIR$/agv/agv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/makerwit/makerwit.iml" filepath="$PROJECT_DIR$/makerwit/makerwit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mvc/mvc.iml" filepath="$PROJECT_DIR$/mvc/mvc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-CommAdapter-Loopback/openTCS-CommAdapter-Loopback.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-CommAdapter-Loopback/openTCS-CommAdapter-Loopback.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Common/openTCS-Common.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Common/openTCS-Common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Documentation/openTCS-Documentation.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Documentation/openTCS-Documentation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Impl-Configuration-cfg4j/openTCS-Impl-Configuration-cfg4j.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Impl-Configuration-cfg4j/openTCS-Impl-Configuration-cfg4j.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Kernel/openTCS-Kernel.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Kernel/openTCS-Kernel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-HTTP-Services/openTCS-Kernel-Extension-HTTP-Services.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-HTTP-Services/openTCS-Kernel-Extension-HTTP-Services.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-RMI-Services/openTCS-Kernel-Extension-RMI-Services.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-RMI-Services/openTCS-Kernel-Extension-RMI-Services.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-Statistics/openTCS-Kernel-Extension-Statistics.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-Statistics/openTCS-Kernel-Extension-Statistics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-TCP-Host-Interface/openTCS-Kernel-Extension-TCP-Host-Interface.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Kernel-Extension-TCP-Host-Interface/openTCS-Kernel-Extension-TCP-Host-Interface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-KernelControlCenter/openTCS-KernelControlCenter.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-KernelControlCenter/openTCS-KernelControlCenter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview/openTCS-PlantOverview.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview/openTCS-PlantOverview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Base/openTCS-PlantOverview-Base.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Base/openTCS-PlantOverview-Base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-LoadGenerator/openTCS-PlantOverview-Panel-LoadGenerator.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-LoadGenerator/openTCS-PlantOverview-Panel-LoadGenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-ResourceAllocation/openTCS-PlantOverview-Panel-ResourceAllocation.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-ResourceAllocation/openTCS-PlantOverview-Panel-ResourceAllocation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-Statistics/openTCS-PlantOverview-Panel-Statistics.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Panel-Statistics/openTCS-PlantOverview-Panel-Statistics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Themes-Default/openTCS-PlantOverview-Themes-Default.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-PlantOverview-Themes-Default/openTCS-PlantOverview-Themes-Default.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Strategies-Default/openTCS-Strategies-Default.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Strategies-Default/openTCS-Strategies-Default.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openagv.iml" filepath="$PROJECT_DIR$/openagv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opentcs/opentcs.iml" filepath="$PROJECT_DIR$/opentcs/opentcs.iml" />
+    </modules>
+  </component>
+</project>
