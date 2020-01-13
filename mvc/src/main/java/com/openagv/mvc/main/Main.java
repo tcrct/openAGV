@@ -61,13 +61,16 @@ public class Main {
      * @param response 返回对象
      */
     private boolean doBeforeHandler(String target, IRequest request, IResponse response) throws Exception {
+
         if(AppContext.getBeforeHeandlerList().isEmpty()) {
             return true;
         }
+
         // 如果是MoveRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
         if(request instanceof MoveRequest){
             return true;
         }
+
         if(request instanceof BusinessRequest) {
             for (Iterator<IHandler> it = AppContext.getBeforeHeandlerList().iterator(); it.hasNext(); ) {
                 boolean isNextHandle = it.next().doHandler(target, request, response);
@@ -76,6 +79,7 @@ public class Main {
                 }
             }
         }
+
         return true;
     }
 }
