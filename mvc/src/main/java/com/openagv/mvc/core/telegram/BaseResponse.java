@@ -27,7 +27,12 @@ public class BaseResponse implements IResponse {
     }
 
     @Override
-    public void write(String message) {
+    public int getStatus() {
+        return status;
+    }
+
+    @Override
+    public void write(Object message) {
 
     }
 }

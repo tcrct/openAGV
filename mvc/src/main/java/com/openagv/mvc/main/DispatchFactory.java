@@ -43,8 +43,13 @@ public class DispatchFactory {
      * @param message 协议内容
      */
     public static void dispatch(String message) {
-        IProtocol protocol = protocolDecode.decode(message);
-        dispatchHandler(new BusinessRequest(protocol));
+        try {
+            IProtocol protocol = protocolDecode.decode(message);
+            dispatchHandler(new BusinessRequest(message, protocol));
+        } catch (Exception e) {
+            LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);
+            return;
+        }
     }
 
     /**

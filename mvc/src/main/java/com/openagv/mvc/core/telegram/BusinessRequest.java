@@ -11,8 +11,10 @@ import com.openagv.mvc.core.interfaces.IProtocol;
  */
 public class BusinessRequest extends BaseRequest {
 
-    public BusinessRequest(IProtocol protocol) {
+    public BusinessRequest(String raw, IProtocol protocol) {
         super(ReqType.BUSINESS, protocol);
+        setRawContent(raw);
     }
+
 
 }

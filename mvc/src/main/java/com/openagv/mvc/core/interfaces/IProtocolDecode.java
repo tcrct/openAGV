@@ -7,6 +7,6 @@ package com.openagv.mvc.core.interfaces;
  */
 public interface IProtocolDecode {
 
-    IProtocol decode(String message);
+    IProtocol decode(String message) throws Exception;
 
 }

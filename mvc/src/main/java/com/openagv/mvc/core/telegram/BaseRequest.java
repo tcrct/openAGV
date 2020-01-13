@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * Created by laotang on 2020/1/12.
  */
-public class BaseRequest implements IRequest {
+public  class BaseRequest implements IRequest {
 
     /**请求ID*/
     protected String id;
@@ -18,6 +18,8 @@ public class BaseRequest implements IRequest {
     protected IProtocol protocol;
     /**请求对象类型枚举*/
     protected ReqType reqType;
+
+    protected String rawContent;
 
     public BaseRequest(ReqType reqType, IProtocol protocol) {
         Objects.requireNonNull(reqType, "请求对象枚举值不能为空");
@@ -59,6 +61,11 @@ public class BaseRequest implements IRequest {
 
     @Override
     public String getRawContent() {
-        return null;
+        return rawContent;
+    }
+
+    @Override
+    public void setRawContent(String raw) {
+        this.rawContent = raw;
     }
 }
