@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.makerwit</groupId>
-    <artifactId>agv</artifactId>
+    <artifactId>makerwit</artifactId>
 
     <name>makerwit</name>
     <url>http://www.makerwit.com</url>
