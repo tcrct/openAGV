@@ -4,6 +4,7 @@ import com.openagv.adapter.AgvCommAdapter;
 import com.openagv.mvc.core.enums.ReqType;
 
 /**
+ * 请求对象接口
  * Created by laotang on 2020/1/12.
  */
 public interface IRequest {
