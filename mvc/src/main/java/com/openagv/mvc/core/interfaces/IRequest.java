@@ -1,5 +1,6 @@
 package com.openagv.mvc.core.interfaces;
 
+import com.openagv.adapter.AgvCommAdapter;
 import com.openagv.mvc.core.enums.ReqType;
 
 /**
@@ -11,7 +12,7 @@ public interface IRequest {
      * 取适配器
      * @return
      */
-    AgvCommonAdapter getAdapter();
+    AgvCommAdapter getAdapter();
 
     /**
      * 设置请求ID

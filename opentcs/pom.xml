@@ -142,17 +142,17 @@
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.opentcs.contrib</groupId>
-            <artifactId>opentcs-contrib-tcp-netty</artifactId>
-            <version>0.13.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.opentcs</groupId>
-                    <artifactId>openTCS-API-Base</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.opentcs.contrib</groupId>-->
+            <!--<artifactId>opentcs-contrib-tcp-netty</artifactId>-->
+            <!--<version>0.13.0</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.opentcs</groupId>-->
+                    <!--<artifactId>openTCS-API-Base</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
         <!-- slf4j-->
         <dependency>
             <groupId>org.slf4j</groupId>

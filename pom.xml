@@ -13,6 +13,7 @@
         <module>agv</module>
         <module>mvc</module>
         <module>makerwit</module>
+        <module>contrib</module>
     </modules>
 
     <properties>
