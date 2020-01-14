@@ -27,6 +27,7 @@ hs_err_pid*
 /scripts/
 /bin/
 /.idea/
+/.gitee/
 /test/
 # 不提交上传文件夹
 /uploadfiles/
