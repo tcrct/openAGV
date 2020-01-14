@@ -10,7 +10,6 @@ import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.VehicleProcessModel;
 import org.opentcs.util.ExplainedBoolean;
-import org.opentcs.virtualvehicle.AdapterPanelComponentsFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
