@@ -6,31 +6,33 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="agv" />
-        <module name="mvc" />
-        <module name="openTCS-API-Base" />
-        <module name="openTCS-API-Injection" />
-        <module name="openTCS-CommAdapter-Loopback" />
-        <module name="openTCS-Common" />
-        <module name="openTCS-Documentation" />
-        <module name="openTCS-Impl-Configuration-cfg4j" />
-        <module name="openTCS-Kernel" />
-        <module name="openTCS-Kernel-Extension-HTTP-Services" />
-        <module name="openTCS-Kernel-Extension-RMI-Services" />
-        <module name="openTCS-Kernel-Extension-Statistics" />
-        <module name="openTCS-Kernel-Extension-TCP-Host-Interface" />
+        <module name="makerwit" />
         <module name="openTCS-KernelControlCenter" />
-        <module name="openTCS-PlantOverview" />
-        <module name="openTCS-PlantOverview-Base" />
+        <module name="openTCS-Kernel" />
+        <module name="openTCS-CommAdapter-Loopback" />
         <module name="openTCS-PlantOverview-Panel-LoadGenerator" />
-        <module name="openTCS-PlantOverview-Panel-ResourceAllocation" />
-        <module name="openTCS-PlantOverview-Panel-Statistics" />
-        <module name="openTCS-PlantOverview-Themes-Default" />
+        <module name="openTCS-API-Injection" />
         <module name="openTCS-Strategies-Default" />
+        <module name="openTCS-API-Base" />
+        <module name="openTCS-PlantOverview-Panel-Statistics" />
+        <module name="openTCS-Kernel-Extension-TCP-Host-Interface" />
+        <module name="openTCS-Kernel-Extension-RMI-Services" />
+        <module name="openTCS-Kernel-Extension-HTTP-Services" />
+        <module name="mvc" />
+        <module name="openTCS-PlantOverview-Base" />
+        <module name="openTCS-Impl-Configuration-cfg4j" />
+        <module name="openTCS-Documentation" />
+        <module name="openTCS-PlantOverview" />
+        <module name="openTCS-PlantOverview-Panel-ResourceAllocation" />
+        <module name="openTCS-Common" />
+        <module name="openTCS-Kernel-Extension-Statistics" />
+        <module name="agv" />
+        <module name="openTCS-PlantOverview-Themes-Default" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="agv" target="1.7" />
+      <module name="agv" target="1.8" />
+      <module name="makerwit" target="1.8" />
       <module name="mvc" target="1.8" />
       <module name="openagv" target="1.8" />
       <module name="opentcs" target="1.8" />
