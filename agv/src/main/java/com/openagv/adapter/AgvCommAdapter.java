@@ -7,6 +7,7 @@ import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.VehicleProcessModel;
 import org.opentcs.util.ExplainedBoolean;
 import org.opentcs.virtualvehicle.AdapterPanelComponentsFactory;
@@ -14,10 +15,16 @@ import org.opentcs.virtualvehicle.AdapterPanelComponentsFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * AgvCommAdapter
+ *
+ * @blame Laotang
+ */
 public class AgvCommAdapter extends BasicVehicleCommAdapter {
 
     /**大杀器*/
@@ -48,6 +55,11 @@ public class AgvCommAdapter extends BasicVehicleCommAdapter {
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
 
+    }
+
+    @Override
+    protected List<VehicleCommAdapterPanel> createAdapterPanels() {
+        return null;
     }
 
     @Override
