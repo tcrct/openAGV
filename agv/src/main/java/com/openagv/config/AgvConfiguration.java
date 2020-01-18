@@ -1,13 +1,18 @@
 package com.openagv.config;
 
+/**
+ * @blame opentcs
+ * @author Laotang
+ * @since 1.0
+ */
 public class AgvConfiguration {
 
     public int commandQueueCapacity() {
-        return 3;
+        return 100;
     }
 
     public int sentQueueCapacity() {
-        return 2;
+        return 100;
     }
 
     public String rechargeOperation() {

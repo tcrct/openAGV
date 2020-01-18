@@ -3,9 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/agv/agv.iml" filepath="$PROJECT_DIR$/agv/agv.iml" />
-      <module fileurl="file://$PROJECT_DIR$/contrib/net.iml" filepath="$PROJECT_DIR$/contrib/net.iml" />
       <module fileurl="file://$PROJECT_DIR$/makerwit/makerwit.iml" filepath="$PROJECT_DIR$/makerwit/makerwit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mvc/mvc.iml" filepath="$PROJECT_DIR$/mvc/mvc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contrib/net.iml" filepath="$PROJECT_DIR$/contrib/net.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-CommAdapter-Loopback/openTCS-CommAdapter-Loopback.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-CommAdapter-Loopback/openTCS-CommAdapter-Loopback.iml" />
