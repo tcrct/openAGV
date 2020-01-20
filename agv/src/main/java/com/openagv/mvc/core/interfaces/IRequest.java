@@ -42,7 +42,6 @@ public interface IRequest {
     /**请求类型枚举*/
     ReqType getReqType();
 
-
     /**
      * 取原始协议字符串
      * @return
@@ -55,4 +54,5 @@ public interface IRequest {
      * @return
      */
     void setRawContent(String raw);
+
 }

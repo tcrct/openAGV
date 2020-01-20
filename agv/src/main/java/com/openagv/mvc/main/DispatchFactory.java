@@ -3,6 +3,7 @@ package com.openagv.mvc.main;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpStatus;
+import com.openagv.AgvContext;
 import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.*;
 import com.openagv.mvc.core.telegram.ActionRequest;
@@ -13,6 +14,7 @@ import com.openagv.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Queue;
 import java.util.concurrent.*;
 
 /**
@@ -38,12 +40,19 @@ public class DispatchFactory {
     }
 
     /**
-     * 分发处理接收到的业务协议字符串
+     * 系统接收到车辆或工作站发起的业务协议字符串
      * @param message 协议内容
      */
-    public static void dispatch(String message) {
+    public static void onIncomingTelegram(String message) {
         try {
             IProtocol protocol = protocolDecode.decode(message);
+            // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
+            if (AgvContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
+                LinkedBlockingQueue<IProtocol> protocolQueue = AgvContext.getResponseProtocolMap().get(protocol.getCode());
+                protocolQueue.add(protocol);
+                AgvContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                return;
+            }
             dispatchHandler(new BusinessRequest(message, protocol));
         } catch (Exception e) {
             LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);
@@ -52,7 +61,9 @@ public class DispatchFactory {
     }
 
     /**
-     * 分发处理接收到的动作任务请求
+     * 分发处理接收到的工站动作任务请求
+     * 调度系统发起的请求
+     *
      * @param request ActionRequest
      */
     public static void dispatch(ActionRequest request) {
@@ -61,6 +72,8 @@ public class DispatchFactory {
 
     /**
      * 分发处理接收到的移动请求
+     * 调度系统发起的请求
+     *
      * @param request MoveRequest
      */
     public static void dispatch(MoveRequest request) {
@@ -73,12 +86,16 @@ public class DispatchFactory {
             IResponse response = futureTask.get(TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 sender.send(response);
+//                RequestKit.duang().response(response).execute();
             }
         } catch (Exception e) {
             throw new AgvException(e.getMessage(), e);
         }
     }
 
+    /**
+     * 初始化协议解析对象
+     */
     private static void initProtocolDecode() {
         String classPath = SettingUtils.getString("protocol.decode");
         if (ToolsKit.isEmpty(classPath)) {

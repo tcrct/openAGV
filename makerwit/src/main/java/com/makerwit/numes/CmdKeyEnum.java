@@ -21,6 +21,15 @@ public enum CmdKeyEnum {
     SETVMOT("setvmot", "设置小车动作"),
     SETOUT("setout", "车载动作/工站动作"),
     SETMOV("setmov", "设置小车动作"),
+    SETAVOID("setavoid", "设置音乐"),
+    SETMUSIC("setmusic", "设置音乐"),
+    SETRTP("setrtp","预停车到位指令"),
+    SETSTP("setstp", "立即停车"),
+    SETTRA("settra", ""),
+
+
+
+
 
 
     /***********RPT**********/

@@ -10,11 +10,12 @@ import com.openagv.mvc.core.interfaces.IProtocol;
  *
  * Created by laotang on 2020/1/12.
  */
-public class ActionRequest extends BaseRequest {
+public abstract class ActionRequest extends BaseRequest {
 
     public ActionRequest(IProtocol protocol) {
         super(ReqType.ACTION, protocol);
     }
 
+    public abstract String cmd();
 
 }

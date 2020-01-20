@@ -17,4 +17,10 @@ public interface IProtocol {
      */
     String getDeviceId();
 
+    /**
+     * 取验证码
+     * @return
+     */
+    String getCode();
+
 }

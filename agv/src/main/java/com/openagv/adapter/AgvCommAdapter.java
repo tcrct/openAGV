@@ -1,7 +1,6 @@
 package com.openagv.adapter;
 
 import cn.hutool.http.HttpStatus;
-import cn.hutool.http.HttpUtil;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.config.AgvConfiguration;
 import com.openagv.mvc.core.exceptions.AgvException;

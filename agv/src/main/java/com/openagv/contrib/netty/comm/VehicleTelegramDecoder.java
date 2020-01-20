@@ -1,5 +1,6 @@
 package com.openagv.contrib.netty.comm;
 
+import com.openagv.mvc.main.DispatchFactory;
 import com.robot.agv.common.telegrams.Response;
 import com.robot.agv.common.telegrams.TelegramSender;
 import com.robot.agv.vehicle.RobotCommAdapter;
@@ -40,6 +41,7 @@ public class VehicleTelegramDecoder extends StringDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
         String telegramData = msg.toString(CharsetUtil.UTF_8);
         // 接收到的协议
-        ChannelManagerFactory.onIncomingTelegram(eventListener, telegramSender, telegramData);
+//        ChannelManagerFactory.onIncomingTelegram(eventListener, telegramSender, telegramData);
+        DispatchFactory.onIncomingTelegram(telegramData);
     }
 }

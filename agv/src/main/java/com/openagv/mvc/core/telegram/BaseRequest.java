@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Created by laotang on 2020/1/12.
  */
-public  class BaseRequest implements IRequest, java.io.Serializable {
+public class BaseRequest implements IRequest, java.io.Serializable {
 
     /**请求ID*/
     protected String id;

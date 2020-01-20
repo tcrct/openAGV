@@ -10,6 +10,7 @@ public class BaseResponse implements IResponse {
 
     private String id;
     private int status;
+    private Exception exception;
 
     public BaseResponse(String requestId) {
         this.id = requestId;
@@ -34,5 +35,14 @@ public class BaseResponse implements IResponse {
     @Override
     public void write(Object message) {
 
+    }
+
+    /**设置异常信息*/
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
+    @Override
+    public Exception getException() {
+        return exception;
     }
 }
