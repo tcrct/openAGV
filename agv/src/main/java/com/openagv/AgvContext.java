@@ -35,6 +35,7 @@ public class AgvContext {
         return isAnswer;
     }
 
+    /**缓存RequestKit发出的请求，等待响应回复，key为crc验证码*/
     public static Map<String, LinkedBlockingQueue<IProtocol>> getResponseProtocolMap() {
         return RESPONSE_PROTOCOL_MAP;
     }

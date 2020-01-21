@@ -1,26 +1,28 @@
 package com.makerwit.utils;
 
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import com.makerwit.core.protocol.Protocol;
 import com.openagv.AgvContext;
-import com.openagv.mvc.core.enums.ReqType;
 import com.openagv.mvc.core.interfaces.IProtocol;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.interfaces.ISender;
 import com.openagv.mvc.core.telegram.ActionRequest;
-import com.openagv.mvc.core.telegram.BaseRequest;
 import com.openagv.mvc.core.telegram.BaseResponse;
 import com.openagv.mvc.core.telegram.MoveRequest;
-import com.openagv.mvc.main.RequestTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/***
+ * 该类主要服务于在Service里，发起一个新的请求到另一设备时使用，用在控制业务逻辑。
+ * 场景：
+ * 可能在处理某一业务逻辑时，需要查询一下车辆或设备的当前状态时，可以使用。类似于http请求
+ *
+ * @author Laotang
+ */
 public class RequestKit {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestKit.class);
@@ -76,7 +78,7 @@ public class RequestKit {
     private IResponse getResult() {
         // 构建握手响应的验证码
         String code = ProtocolUtil.builderHandshakeCode(protocol);
-        // 放置到Map集合中，等待3秒响应
+        // 放置到Map集合中，阻塞线程，最多等待3秒响应
         AgvContext.getResponseProtocolMap().put(code, new LinkedBlockingQueue<IProtocol>(1));
         IProtocol protocol = getResponseProtocol(code, 3000);
         if (null == protocol) {
