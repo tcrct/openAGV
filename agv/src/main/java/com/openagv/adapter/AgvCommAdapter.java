@@ -1,6 +1,7 @@
 package com.openagv.adapter;
 
 import com.google.inject.assistedinject.Assisted;
+import com.openagv.AgvContext;
 import com.openagv.config.AgvConfiguration;
 import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.telegram.MoveRequest;
@@ -23,7 +24,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,7 +52,12 @@ public class AgvCommAdapter
     private AgvConfiguration configuration;
     /**车辆*/
     private Vehicle vehicle;
-    private List<MovementCommand> commandList = new ArrayList<>();
+    /**移动命令监听器*/
+    private MoveCommandListener moveCommandListener;
+    /**移动请求任务定时器，一车辆实例一次*/
+    private MoveRequesterTask moveRequesterTask;
+    /**移动命令队列*/
+    private Queue<MovementCommand> movementCommandQueue = new LinkedBlockingQueue<>();
 
     @Inject
     public AgvCommAdapter(AdapterComponentsFactory componentsFactory,
@@ -70,6 +78,16 @@ public class AgvCommAdapter
     }
 
     /**
+     * 初始化适配器
+     */
+    @Override
+    public void initialize() {
+        super.initialize();
+        moveCommandListener = new MoveCommandListener(AgvContext.getAdapter(getName()));
+        moveRequesterTask = new MoveRequesterTask(moveCommandListener);
+        LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
+    }
+    /**
      * 发送移动命令
      * 当有多个车辆需要进行交通管制时，
      * 以下方法会自动对应的MovementCommand，告诉可以使用的MC对象
@@ -81,20 +99,10 @@ public class AgvCommAdapter
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         cmd = requireNonNull(cmd, "MovementCommand is null");
-        commandList.add(cmd);
-        // 最终命令时，则生成移动请求
-        if (cmd.isFinalMovement()) {
-            try {
-                MoveRequest moveRequest = new MoveRequest(this, commandList);
-                // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
-                DispatchFactory.dispatch(moveRequest);
-            } catch (Exception e) {
-                throw new AgvException("创建移动协议指令时出错: "+e.getMessage(), e);
-            } finally {
-                // 清空集合
-                commandList.clear();
-            }
-        }
+        // 添加到队列
+        movementCommandQueue.add(cmd);
+        // 监听器引用队列，处理后发送协议
+        moveCommandListener.quoteCommand(movementCommandQueue);
     }
 
     /**
@@ -173,5 +181,10 @@ public class AgvCommAdapter
     @Override
     public void onIdle() {
 
+    }
+
+    @Override
+    public final AgvProcessModel getProcessModel() {
+        return (AgvProcessModel) super.getProcessModel();
     }
 }

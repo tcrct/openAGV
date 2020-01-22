@@ -15,6 +15,6 @@ public interface AdapterComponentsFactory {
      * @param 车辆
      * @return 为车辆返回一个指定的RobotCommAdapter适配器
      */
-    AgvCommAdapter createRobotCommAdapter(Vehicle vehicle);
+    AgvCommAdapter createCommAdapter(Vehicle vehicle);
 
 }

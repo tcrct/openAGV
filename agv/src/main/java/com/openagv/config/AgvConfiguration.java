@@ -18,4 +18,5 @@ public class AgvConfiguration {
     public String rechargeOperation() {
         return "Charge";
     }
+
 }
