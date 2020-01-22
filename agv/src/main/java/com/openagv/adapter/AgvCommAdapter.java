@@ -3,11 +3,13 @@ package com.openagv.adapter;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.AgvContext;
 import com.openagv.config.AgvConfiguration;
+import com.openagv.contrib.netty.comm.IChannelManager;
 import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.telegram.MoveRequest;
+import com.openagv.mvc.core.interfaces.IRequest;
+import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.telegram.ITelegram;
 import com.openagv.mvc.core.telegram.ITelegramSender;
-import com.openagv.mvc.main.DispatchFactory;
+import com.openagv.mvc.utils.AgvKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
@@ -22,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +59,8 @@ public class AgvCommAdapter
     private MoveRequesterTask moveRequesterTask;
     /**移动命令队列*/
     private Queue<MovementCommand> movementCommandQueue = new LinkedBlockingQueue<>();
+    /**车辆网络连接管理器*/
+    private IChannelManager<IRequest, IResponse> vehicleChannelManager;
 
     @Inject
     public AgvCommAdapter(AdapterComponentsFactory componentsFactory,
@@ -65,7 +68,7 @@ public class AgvCommAdapter
                                         AgvConfiguration configuration,
                                         @Assisted Vehicle vehicle,
                                         @KernelExecutor ExecutorService kernelExecutor) {
-        super(new VehicleModel(vehicle),
+        super(new AgvProcessModel(vehicle),
                 configuration.commandQueueCapacity(),
                 configuration.sentQueueCapacity(),
                 configuration.rechargeOperation());
@@ -87,6 +90,7 @@ public class AgvCommAdapter
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
         LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
     }
+
     /**
      * 发送移动命令
      * 当有多个车辆需要进行交通管制时，
@@ -117,7 +121,19 @@ public class AgvCommAdapter
     /**连接车辆*/
     @Override
     protected void connectVehicle() {
-
+        if (null == vehicleChannelManager) {
+            LOG.warn("车辆[{}]通讯渠道管理器不存在", getName());
+            return;
+        }
+        // 根据车辆设置的host与port，连接车辆
+        String host = AgvKit.getHost(getName());
+        int port = AgvKit.getPort(getName());
+        try {
+            vehicleChannelManager.connect(host, port);
+            LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
+        } catch (AgvException e) {
+            throw e;
+        }
     }
 
     /**断开车辆连接*/
@@ -142,7 +158,7 @@ public class AgvCommAdapter
     /**进程消息*/
     @Override
     public void processMessage(@Nullable Object message) {
-
+        LOG.info("processMessage: {}", message);
     }
 
     /**
@@ -163,26 +179,31 @@ public class AgvCommAdapter
 
     }
 
+    /**链接车辆*/
     @Override
     public void onConnect() {
 
     }
 
+    /***/
     @Override
     public void onFailedConnectionAttempt() {
 
     }
 
+    /**断开链接*/
     @Override
     public void onDisconnect() {
 
     }
 
+    /**空闲*/
     @Override
     public void onIdle() {
 
     }
 
+    /**取车辆进程模型*/
     @Override
     public final AgvProcessModel getProcessModel() {
         return (AgvProcessModel) super.getProcessModel();

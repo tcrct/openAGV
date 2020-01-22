@@ -1,5 +1,6 @@
 package com.openagv.contrib.netty.comm;
 
+import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IProtocol;
 
 import javax.annotation.Nonnull;
@@ -31,7 +32,7 @@ public interface IChannelManager<I, O> {
      * @param host 地址
      * @param port 端口
      * */
-    void connect(String host, int port);
+    void connect(String host, int port) throws AgvException;
 
     /**断开连接*/
     void disconnect();

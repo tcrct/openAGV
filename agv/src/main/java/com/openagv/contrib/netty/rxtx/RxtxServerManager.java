@@ -3,6 +3,7 @@ package com.openagv.contrib.netty.rxtx;
 import com.openagv.contrib.netty.comm.IChannelManager;
 import com.openagv.contrib.netty.comm.VehicleTelegramDecoder;
 import com.openagv.contrib.netty.comm.VehicleTelegramEncoder;
+import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.telegram.ITelegramSender;
@@ -46,7 +47,7 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
         try {
             channelManager.connect(serialport, baudrate);
         } catch (Exception e) {
-            LOG.warn("串口链接时出现异常: {}, {}", e.getMessage(), e);
+            throw new AgvException("串口链接时出现异常: "+e.getMessage(), e);
         }
     }
 
