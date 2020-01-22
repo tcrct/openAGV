@@ -66,4 +66,4 @@ allow.keys=getmt,setout,setrout,setspd,setvmot,getmag,getac,setmov,rptac,rpterr,
 device.name=A001,A002,A006,A009,A010,A030,A033,B002,B003,B030,B052,B053
 
 #协议对象解析类路径
-protocol.decode=com.makerwit.core.protocol.ProtocolDecode
+protocol.decode=com.makerwit.core.component.ProtocolDecode

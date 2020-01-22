@@ -3,7 +3,7 @@ package com.makerwit.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.makerwit.core.protocol.Protocol;
+import com.makerwit.core.component.Protocol;
 import com.makerwit.numes.CmdKeyEnum;
 import com.makerwit.numes.MakerwitEnum;
 import com.openagv.mvc.utils.CrcUtil;

@@ -1,7 +1,7 @@
 package com.makerwit.utils;
 
 import cn.hutool.core.util.IdUtil;
-import com.makerwit.core.protocol.Protocol;
+import com.makerwit.core.component.Protocol;
 import com.openagv.AgvContext;
 import com.openagv.mvc.core.interfaces.IProtocol;
 import com.openagv.mvc.core.interfaces.IRequest;

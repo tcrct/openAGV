@@ -7,7 +7,7 @@ import com.openagv.mvc.core.enums.ReqType;
  * 请求对象接口
  * Created by laotang on 2020/1/12.
  */
-public interface IRequest {
+public interface IRequest extends ITelegram {
 
     /**
      * 取适配器
@@ -41,18 +41,5 @@ public interface IRequest {
 
     /**请求类型枚举*/
     ReqType getReqType();
-
-    /**
-     * 取原始协议字符串
-     * @return
-     */
-    String getRawContent();
-
-    /**
-     * 设置原始协议字符串
-     * @param raw 原始协议字符串
-     * @return
-     */
-    void setRawContent(String raw);
 
 }

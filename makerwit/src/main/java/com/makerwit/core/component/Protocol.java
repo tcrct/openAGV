@@ -1,4 +1,4 @@
-package com.makerwit.core.protocol;
+package com.makerwit.core.component;
 
 import com.openagv.mvc.core.interfaces.IProtocol;
 

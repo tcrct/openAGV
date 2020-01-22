@@ -1,7 +1,6 @@
 package com.openagv.mvc.main;
 
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpStatus;
 import com.openagv.AgvContext;
 import com.openagv.mvc.core.exceptions.AgvException;
@@ -9,12 +8,10 @@ import com.openagv.mvc.core.interfaces.*;
 import com.openagv.mvc.core.telegram.ActionRequest;
 import com.openagv.mvc.core.telegram.BusinessRequest;
 import com.openagv.mvc.core.telegram.MoveRequest;
-import com.openagv.mvc.utils.SettingUtils;
 import com.openagv.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Queue;
 import java.util.concurrent.*;
 
 /**
@@ -30,13 +27,15 @@ public class DispatchFactory {
 
     /**协议解码器*/
     private static IProtocolDecode protocolDecode;
+    /**重复发送对象*/
+    private static IRepeatSend repeatSend;
     /**操作超时时长*/
     private static int TIME_OUT = 3000;
     /**发送接口**/
     private static ISender sender;
 
     static {
-        initProtocolDecode();
+        initComponents();
     }
 
     /**
@@ -85,8 +84,12 @@ public class DispatchFactory {
         try {
             IResponse response = futureTask.get(TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
+                // 将Response对象放入重发队列，确保消息发送到车辆
+                if (response.isResponseTo(request)) {
+                    repeatSend.add(response);
+//                    RepeatSendHandler.duang().add(response);
+                }
                 sender.send(response);
-//                RequestKit.duang().response(response).execute();
             }
         } catch (Exception e) {
             throw new AgvException(e.getMessage(), e);
@@ -96,15 +99,22 @@ public class DispatchFactory {
     /**
      * 初始化协议解析对象
      */
-    private static void initProtocolDecode() {
-        String classPath = SettingUtils.getString("protocol.decode");
-        if (ToolsKit.isEmpty(classPath)) {
-            throw new AgvException("协议解码器不能为空，请在配置文件中设置并实现"+IProtocolDecode.class.getName()+"接口");
+    private static void initComponents() {
+
+        IComponents agvComponents = AgvContext.getOpenAgvComponents();
+        if (ToolsKit.isEmpty(agvComponents)) {
+            throw new AgvException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
         }
-        try {
-            protocolDecode = ReflectUtil.newInstance(classPath);
-        } catch (Exception e) {
-            throw new AgvException("实例化协议解码器失败: "+ e.getMessage(), e);
+
+        protocolDecode = agvComponents.getProtocolDecode();
+        if (ToolsKit.isEmpty(protocolDecode)) {
+            throw new AgvException("协议解码器不能为空，请先实现IComponents接口里的getProtocolDecode方法");
         }
+
+        repeatSend = agvComponents.getRepeatSend();
+        if (ToolsKit.isEmpty(repeatSend)) {
+            throw new AgvException("重复发送不能为空，请先实现IComponents接口里的getRepeatSend方法");
+        }
+
     }
 }

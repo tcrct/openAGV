@@ -27,9 +27,9 @@ public class RequestTask implements Callable<IResponse> {
 
     @Override
     public IResponse call() {
-        iResponse = new BaseResponse(iRequest.getId());
+        iResponse = new BaseResponse(iRequest);
         if (ToolsKit.isEmpty(iRequest) || ToolsKit.isEmpty(iResponse)) {
-            throw new AgvException("RequestTask request or response fail");
+            throw new AgvException("RequestTask request or response is null");
         }
         // 执行请求任务
         try {

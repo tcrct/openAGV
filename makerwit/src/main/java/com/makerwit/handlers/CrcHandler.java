@@ -1,6 +1,6 @@
 package com.makerwit.handlers;
 
-import com.makerwit.core.protocol.Protocol;
+import com.makerwit.core.component.Protocol;
 import com.makerwit.utils.ProtocolUtil;
 import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IHandler;

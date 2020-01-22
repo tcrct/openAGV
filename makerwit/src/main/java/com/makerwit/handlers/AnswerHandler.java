@@ -1,7 +1,7 @@
 package com.makerwit.handlers;
 
 import cn.hutool.core.thread.ThreadUtil;
-import com.makerwit.core.protocol.Protocol;
+import com.makerwit.core.component.Protocol;
 import com.makerwit.numes.MakerwitEnum;
 import com.makerwit.utils.ProtocolUtil;
 import com.openagv.mvc.core.exceptions.AgvException;

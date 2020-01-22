@@ -1,14 +1,12 @@
 package com.openagv.adapter;
 
-import cn.hutool.http.HttpStatus;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.config.AgvConfiguration;
 import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.telegram.MoveRequest;
 import com.openagv.mvc.core.telegram.ITelegram;
 import com.openagv.mvc.core.telegram.ITelegramSender;
-import com.openagv.mvc.utils.RequestKit;
+import com.openagv.mvc.main.DispatchFactory;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
@@ -30,7 +28,8 @@ import java.util.concurrent.ExecutorService;
 import static java.util.Objects.requireNonNull;
 
 /**
- * AgvCommAdapter
+ * Agv通讯适配器
+ * 一台车辆对应一个适配器
  *
  * @blame Laotang
  */
@@ -72,6 +71,10 @@ public class AgvCommAdapter
 
     /**
      * 发送移动命令
+     * 当有多个车辆需要进行交通管制时，
+     * 以下方法会自动对应的MovementCommand，告诉可以使用的MC对象
+     * 利用这个回调发送移动命令，再次处理后，将协议发送到车辆
+     *
      * @param cmd The command to be sent.
      * @throws IllegalArgumentException
      */
@@ -84,12 +87,7 @@ public class AgvCommAdapter
             try {
                 MoveRequest moveRequest = new MoveRequest(this, commandList);
                 // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
-                IResponse response = RequestKit.duang().request(moveRequest).execute();
-                if (response.getStatus() != HttpStatus.HTTP_OK) {
-                    LOG.error("车辆[{}]进行业务处理里发生异常，退出处理!", getName());
-                } else {
-//                    requestResponseMatcher.enqueueRequest(getProcessModel().getName(), response);
-                }
+                DispatchFactory.dispatch(moveRequest);
             } catch (Exception e) {
                 throw new AgvException("创建移动协议指令时出错: "+e.getMessage(), e);
             } finally {
