@@ -91,6 +91,11 @@ public class ClassHelper {
         return null;
     }
 
+    public List<Class<?>> getJobClassList() {
+        return CLASS_MAP.get(AnnotationType.JOB_ANNOTATION.getName());
+    }
+
+
     public List<Class<?>> getClassList(String key) {
         return CLASS_MAP.get(key);
     }

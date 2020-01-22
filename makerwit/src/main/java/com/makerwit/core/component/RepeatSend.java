@@ -3,13 +3,11 @@ package com.makerwit.core.component;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.interfaces.IProtocol;
-import com.openagv.mvc.core.interfaces.IRepeatSend;
-import com.openagv.mvc.core.interfaces.IRequest;
-import com.openagv.mvc.core.interfaces.IResponse;
+import com.openagv.mvc.core.interfaces.*;
 import com.openagv.mvc.utils.SettingUtils;
 import com.openagv.mvc.utils.ToolsKit;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -117,5 +115,25 @@ public class RepeatSend implements IRepeatSend {
         // 如果验证码不是一致的，则将对应队列里的第1位元素移除
         responseQueue.remove();
         LOG.info("移除重发队列元素时，提交上来的验证码[{}]与重发队列[{}]中的[{}]相符！删除成功", code, deviceId, response.getHandshakeCode());
+    }
+
+    /***
+     * 定时器触发，发送全部缓存于重发队列里的报文
+     */
+    public void sendAll(ISender sender) {
+        if (REPEAT_SEND_MAP.isEmpty() || ToolsKit.isEmpty(sender)) {
+            return;
+        }
+        for (Iterator<Map.Entry<String,Queue<IResponse>>> iterator = REPEAT_SEND_MAP.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<String,Queue<IResponse>> entry = iterator.next();
+            Queue<IResponse> responseQueue = entry.getValue();
+            if (ToolsKit.isNotEmpty(responseQueue)) {
+                for (IResponse response : responseQueue) {
+                    if (ToolsKit.isNotEmpty(response)) {
+                        sender.send(response);
+                    }
+                }
+            }
+        }
     }
 }

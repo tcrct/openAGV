@@ -1,6 +1,7 @@
 package com.openagv.mvc.core.enums;
 
 import com.openagv.mvc.core.annnotations.Action;
+import com.openagv.mvc.core.annnotations.Job;
 import com.openagv.mvc.core.annnotations.Service;
 
 import java.lang.annotation.Annotation;
@@ -10,6 +11,7 @@ public enum AnnotationType {
     SERVICE_ANNOTATION(Service.class, true,"所有Service类的注解，必须在类添加该注解否则框架忽略扫描"),
     ACTION_ANNOTATION(Action.class, true,"工站动作指令，所有Action类的注解，必须在类添加该注解否则框架忽略扫描"),
 //    ENTITY_ANNOTATION(Entity.class, false,"所有Entity类的注解，必须在类添加该注解否则框架忽略扫描"),
+    JOB_ANNOTATION(Job.class, false,"所有Job类的注解，必须在类添加该注解否则框架忽略扫描"),
     ;
 
     Class<? extends Annotation> clazz;

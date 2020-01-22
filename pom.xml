@@ -11,9 +11,7 @@
     <modules>
         <module>opentcs</module>
         <module>agv</module>
-        <module>mvc</module>
         <module>makerwit</module>
-        <module>contrib</module>
     </modules>
 
     <properties>
@@ -28,6 +26,7 @@
         <slf4j.version>1.7.28</slf4j.version>
         <netty.version>4.1.42.Final</netty.version>
         <agv.version>1.0-SNAPSHOT</agv.version>
+        <quartz.version>2.3.0</quartz.version>
     </properties>
 
     <dependencies>
@@ -97,6 +96,12 @@
             <groupId>org.rxtx</groupId>
             <artifactId>rxtx</artifactId>
             <version>2.1.7</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz.version}</version>
         </dependency>
     </dependencies>
 
