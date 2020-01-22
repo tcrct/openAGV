@@ -3,9 +3,7 @@ package com.makerwit.quartz;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.makerwit.core.component.RepeatSend;
-import com.openagv.AgvContext;
 import com.openagv.mvc.core.annnotations.Job;
-import com.openagv.mvc.core.interfaces.IRepeatSend;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
