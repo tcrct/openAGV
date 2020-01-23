@@ -3,6 +3,8 @@ package com.openagv.adapter;
 import com.google.inject.assistedinject.Assisted;
 import com.openagv.AgvContext;
 import com.openagv.config.AgvConfiguration;
+import com.openagv.config.LoadAction;
+import com.openagv.config.LoadState;
 import com.openagv.contrib.netty.comm.IChannelManager;
 import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IRequest;
@@ -14,6 +16,7 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -92,24 +96,6 @@ public class AgvCommAdapter
     }
 
     /**
-     * 发送移动命令
-     * 当有多个车辆需要进行交通管制时，
-     * 以下方法会自动对应的MovementCommand，告诉可以使用的MC对象
-     * 利用这个回调发送移动命令，再次处理后，将协议发送到车辆
-     *
-     * @param cmd The command to be sent.
-     * @throws IllegalArgumentException
-     */
-    @Override
-    public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
-        cmd = requireNonNull(cmd, "MovementCommand is null");
-        // 添加到队列
-        movementCommandQueue.add(cmd);
-        // 监听器引用队列，处理后发送协议
-        moveCommandListener.quoteCommand(movementCommandQueue);
-    }
-
-    /**
      * 创建适配器面板
      * @return
      */
@@ -139,20 +125,87 @@ public class AgvCommAdapter
     /**断开车辆连接*/
     @Override
     protected void disconnectVehicle() {
+        if (null == vehicleChannelManager) {
+            LOG.warn("车辆[{}]通讯渠道管理器不存在.", getName());
+            return;
+        }
 
+        vehicleChannelManager.disconnect();
     }
 
     /**判断车辆是否已经连接*/
     @Override
     protected boolean isVehicleConnected() {
-        return false;
+        return null != vehicleChannelManager && vehicleChannelManager.isConnected();
     }
 
     /**是否执行进程操作，车辆移动命令发送前检查*/
     @Nonnull
     @Override
     public ExplainedBoolean canProcess(@Nonnull List<String> operations) {
-        return null;
+        requireNonNull(operations, "operations");
+        boolean canProcess = true;
+        String reason = "";
+
+        if(!isEnabled()) {
+            canProcess = false;
+            reason= "通讯适配器没有开启";
+        }
+
+        if(canProcess && !isVehicleConnected()) {
+            canProcess = false;
+            reason = "车辆可能没有连接";
+        }
+
+        if(canProcess &&
+                LoadState.UNKNOWN.name().equalsIgnoreCase(getProcessModel().getVehicleState().name())) {
+            canProcess = false;
+            reason = "车辆负载状态未知";
+        }
+
+        boolean loaded = LoadState.FULL.name().equalsIgnoreCase(getProcessModel().getVehicleState().name());
+        final Iterator<String> iterator = operations.iterator();
+        while (canProcess && iterator.hasNext()) {
+            final String nextOp = iterator.next();
+            if(loaded) {
+                if (LoadAction.LOAD.equalsIgnoreCase(nextOp)) {
+                    canProcess = false;
+                    reason = "不能重复装载";
+                } else if (LoadAction.UNLOAD.equalsIgnoreCase(nextOp)) {
+                    loaded = false;
+                } else if (DriveOrder.Destination.OP_PARK.equalsIgnoreCase(nextOp)) {
+                    canProcess = false;
+                    reason = "车辆在装载状态下不应该停车";
+                } else if (LoadAction.CHARGE.equalsIgnoreCase(nextOp)) {
+                    canProcess = false;
+                    reason = "车辆在装载状态下不应该充电";
+                }
+            } else if (LoadAction.LOAD.equalsIgnoreCase(nextOp)){
+                loaded = true;
+            } else if(LoadAction.UNLOAD.equalsIgnoreCase(nextOp)){
+                canProcess = false;
+                reason = "未加载时无法卸载";
+            }
+        }
+        return new ExplainedBoolean(canProcess, reason);
+    }
+
+    /**
+     * 发送移动命令
+     * 当有多个车辆需要进行交通管制时，
+     * 以下方法会自动对应的MovementCommand，告诉可以使用的MC对象
+     * 利用这个回调发送移动命令，再次处理后，将协议发送到车辆
+     *
+     * @param cmd The command to be sent.
+     * @throws IllegalArgumentException
+     */
+    @Override
+    public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
+        cmd = requireNonNull(cmd, "MovementCommand is null");
+        // 添加到队列
+        movementCommandQueue.add(cmd);
+        // 监听器引用队列，处理后发送协议
+        moveCommandListener.quoteCommand(movementCommandQueue);
     }
 
     /**进程消息*/
@@ -161,6 +214,86 @@ public class AgvCommAdapter
         LOG.info("processMessage: {}", message);
     }
 
+    /**取车辆进程模型*/
+    @Override
+    public final AgvProcessModel getProcessModel() {
+        return (AgvProcessModel) super.getProcessModel();
+    }
+
+    /**
+     * 取移动命令队列
+     * @return
+     */
+    public Queue<MovementCommand> getMovementCommandQueue() {
+        return movementCommandQueue;
+    }
+
+
+    //*********************************ConnectionEventListener*************************************/
+
+    /**
+     * 接收到报文信息
+     * @param iTelegram 电报对象
+     */
+    @Override
+    public void onIncomingTelegram(ITelegram telegram) {
+        requireNonNull(telegram, "response");
+
+        // 车辆状态设置为不空闲
+        getProcessModel().setVehicleIdle(false);
+        // 如果是交通管制，此时的队列不为空，则需要将第一位的元素移除
+        if (!movementCommandQueue.isEmpty()) {
+            movementCommandQueue.remove();
+        }
+    }
+
+    /**链接车辆*/
+    @Override
+    public void onConnect() {
+        if (!isEnabled()) {
+            return;
+        }
+        getProcessModel().setCommAdapterConnected(true);
+        LOG.debug("车辆[{}]连接成功", getName());
+    }
+
+    /***/
+    @Override
+    public void onFailedConnectionAttempt() {
+        if (!isEnabled()) {
+            return;
+        }
+        getProcessModel().setCommAdapterConnected(false);
+        if (isEnabled() && getProcessModel().isReconnectingOnConnectionLoss()) {
+            vehicleChannelManager.scheduleConnect(AgvKit.getHost(getName()), AgvKit.getPort(getName()), getProcessModel().getReconnectDelay());
+        }
+    }
+
+    /**断开链接*/
+    @Override
+    public void onDisconnect() {
+        LOG.debug("车辆[{}]断开连接成功", getName());
+        getProcessModel().setCommAdapterConnected(false);
+        getProcessModel().setVehicleIdle(true);
+        getProcessModel().setVehicleState(Vehicle.State.UNKNOWN);
+        if (isEnabled() && getProcessModel().isReconnectingOnConnectionLoss()) {
+            vehicleChannelManager.scheduleConnect(AgvKit.getHost(getName()), AgvKit.getPort(getName()), getProcessModel().getReconnectDelay());
+        }
+    }
+
+    /**空闲*/
+    @Override
+    public void onIdle() {
+        LOG.debug("车辆[{}]空闲", getName());
+        getProcessModel().setVehicleIdle(true);
+        // 如果支持重连则的车辆空间时断开连接
+        if (isEnabled() && getProcessModel().isDisconnectingOnVehicleIdle()) {
+            LOG.debug("车辆[{}]开启了空闲时断开连接", getName());
+            disconnectVehicle();
+        }
+    }
+
+    //*********************************ITelegramSender*************************************/
     /**
      * 发送报文
      * @param telegram 电报对象
@@ -170,42 +303,5 @@ public class AgvCommAdapter
 
     }
 
-    /**
-     * 接收到报文信息
-     * @param iTelegram 电报对象
-     */
-    @Override
-    public void onIncomingTelegram(ITelegram iTelegram) {
 
-    }
-
-    /**链接车辆*/
-    @Override
-    public void onConnect() {
-
-    }
-
-    /***/
-    @Override
-    public void onFailedConnectionAttempt() {
-
-    }
-
-    /**断开链接*/
-    @Override
-    public void onDisconnect() {
-
-    }
-
-    /**空闲*/
-    @Override
-    public void onIdle() {
-
-    }
-
-    /**取车辆进程模型*/
-    @Override
-    public final AgvProcessModel getProcessModel() {
-        return (AgvProcessModel) super.getProcessModel();
-    }
 }
