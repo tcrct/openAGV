@@ -20,5 +20,4 @@ public interface IComponents {
      */
     IRepeatSend getRepeatSend();
 
-
 }

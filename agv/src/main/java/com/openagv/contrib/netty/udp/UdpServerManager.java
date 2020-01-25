@@ -7,24 +7,22 @@ import com.openagv.contrib.netty.comm.VehicleTelegramDecoder;
 import com.openagv.contrib.netty.comm.VehicleTelegramEncoder;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
-import com.openagv.mvc.core.telegram.ITelegramSender;
 import io.netty.channel.ChannelHandler;
-import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * UPD Client Manager
+ * UPD Server Manager
  */
-public class UdpClientManager implements IChannelManager<IRequest, IResponse> {
+public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
 
     private AgvCommAdapter adapter;
     private UdpClientChannelManager channelManager;
 
 
-    public UdpClientManager(AgvCommAdapter commAdapter) {
+    public UdpServerManager(AgvCommAdapter commAdapter) {
         adapter = commAdapter;
 
         channelManager = new UdpClientChannelManager(commAdapter,

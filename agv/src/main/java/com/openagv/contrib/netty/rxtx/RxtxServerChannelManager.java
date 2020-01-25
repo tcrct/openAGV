@@ -5,15 +5,19 @@ import com.openagv.contrib.netty.comm.IChannelManager;
 import com.openagv.contrib.netty.udp.UdpClientChannelManager;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
+import com.openagv.mvc.utils.ToolsKit;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.rxtx.RxtxChannel;
 import io.netty.channel.rxtx.RxtxDeviceAddress;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.util.CharsetUtil;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +150,13 @@ public class RxtxServerChannelManager implements IChannelManager<IRequest, IResp
 
     @Override
     public void send(IResponse telegram) {
-
+        String rawContent = telegram.getRawContent();
+        if (ToolsKit.isEmpty(telegram) || ToolsKit.isEmpty(rawContent)) {
+            LOG.info("发送的报文对象或报文内容不能为空");
+            return;
+        }
+        LOG.info("send telegeram: {}", rawContent);
+        channelFuture.channel().writeAndFlush(rawContent);
     }
 }
 

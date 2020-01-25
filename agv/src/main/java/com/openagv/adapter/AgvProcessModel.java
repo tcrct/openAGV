@@ -128,6 +128,7 @@ public class AgvProcessModel extends VehicleProcessModel {
                 reconnectDelay);
     }
 
+
     /**
      * 返回车辆的链接地址
      * @return 车辆链接地址

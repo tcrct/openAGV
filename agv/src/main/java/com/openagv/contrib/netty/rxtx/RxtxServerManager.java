@@ -1,5 +1,6 @@
 package com.openagv.contrib.netty.rxtx;
 
+import com.openagv.adapter.AgvCommAdapter;
 import com.openagv.contrib.netty.comm.IChannelManager;
 import com.openagv.contrib.netty.comm.VehicleTelegramDecoder;
 import com.openagv.contrib.netty.comm.VehicleTelegramEncoder;
@@ -7,6 +8,7 @@ import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.telegram.ITelegramSender;
+import com.openagv.mvc.utils.ToolsKit;
 import io.netty.channel.ChannelHandler;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.slf4j.Logger;
@@ -23,13 +25,18 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
 
     private static final Logger LOG = LoggerFactory.getLogger(RxtxServerManager.class);
 
+    private AgvCommAdapter commAdapter;
     private RxtxServerChannelManager channelManager;
+
+    public RxtxServerManager(AgvCommAdapter adapter) {
+        this.commAdapter = adapter;
+    }
 
     @Override
     public void initialize() {
-        channelManager = RxtxServerChannelManager(this::getChannelHandlers,
-                commAdapter.getProcessModel().getVehicleIdleTimeout(),
-                commAdapter.getProcessModel().isLoggingEnabled());
+        channelManager = new RxtxServerChannelManager(this::getChannelHandlers,
+                10000,
+                true);
     }
 
     @Override
@@ -72,16 +79,16 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     }
 
     private List<ChannelHandler> getChannelHandlers() {
-        ConnectionEventListener<IResponse> eventListener = (ConnectionEventListener<IResponse>) adapter;
-        ITelegramSender telegramSender = (ITelegramSender) adapter;
-
         return Arrays.asList(
-                new VehicleTelegramDecoder(eventListener, telegramSender),
+                new VehicleTelegramDecoder(),
                 new VehicleTelegramEncoder());
     }
 
     @Override
     public void send(IResponse telegram) {
-
+        if (ToolsKit.isEmpty(telegram) || ToolsKit.isEmpty(telegram.getRawContent())) {
+            throw new AgvException("要发送的对象或内容不能为空");
+        }
+        channelManager.send(telegram);
     }
 }

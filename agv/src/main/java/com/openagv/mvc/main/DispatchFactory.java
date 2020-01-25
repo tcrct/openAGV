@@ -8,6 +8,7 @@ import com.openagv.mvc.core.interfaces.*;
 import com.openagv.mvc.core.telegram.ActionRequest;
 import com.openagv.mvc.core.telegram.BusinessRequest;
 import com.openagv.mvc.core.telegram.MoveRequest;
+import com.openagv.mvc.utils.AgvKit;
 import com.openagv.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,10 @@ public class DispatchFactory {
      * @param message 协议内容
      */
     public static void onIncomingTelegram(String message) {
+        LOG.info("onIncomingTelegram: {}", message);
+        if (null == protocolDecode) {
+            initComponents();
+        }
         try {
             IProtocol protocol = protocolDecode.decode(message);
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
@@ -52,7 +57,10 @@ public class DispatchFactory {
                 AgvContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
                 return;
             }
-            dispatchHandler(new BusinessRequest(message, protocol));
+            BusinessRequest businessRequest = new BusinessRequest(message, protocol);
+            // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
+            businessRequest.setAdapter(AgvContext.getAdapter(protocol.getDeviceId()));
+            dispatchHandler(businessRequest);
         } catch (Exception e) {
             LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);
             return;

@@ -6,6 +6,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.openagv.adapter.AgvCommAdapter;
 import com.openagv.mvc.core.telegram.ITelegramSender;
+import com.openagv.mvc.main.DispatchFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -16,15 +17,8 @@ import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private final static Log logger = LogFactory.get();
-    private ConnectionEventListener eventListener;
-    private UdpClientChannelManager manager;
-    private ITelegramSender telegramSender;
 
-
-    public UdpClientHandler(UdpClientChannelManager manager, AgvCommAdapter adapter){
-        this.manager = manager;
-        this.eventListener = (ConnectionEventListener)adapter;
-        this.telegramSender = (ITelegramSender)adapter;
+    public UdpClientHandler(){
     }
 
     @Override
@@ -36,10 +30,8 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
                 logger.error("upd client接收到的报文内容不能为空");
                 return;
             }
-            if(ObjectUtil.isNotEmpty(eventListener)) {
-                // 接收到的报文，以字符串形式传递
-//                ChannelManagerFactory.onIncomingTelegram(eventListener, telegramSender, telegramData);
-            }
+            DispatchFactory.onIncomingTelegram(telegramData);
+            // 接收到的报文，以字符串形式传递
 //            ctx.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(response.toString(), CharsetUtil.UTF_8), datagramPacket.sender()));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

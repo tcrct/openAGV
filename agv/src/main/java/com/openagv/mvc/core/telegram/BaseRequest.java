@@ -1,6 +1,7 @@
 package com.openagv.mvc.core.telegram;
 
 import cn.hutool.core.util.IdUtil;
+import com.openagv.AgvContext;
 import com.openagv.adapter.AgvCommAdapter;
 import com.openagv.mvc.core.enums.ReqType;
 import com.openagv.mvc.core.interfaces.IProtocol;
@@ -30,6 +31,10 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         setId(IdUtil.objectId());
         setProtocol(protocol);
         setReqType(reqType);
+    }
+
+    public void setAdapter(AgvCommAdapter adapter) {
+        this.adapter = adapter;
     }
 
     @Override
