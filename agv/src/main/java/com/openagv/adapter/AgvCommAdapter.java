@@ -6,12 +6,14 @@ import com.openagv.config.AgvConfiguration;
 import com.openagv.config.LoadAction;
 import com.openagv.config.LoadState;
 import com.openagv.contrib.netty.comm.IChannelManager;
+import com.openagv.contrib.netty.comm.NetChannelType;
 import com.openagv.mvc.core.exceptions.AgvException;
 import com.openagv.mvc.core.interfaces.IRequest;
 import com.openagv.mvc.core.interfaces.IResponse;
 import com.openagv.mvc.core.telegram.ITelegram;
 import com.openagv.mvc.core.telegram.ITelegramSender;
 import com.openagv.mvc.utils.AgvKit;
+import com.openagv.mvc.utils.SettingUtils;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
@@ -65,6 +67,8 @@ public class AgvCommAdapter
     private Queue<MovementCommand> movementCommandQueue = new LinkedBlockingQueue<>();
     /**车辆网络连接管理器*/
     private IChannelManager<IRequest, IResponse> vehicleChannelManager;
+    /**运行方式，以服务器方式运行还是客户端方式链接车辆*/
+    private String runType;
 
     @Inject
     public AgvCommAdapter(AdapterComponentsFactory componentsFactory,
@@ -92,7 +96,33 @@ public class AgvCommAdapter
         super.initialize();
         moveCommandListener = new MoveCommandListener(AgvContext.getAdapter(getName()));
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
+        // 初始化车辆渠道管理器
+        if (null == vehicleChannelManager) {
+            vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
+            if (!vehicleChannelManager.isInitialized()) {
+                vehicleChannelManager.initialize();
+            }
+        }
+        super.initialize();
         LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
+    }
+
+    @Override
+    public synchronized void enable() {
+        if (isEnabled()) {
+            LOG.info("车辆[{}]已开启通讯管理器，请勿重复开启", getName());
+            return;
+        }
+
+        // 如果是以客户端的方式来启动，则在开启车辆时完成链接，RXTX方式除外
+        if ("client".equalsIgnoreCase(runType)) {
+            String host = AgvKit.getHost(getName());
+            int port = AgvKit.getPort(getName());
+
+
+
+        }
+        super.enable();
     }
 
     /**
