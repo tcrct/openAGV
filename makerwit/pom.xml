@@ -23,8 +23,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.openagv</groupId>
-            <artifactId>agv</artifactId>
+            <groupId>com.openagv.robot</groupId>
+            <artifactId>robot</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
