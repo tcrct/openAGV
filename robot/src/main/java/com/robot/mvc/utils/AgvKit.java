@@ -1,6 +1,6 @@
 package com.robot.mvc.utils;
 
-import com.robot.AgvContext;
+import com.robot.RobotContext;
 import com.robot.contrib.netty.comm.NetChannelType;
 
 /**
@@ -9,7 +9,7 @@ import com.robot.contrib.netty.comm.NetChannelType;
 public class AgvKit {
 
     public static NetChannelType getNetChannelType() {
-        NetChannelType type = AgvContext.getNetChannelType();
+        NetChannelType type = RobotContext.getNetChannelType();
         if (ToolsKit.isEmpty(type)) {
             type = NetChannelType.UDP;
         }
@@ -52,7 +52,7 @@ public class AgvKit {
     public static String getHost(String vehicleName) {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            return  AgvContext.getAdapter(vehicleName).getProcessModel().getVehicleHost();
+            return RobotContext.getAdapter(vehicleName).getProcessModel().getVehicleHost();
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
             return SettingUtils.getString("name", "serialport", "COM6");
         }
@@ -67,7 +67,7 @@ public class AgvKit {
     public static Integer getPort(String vehicleName) {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            return AgvContext.getAdapter(vehicleName).getProcessModel().getVehiclePort();
+            return RobotContext.getAdapter(vehicleName).getProcessModel().getVehiclePort();
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
             return SettingUtils.getInt("baudrate","serialport", 38400);
         }

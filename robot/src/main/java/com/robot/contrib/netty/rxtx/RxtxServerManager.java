@@ -1,6 +1,6 @@
 package com.robot.contrib.netty.rxtx;
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
@@ -23,10 +23,10 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
 
     private static final Logger LOG = LoggerFactory.getLogger(RxtxServerManager.class);
 
-    private AgvCommAdapter commAdapter;
+    private RobotCommAdapter commAdapter;
     private RxtxServerChannelManager channelManager;
 
-    public RxtxServerManager(AgvCommAdapter adapter) {
+    public RxtxServerManager(RobotCommAdapter adapter) {
         this.commAdapter = adapter;
     }
 

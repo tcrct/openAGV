@@ -1,6 +1,6 @@
 package com.robot.contrib.netty.tcp;
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.mvc.core.exceptions.AgvException;
 
@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
  */
 public class TcpClientManager implements IChannelManager {
 
-    private static AgvCommAdapter commAdapter;
+    private static RobotCommAdapter commAdapter;
 
-    public TcpClientManager(AgvCommAdapter adapter) {
+    public TcpClientManager(RobotCommAdapter adapter) {
         this.commAdapter = adapter;
     }
 

@@ -1,7 +1,6 @@
 package com.robot.adapter;
 
 import com.google.inject.assistedinject.Assisted;
-import com.robot.AgvContext;
 import com.robot.config.AgvConfiguration;
 import com.robot.config.LoadAction;
 import com.robot.config.LoadState;
@@ -39,13 +38,13 @@ import static java.util.Objects.requireNonNull;
  * Agv通讯适配器
  * 一台车辆对应一个适配器
  *
- * @blame Laotang
+ * @author Laotang
  */
-public class AgvCommAdapter
+public class RobotCommAdapter
         extends BasicVehicleCommAdapter
         implements ConnectionEventListener<ITelegram>,ITelegramSender {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AgvCommAdapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RobotCommAdapter.class);
 
     /**大杀器*/
     private TCSObjectService tcsObjectService;
@@ -69,12 +68,12 @@ public class AgvCommAdapter
     private String runType;
 
     @Inject
-    public AgvCommAdapter(AdapterComponentsFactory componentsFactory,
-                                        TCSObjectService tcsObjectService,
-                                        AgvConfiguration configuration,
-                                        @Assisted Vehicle vehicle,
-                                        @KernelExecutor ExecutorService kernelExecutor) {
-        super(new AgvProcessModel(vehicle),
+    public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
+                            TCSObjectService tcsObjectService,
+                            AgvConfiguration configuration,
+                            @Assisted Vehicle vehicle,
+                            @KernelExecutor ExecutorService kernelExecutor) {
+        super(new RobotProcessModel(vehicle),
                 configuration.commandQueueCapacity(),
                 configuration.sentQueueCapacity(),
                 configuration.rechargeOperation());
@@ -91,8 +90,8 @@ public class AgvCommAdapter
      */
     @Override
     public void initialize() {
-        super.initialize();
-        moveCommandListener = new MoveCommandListener(AgvContext.getAdapter(getName()));
+        //每一个车辆一个定时监听器
+        moveCommandListener = new MoveCommandListener(this);
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
         // 初始化车辆渠道管理器
         if (null == vehicleChannelManager) {
@@ -117,10 +116,12 @@ public class AgvCommAdapter
             String host = AgvKit.getHost(getName());
             int port = AgvKit.getPort(getName());
 
-
-
         }
         super.enable();
+    }
+
+    public synchronized void trigger() {
+
     }
 
     /**
@@ -244,8 +245,8 @@ public class AgvCommAdapter
 
     /**取车辆进程模型*/
     @Override
-    public final AgvProcessModel getProcessModel() {
-        return (AgvProcessModel) super.getProcessModel();
+    public final RobotProcessModel getProcessModel() {
+        return (RobotProcessModel) super.getProcessModel();
     }
 
     /**
@@ -261,7 +262,7 @@ public class AgvCommAdapter
 
     /**
      * 接收到报文信息
-     * @param iTelegram 电报对象
+     * @param telegram 电报对象
      */
     @Override
     public void onIncomingTelegram(ITelegram telegram) {

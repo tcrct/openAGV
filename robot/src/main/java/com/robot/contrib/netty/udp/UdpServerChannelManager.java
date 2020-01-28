@@ -1,7 +1,7 @@
 package com.robot.contrib.netty.udp;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -38,7 +38,7 @@ public class UdpServerChannelManager<O, I> {
     private EventLoopGroup workerGroup;
     private ChannelFuture channelFuture;
     private ScheduledFuture<?> connectFuture;
-    private AgvCommAdapter adapter;
+    private RobotCommAdapter adapter;
     private Supplier<List<ChannelHandler>> channelSupplier;
     private int readTimeout;
     private boolean enableLogging;
@@ -47,7 +47,7 @@ public class UdpServerChannelManager<O, I> {
     private static int BUFFER_SIZE = 64 * 1024;
     private static final String LOGGING_HANDLER_NAME = "ChannelLoggingHandler";
 
-    public UdpServerChannelManager(@Nonnull AgvCommAdapter adapter,
+    public UdpServerChannelManager(@Nonnull RobotCommAdapter adapter,
                                    Supplier<List<ChannelHandler>> channelSupplier,
                                    int readTimeout,
                                    boolean enableLogging) {
@@ -72,7 +72,7 @@ public class UdpServerChannelManager<O, I> {
         this.bootstrap.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE);
         // 设置UDP写缓冲区为64k
         this.bootstrap.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE);
-        UdpClientHandler udpServerHandler = new UdpClientHandler();
+        UdpServerHandler udpServerHandler = new UdpServerHandler();
         this.bootstrap.handler(new ChannelInitializer<NioDatagramChannel>() {
             @Override
             protected void initChannel(NioDatagramChannel ch) throws Exception {

@@ -1,7 +1,7 @@
 package com.robot.contrib.netty.udp;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.utils.AgvKit;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -39,7 +39,7 @@ public class UdpClientChannelManager<O, I> {
     private EventLoopGroup workerGroup;
     private ChannelFuture channelFuture;
     private ScheduledFuture<?> connectFuture;
-    private AgvCommAdapter adapter;
+    private RobotCommAdapter adapter;
     private Supplier<List<ChannelHandler>> channelSupplier;
     private String host;
     private int port;
@@ -54,7 +54,7 @@ public class UdpClientChannelManager<O, I> {
     private static int BUFFER_SIZE = 64 * 1024;
     private static final String LOGGING_HANDLER_NAME = "ChannelLoggingHandler";
 
-    public UdpClientChannelManager(@Nonnull AgvCommAdapter adapter,
+    public UdpClientChannelManager(@Nonnull RobotCommAdapter adapter,
                                    Supplier<List<ChannelHandler>> channelSupplier,
                                    int readTimeout,
                                    boolean enableLogging) {

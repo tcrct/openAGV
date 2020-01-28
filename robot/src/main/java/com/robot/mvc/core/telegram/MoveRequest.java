@@ -1,6 +1,6 @@
 package com.robot.mvc.core.telegram;
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
 import org.opentcs.drivers.vehicle.MovementCommand;
@@ -28,7 +28,7 @@ public class MoveRequest extends BaseRequest {
      * @param adapter 车辆适配器
      * @param commandList 移动队列集合
      */
-    public MoveRequest(AgvCommAdapter adapter, List<MovementCommand> commandList) {
+    public MoveRequest(RobotCommAdapter adapter, List<MovementCommand> commandList) {
         super(ReqType.MOVE, null);
         super.adapter = adapter;
         this.movementCommandList = commandList;

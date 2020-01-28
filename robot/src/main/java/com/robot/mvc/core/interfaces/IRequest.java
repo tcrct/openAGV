@@ -1,6 +1,6 @@
 package com.robot.mvc.core.interfaces;
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 
 /**
@@ -13,7 +13,7 @@ public interface IRequest extends ITelegram {
      * 取适配器
      * @return
      */
-    AgvCommAdapter getAdapter();
+    RobotCommAdapter getAdapter();
 
     /**
      * 设置请求ID

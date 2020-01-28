@@ -3,7 +3,7 @@
  */
 package com.robot.adapter;
 
-import com.robot.AgvContext;
+import com.robot.RobotContext;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.AgvException;
 import com.robot.mvc.utils.ToolsKit;
@@ -20,11 +20,11 @@ import static java.util.Objects.requireNonNull;
 import static org.opentcs.util.Assertions.checkInRange;
 
 /***
- * OpenAgv通讯适配器工厂
+ * Robot通讯适配器工厂
  */
-public class AgvCommAdapterFactory implements VehicleCommAdapterFactory {
+public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AgvCommAdapterFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RobotCommAdapterFactory.class);
 
     private static final String VEHICLE_HOST = "host";
     private static final String VEHICLE_PORT = "prot";
@@ -43,7 +43,7 @@ public class AgvCommAdapterFactory implements VehicleCommAdapterFactory {
      * @param componentsFactory 创建特定于通信适配器的组件工厂
      */
     @Inject
-    public AgvCommAdapterFactory(AdapterComponentsFactory componentsFactory) {
+    public RobotCommAdapterFactory(AdapterComponentsFactory componentsFactory) {
         this.componentsFactory = requireNonNull(componentsFactory, "组件工厂对象不能为空");
     }
 
@@ -92,8 +92,8 @@ public class AgvCommAdapterFactory implements VehicleCommAdapterFactory {
     public boolean providesAdapterFor(Vehicle vehicle) {
         requireNonNull(vehicle, "车辆不能为空");
 
-        if (NetChannelType.TCP.equals(AgvContext.getNetChannelType()) ||
-                NetChannelType.UDP.equals(AgvContext.getNetChannelType())) {
+        if (NetChannelType.TCP.equals(RobotContext.getNetChannelType()) ||
+                NetChannelType.UDP.equals(RobotContext.getNetChannelType())) {
             if (ToolsKit.isEmpty(vehicle.getProperty(VEHICLE_HOST))) {
                 throw new AgvException("车辆host没有设置");
             }
@@ -123,12 +123,12 @@ public class AgvCommAdapterFactory implements VehicleCommAdapterFactory {
                 return null;
             }
 
-            AgvCommAdapter adapter = componentsFactory.createCommAdapter(vehicle);
-            AgvProcessModel processModel = adapter.getProcessModel();
+            RobotCommAdapter adapter = componentsFactory.createCommAdapter(vehicle);
+            RobotProcessModel processModel = adapter.getProcessModel();
             processModel.setVehicleHost(vehicle.getProperty(VEHICLE_HOST));
             processModel.setVehiclePort(Integer.parseInt(vehicle.getProperty(VEHICLE_PORT)));
             // 加入到缓存集合
-            AgvContext.getAdapterMap().put(processModel.getName(), adapter);
+            RobotContext.getAdapterMap().put(processModel.getName(), adapter);
             return adapter;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

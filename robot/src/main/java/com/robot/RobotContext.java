@@ -1,6 +1,6 @@
 package com.robot;
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
@@ -18,9 +18,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by laotang on 2020/1/12.
  */
-public class AgvContext {
+public class RobotContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AgvContext.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RobotContext.class);
 
     private static final List<IHandler> BEFORE_HEANDLER_LIST = new ArrayList<>();
     // 是否需要应答回复
@@ -30,14 +30,14 @@ public class AgvContext {
     // OpenAgv需要的组件接口
     private static IComponents components;
     // 车辆适配器集合
-    private static Map<String, AgvCommAdapter> ADAPTER_MAP = new ConcurrentHashMap<>();
+    private static Map<String, RobotCommAdapter> ADAPTER_MAP = new ConcurrentHashMap<>();
 
 
     /**
      * 取车辆适配器集合
      * @return
      */
-    public static Map<String, AgvCommAdapter> getAdapterMap() {
+    public static Map<String, RobotCommAdapter> getAdapterMap() {
         return ADAPTER_MAP;
     }
 
@@ -45,7 +45,7 @@ public class AgvContext {
      * 根据key取出Adapter
      * @param key 车辆标识关键字
      */
-    public static AgvCommAdapter getAdapter(String key) {
+    public static RobotCommAdapter getAdapter(String key) {
         return ADAPTER_MAP.get(key);
     }
     /**
@@ -53,7 +53,7 @@ public class AgvContext {
      * @param components 第三方组件实例接口
      */
     public static void setOpenAgvComponents(IComponents components) {
-        AgvContext.components =  components;
+        RobotContext.components = components;
     }
 
     /**

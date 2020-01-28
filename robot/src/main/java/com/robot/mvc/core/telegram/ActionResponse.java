@@ -1,5 +1,7 @@
 package com.robot.mvc.core.telegram;
 
+import com.robot.mvc.core.interfaces.IRequest;
+
 /**
  * 工站动作响应对象
  * 一般用于等待响应对象回复，以确认操作。
@@ -10,7 +12,7 @@ package com.robot.mvc.core.telegram;
 public class ActionResponse extends BaseResponse {
 
 
-    public ActionResponse(String requestId) {
-        super(requestId);
+    public ActionResponse(IRequest request) {
+        super(request);
     }
 }

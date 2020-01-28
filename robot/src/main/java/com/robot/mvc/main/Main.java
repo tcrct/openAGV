@@ -1,6 +1,6 @@
 package com.robot.mvc.main;
 
-import com.robot.AgvContext;
+import com.robot.RobotContext;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -62,7 +62,7 @@ public class Main {
      */
     private boolean doBeforeHandler(String target, IRequest request, IResponse response) throws Exception {
 
-        if(AgvContext.getBeforeHeandlerList().isEmpty()) {
+        if (RobotContext.getBeforeHeandlerList().isEmpty()) {
             return true;
         }
 
@@ -72,7 +72,7 @@ public class Main {
         }
 
         if(request instanceof BusinessRequest) {
-            for (Iterator<IHandler> it = AgvContext.getBeforeHeandlerList().iterator(); it.hasNext(); ) {
+            for (Iterator<IHandler> it = RobotContext.getBeforeHeandlerList().iterator(); it.hasNext(); ) {
                 boolean isNextHandle = it.next().doHandler(target, request, response);
                 if(!isNextHandle){
                     return false;

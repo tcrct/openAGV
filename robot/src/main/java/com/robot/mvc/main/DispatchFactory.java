@@ -2,7 +2,7 @@ package com.robot.mvc.main;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpStatus;
-import com.robot.AgvContext;
+import com.robot.RobotContext;
 import com.robot.mvc.core.exceptions.AgvException;
 import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.core.telegram.ActionRequest;
@@ -50,15 +50,15 @@ public class DispatchFactory {
         try {
             IProtocol protocol = protocolDecode.decode(message);
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
-            if (AgvContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
-                LinkedBlockingQueue<IProtocol> protocolQueue = AgvContext.getResponseProtocolMap().get(protocol.getCode());
+            if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
+                LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
                 protocolQueue.add(protocol);
-                AgvContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
                 return;
             }
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
-            businessRequest.setAdapter(AgvContext.getAdapter(protocol.getDeviceId()));
+            businessRequest.setAdapter(RobotContext.getAdapter(protocol.getDeviceId()));
             dispatchHandler(businessRequest);
         } catch (Exception e) {
             LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);
@@ -108,7 +108,7 @@ public class DispatchFactory {
      */
     private static void initComponents() {
 
-        IComponents agvComponents = AgvContext.getOpenAgvComponents();
+        IComponents agvComponents = RobotContext.getOpenAgvComponents();
         if (ToolsKit.isEmpty(agvComponents)) {
             throw new AgvException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
         }

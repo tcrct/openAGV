@@ -1,7 +1,7 @@
 package com.robot.contrib.netty.udp;
 
 
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
@@ -18,11 +18,11 @@ import java.util.List;
  */
 public class UdpClientManager implements IChannelManager<IRequest, IResponse> {
 
-    private AgvCommAdapter adapter;
+    private RobotCommAdapter adapter;
     private UdpClientChannelManager channelManager;
 
 
-    public UdpClientManager(AgvCommAdapter commAdapter) {
+    public UdpClientManager(RobotCommAdapter commAdapter) {
         adapter = commAdapter;
 
         channelManager = new UdpClientChannelManager(commAdapter,

@@ -1,7 +1,7 @@
 package com.robot.mvc.core.telegram;
 
 import cn.hutool.core.util.IdUtil;
-import com.robot.adapter.AgvCommAdapter;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -22,7 +22,7 @@ public class BaseRequest implements IRequest, java.io.Serializable {
     /**协议原文字符串*/
     protected String rawContent;
     /**车辆适配器，每一个请求里都必须包含*/
-    protected AgvCommAdapter adapter;
+    protected RobotCommAdapter adapter;
 
     public BaseRequest(ReqType reqType, IProtocol protocol) {
         Objects.requireNonNull(reqType, "请求对象枚举值不能为空");
@@ -32,12 +32,12 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         setReqType(reqType);
     }
 
-    public void setAdapter(AgvCommAdapter adapter) {
+    public void setAdapter(RobotCommAdapter adapter) {
         this.adapter = adapter;
     }
 
     @Override
-    public AgvCommAdapter getAdapter() {
+    public RobotCommAdapter getAdapter() {
         Objects.requireNonNull(protocol, "适配器对象不能为空");
         return adapter;
     }

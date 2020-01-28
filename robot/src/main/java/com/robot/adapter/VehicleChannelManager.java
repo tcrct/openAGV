@@ -22,7 +22,7 @@ public class VehicleChannelManager {
      * @param adapter
      * @return
      */
-    public static IChannelManager getChannelManager(AgvCommAdapter adapter) {
+    public static IChannelManager getChannelManager(RobotCommAdapter adapter) {
         // 如果是以服务器方式启动，则在初始化时完成
         String runType = SettingUtils.getString("run.type", "server");
         NetChannelType channelType = AgvKit.getNetChannelType();
@@ -41,7 +41,7 @@ public class VehicleChannelManager {
      * @param channelType  网络渠道类型
      * @return
      */
-    private static IChannelManager getServerChannelManager(AgvCommAdapter adapter, NetChannelType channelType) {
+    private static IChannelManager getServerChannelManager(RobotCommAdapter adapter, NetChannelType channelType) {
         String host = AgvKit.getServerHost();
         int port = AgvKit.getServerPort();
         if (NetChannelType.TCP.equals(channelType)) {
@@ -60,7 +60,7 @@ public class VehicleChannelManager {
      * @param channelType   网络渠道类型
      * @return
      */
-    private static IChannelManager getClientChannelManager(AgvCommAdapter adapter, NetChannelType channelType) {
+    private static IChannelManager getClientChannelManager(RobotCommAdapter adapter, NetChannelType channelType) {
         if (NetChannelType.TCP.equals(channelType)) {
             return new TcpClientManager(adapter);
         } else if (NetChannelType.UDP.equals(channelType)) {

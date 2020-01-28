@@ -23,9 +23,9 @@ public class MoveCommandListener implements ActionListener {
     /**是否需要发送，true时为需要发送*/
     private boolean isNeetSend;
     /**车辆适配器*/
-    private AgvCommAdapter adapter;
+    private RobotCommAdapter adapter;
 
-    public MoveCommandListener(AgvCommAdapter adapter) {
+    public MoveCommandListener(RobotCommAdapter adapter) {
         this.adapter = adapter;
         this.isNeetSend = false;
     }

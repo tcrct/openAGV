@@ -16,7 +16,10 @@ public class BaseResponse implements IResponse {
     private String cmdKey;
     private Exception exception;
     private String handshakeCode;
-
+    /**
+     * 协议原文字符串
+     */
+    protected String rawContent;
 
     public BaseResponse(IRequest request) {
         request = java.util.Objects.requireNonNull(request, "请求对象不能为空");
@@ -83,5 +86,15 @@ public class BaseResponse implements IResponse {
     @Override
     public String getHandshakeCode() {
         return handshakeCode;
+    }
+
+    @Override
+    public String getRawContent() {
+        return rawContent;
+    }
+
+    @Override
+    public void setRawContent(String raw) {
+        rawContent = raw;
     }
 }

@@ -13,7 +13,7 @@ import static org.opentcs.util.Assertions.checkInRange;
  *
  * @author Laotang
  */
-public class AgvProcessModel extends VehicleProcessModel {
+public class RobotProcessModel extends VehicleProcessModel {
 
     /** 连接车辆地址*/
     private String vehicleHost = "127.0.0.1";
@@ -30,12 +30,14 @@ public class AgvProcessModel extends VehicleProcessModel {
      */
     private int reconnectDelay = 10000;
 
+    /*** 指示此通信适配器是否处于单步模式（true为单步模式，false为自动模式模式）。*/
+    private boolean singleStepModeEnabled;
     /**
      * 构造函数
      *
      * @param attachedVehicle 车辆
      */
-    public AgvProcessModel(@Nonnull Vehicle attachedVehicle) {
+    public RobotProcessModel(@Nonnull Vehicle attachedVehicle) {
         super(attachedVehicle);
     }
 
@@ -126,6 +128,29 @@ public class AgvProcessModel extends VehicleProcessModel {
         getPropertyChangeSupport().firePropertyChange(Attribute.RECONNECT_DELAY.name(),
                 oldValue,
                 reconnectDelay);
+    }
+
+    /**
+     * 设置通讯适配器为单步模式
+     *
+     * @param mode 值为true时，为单步模式
+     */
+    public synchronized void setSingleStepModeEnabled(final boolean mode) {
+        boolean oldValue = singleStepModeEnabled;
+        singleStepModeEnabled = mode;
+
+        getPropertyChangeSupport().firePropertyChange(Attribute.SINGLE_STEP_MODE.name(),
+                oldValue,
+                mode);
+    }
+
+    /**
+     * 当前模式是否为单步模式
+     *
+     * @return 返回值为true时，为单步模式
+     */
+    public synchronized boolean isSingleStepModeEnabled() {
+        return singleStepModeEnabled;
     }
 
 
