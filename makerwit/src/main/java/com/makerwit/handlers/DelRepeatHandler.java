@@ -3,10 +3,10 @@ package com.makerwit.handlers;
 import com.makerwit.core.component.Protocol;
 import com.makerwit.core.component.RepeatSend;
 import com.makerwit.numes.MakerwitEnum;
-import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.interfaces.IHandler;
-import com.openagv.mvc.core.interfaces.IRequest;
-import com.openagv.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IHandler;
+import com.robot.mvc.core.interfaces.IRequest;
+import com.robot.mvc.core.interfaces.IResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class DelRepeatHandler implements IHandler {
     private static final Logger LOG = LoggerFactory.getLogger(DelRepeatHandler.class);
 
     @Override
-    public boolean doHandler(String target, IRequest request, IResponse response) throws AgvException {
+    public boolean doHandler(String target, IRequest request, IResponse response) throws RobotException {
         Protocol protocol = (Protocol) request.getProtocol();
 
         String direction = protocol.getDirection();
@@ -32,7 +32,7 @@ public class DelRepeatHandler implements IHandler {
                 // 返回false与抛出异常的区别在于，返回false，系统直接当作丢弃处理，不往下执行代码
                 // 抛出异常，系统捕捉到异常抛出后，将异常信息返回到客户端
                 return false;
-            } catch (AgvException e) {
+            } catch (RobotException e) {
                 throw e;
             }
         }

@@ -3,7 +3,7 @@ package com.robot.mvc.handlers;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.helpers.RouteHelper;
@@ -55,7 +55,7 @@ public class TaskHandler {
                 response.write(resultObj);
             }
         } catch (Exception e) {
-            throw new AgvException(e.getMessage(), e);
+            throw new RobotException(e.getMessage(), e);
         }
         return response;
     }

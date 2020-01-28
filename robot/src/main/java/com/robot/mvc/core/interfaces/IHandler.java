@@ -1,6 +1,6 @@
 package com.robot.mvc.core.interfaces;
 
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 
 /**
  * 处理器接口
@@ -14,9 +14,9 @@ public interface IHandler {
      * @param target    协议指令
      * @param request 请求对象
      * @param response 返回对象
-     * @Exception AgvException
+     * @Exception RobotException
      * @return 处理成功返回true
      */
-    boolean doHandler(String target, IRequest request, IResponse response) throws AgvException;
+    boolean doHandler(String target, IRequest request, IResponse response) throws RobotException;
 
 }

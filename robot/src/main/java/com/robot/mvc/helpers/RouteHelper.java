@@ -3,7 +3,7 @@ package com.robot.mvc.helpers;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.mvc.core.annnotations.Service;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.model.Route;
 import com.robot.mvc.utils.ToolsKit;
 
@@ -23,8 +23,14 @@ public class RouteHelper {
 
     private final static Lock lock = new ReentrantLock();
     private static Set<String> excludedMethodName = null;
-    /**key为车辆或设备的ID标识符*/
-    private static Map<String,Route> ROUTE_MAP = new HashMap<>();
+    /**
+     * Service类Map集合，key为车辆ID标识符
+     */
+    private static Map<String, Route> SERVICE_ROUTE_MAP = new HashMap<>();
+    /**
+     * Action类Map集合，key为设备ID标识符
+     */
+    private static Map<String, Route> ACTION_ROUTE_MAP = new HashMap<>();
 
     private static RouteHelper ROUTE_HELPER = null;
     public static RouteHelper duang() {
@@ -40,13 +46,19 @@ public class RouteHelper {
     }
 
     private RouteHelper() {
-        if(ROUTE_MAP.isEmpty()) {
+        routeService();
+//        routeAction();
+    }
+
+    private void routeService() {
+        if (SERVICE_ROUTE_MAP.isEmpty()) {
             if (null == excludedMethodName) {
                 excludedMethodName = ToolsKit.buildExcludedMethodName();
             }
             List<Class<?>> serviceClassList = ClassHelper.duang().getServiceClassList();
             if (ToolsKit.isEmpty(serviceClassList)) {
-                throw new AgvException( "业务逻辑处理类不能为空");
+                LOG.info("业务逻辑处理类为空,退出routeService方法");
+                return;
             }
             for (Class<?> serviceClass : serviceClassList) {
                 Method[] methodArray = serviceClass.getMethods();
@@ -71,28 +83,38 @@ public class RouteHelper {
                     for (Method method : methodList) {
                         methodMap.put(method.getName().toLowerCase(), method);
                     }
-                    ROUTE_MAP.put(key, new Route(serviceClass, methodMap));
+                    SERVICE_ROUTE_MAP.put(key, new Route(serviceClass, methodMap));
                 }
             }
             printRouteKey();
         }
     }
 
+    private void routeAction() {
+        if (ACTION_ROUTE_MAP.isEmpty()) {
+            List<Class<?>> actionClassList = ClassHelper.duang().getActionClassList();
+            if (ToolsKit.isEmpty(actionClassList)) {
+                LOG.info("工站逻辑处理类为空,退出routeAction方法");
+                return;
+            }
 
-
-    public static Map<String,Route> getRoutes() {
-        return ROUTE_MAP;
+        }
     }
 
-    private  void printRouteKey() {
-        List<String> keyList = new ArrayList<>(ROUTE_MAP.keySet());
+
+    public static Map<String, Route> getRoutes() {
+        return SERVICE_ROUTE_MAP;
+    }
+
+    private void printRouteKey() {
+        List<String> keyList = new ArrayList<>(SERVICE_ROUTE_MAP.keySet());
         if(keyList.isEmpty()) {
             throw new NullPointerException("业务逻辑处理类不存在！");
         }
         Collections.sort(keyList);
         LOG.warn("**************** Route Key ****************");
         for (String key : keyList) {
-            Route route = ROUTE_MAP.get(key);
+            Route route = SERVICE_ROUTE_MAP.get(key);
             LOG.info(String.format("route mapping: %s, route: %s", key, route.toString()));
         }
     }

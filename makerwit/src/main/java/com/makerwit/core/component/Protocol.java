@@ -1,6 +1,6 @@
 package com.makerwit.core.component;
 
-import com.openagv.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.interfaces.IProtocol;
 
 /**
  * Created by laotang on 2020/1/13.

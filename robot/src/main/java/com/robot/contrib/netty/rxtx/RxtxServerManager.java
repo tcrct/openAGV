@@ -4,7 +4,7 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.utils.ToolsKit;
@@ -52,7 +52,7 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
         try {
             channelManager.connect(serialport, baudrate);
         } catch (Exception e) {
-            throw new AgvException("串口链接时出现异常: "+e.getMessage(), e);
+            throw new RobotException("串口链接时出现异常: " + e.getMessage(), e);
         }
     }
 
@@ -85,7 +85,7 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     @Override
     public void send(IResponse telegram) {
         if (ToolsKit.isEmpty(telegram) || ToolsKit.isEmpty(telegram.getRawContent())) {
-            throw new AgvException("要发送的对象或内容不能为空");
+            throw new RobotException("要发送的对象或内容不能为空");
         }
         channelManager.send(telegram);
     }

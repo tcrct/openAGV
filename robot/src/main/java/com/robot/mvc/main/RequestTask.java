@@ -2,7 +2,7 @@ package com.robot.mvc.main;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.BaseResponse;
@@ -29,7 +29,7 @@ public class RequestTask implements Callable<IResponse> {
     public IResponse call() {
         iResponse = new BaseResponse(iRequest);
         if (ToolsKit.isEmpty(iRequest) || ToolsKit.isEmpty(iResponse)) {
-            throw new AgvException("RequestTask request or response is null");
+            throw new RobotException("RequestTask request or response is null");
         }
         // 执行请求任务
         try {

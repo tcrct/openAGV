@@ -5,7 +5,7 @@ import com.robot.config.AgvConfiguration;
 import com.robot.config.LoadAction;
 import com.robot.config.LoadState;
 import com.robot.contrib.netty.comm.IChannelManager;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.ITelegram;
@@ -146,7 +146,7 @@ public class RobotCommAdapter
         try {
             vehicleChannelManager.connect(host, port);
             LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
-        } catch (AgvException e) {
+        } catch (RobotException e) {
             throw e;
         }
     }

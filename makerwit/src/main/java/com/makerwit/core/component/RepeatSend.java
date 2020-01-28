@@ -2,7 +2,7 @@ package com.makerwit.core.component;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.utils.SettingUtils;
 import com.robot.mvc.utils.ToolsKit;
@@ -53,18 +53,20 @@ public class RepeatSend implements IRepeatSend {
      * @param response 响应对象
      */
     @Override
-    public void add(IResponse response) throws AgvException {
+    public void add(IResponse response) throws RobotException {
         if (!isNeedRepeatSend) {
             LOG.info("系统默认为不需要重复发送，如需要重复发送，请在配置文件中设置[repeat.send=true]");
             return;
         }
 
         if (ToolsKit.isEmpty(response)) {
-            throw new AgvException("响应对象不能为空");
+            throw new RobotException("响应对象不能为空");
         }
 
         String deviceId = response.getDeviceId();
-        if (ToolsKit.isEmpty(deviceId)) { throw new AgvException("车辆或设备唯一标识不能为空");}
+        if (ToolsKit.isEmpty(deviceId)) {
+            throw new RobotException("车辆或设备唯一标识不能为空");
+        }
 
         Queue<IResponse> responseQueue = REPEAT_SEND_MAP.get(deviceId);
         if (ToolsKit.isEmpty(responseQueue)) {
@@ -80,38 +82,42 @@ public class RepeatSend implements IRepeatSend {
      * @param request 请求对象
      */
     @Override
-    public void remove(IRequest request) throws AgvException {
+    public void remove(IRequest request) throws RobotException {
         if (!isNeedRepeatSend) {
             LOG.info("系统默认为不需要重复发送，如需要重复发送，请在配置文件中设置[repeat.send=true]");
             return;
         }
         if (ToolsKit.isEmpty(request)) {
-            throw new AgvException("请求对象不能为空");
+            throw new RobotException("请求对象不能为空");
         }
 
         IProtocol protocol = request.getProtocol();
         if (ToolsKit.isEmpty(protocol)) {
-            throw new AgvException("请求协议对象不能为空");
+            throw new RobotException("请求协议对象不能为空");
         }
 
         String deviceId = protocol.getDeviceId();
-        if (ToolsKit.isEmpty(deviceId)) { throw new AgvException("车辆或设备唯一标识不能为空");}
+        if (ToolsKit.isEmpty(deviceId)) {
+            throw new RobotException("车辆或设备唯一标识不能为空");
+        }
 
         String code = protocol.getCode();
-        if (ToolsKit.isEmpty(code)) { throw new AgvException("验证码不能为空");}
+        if (ToolsKit.isEmpty(code)) {
+            throw new RobotException("验证码不能为空");
+        }
 
         Queue<IResponse> responseQueue = REPEAT_SEND_MAP.get(deviceId);
         if (ToolsKit.isEmpty(responseQueue)) {
-            throw  new AgvException("车辆或设备[{}]没有需要重复发送的对象，退出方法");
+            throw new RobotException("车辆或设备[{}]没有需要重复发送的对象，退出方法");
         }
         IResponse response = responseQueue.peek();
         if (ToolsKit.isEmpty(request)) {
-            throw new AgvException("[{"+deviceId+"}]需要重复发送的第1位对象不能为空");
+            throw new RobotException("[{" + deviceId + "}]需要重复发送的第1位对象不能为空");
         }
 
         // 如果验证码不是一致的，则抛出异常
         if (!code.equals(response.getHandshakeCode())) {
-            throw new AgvException("移除重发队列元素时，提交上来的验证码[{"+code+"}]与重发队列[{"+deviceId+"}]中的[{"+response.getHandshakeCode()+"}]不符！退出删除");
+            throw new RobotException("移除重发队列元素时，提交上来的验证码[{" + code + "}]与重发队列[{" + deviceId + "}]中的[{" + response.getHandshakeCode() + "}]不符！退出删除");
         }
         // 如果验证码不是一致的，则将对应队列里的第1位元素移除
         responseQueue.remove();

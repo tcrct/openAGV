@@ -3,7 +3,7 @@ package com.makerwit.core.requests.set;
 import com.makerwit.core.component.Protocol;
 import com.makerwit.numes.CmdKeyEnum;
 import com.makerwit.numes.MakerwitEnum;
-import com.openagv.mvc.core.telegram.ActionRequest;
+import com.robot.mvc.core.telegram.ActionRequest;
 
 /**
  *

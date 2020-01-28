@@ -7,7 +7,7 @@ import com.robot.contrib.netty.tcp.TcpClientManager;
 import com.robot.contrib.netty.tcp.TcpServerManager;
 import com.robot.contrib.netty.udp.UdpClientManager;
 import com.robot.contrib.netty.udp.UdpServerManager;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.utils.AgvKit;
 import com.robot.mvc.utils.SettingUtils;
 
@@ -31,7 +31,7 @@ public class VehicleChannelManager {
         } else if ("client".equalsIgnoreCase(runType)) {
             return getClientChannelManager(adapter, channelType);
         } else {
-            throw new AgvException("配置文件[run.type]参数值设置不正确，仅允许server/client两个选项");
+            throw new RobotException("配置文件[run.type]参数值设置不正确，仅允许server/client两个选项");
         }
     }
 

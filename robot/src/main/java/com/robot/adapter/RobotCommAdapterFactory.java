@@ -5,7 +5,7 @@ package com.robot.adapter;
 
 import com.robot.RobotContext;
 import com.robot.contrib.netty.comm.NetChannelType;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.utils.ToolsKit;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
@@ -95,11 +95,11 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
         if (NetChannelType.TCP.equals(RobotContext.getNetChannelType()) ||
                 NetChannelType.UDP.equals(RobotContext.getNetChannelType())) {
             if (ToolsKit.isEmpty(vehicle.getProperty(VEHICLE_HOST))) {
-                throw new AgvException("车辆host没有设置");
+                throw new RobotException("车辆host没有设置");
             }
 
             if (ToolsKit.isEmpty(vehicle.getProperty(VEHICLE_PORT))) {
-                throw new AgvException("车辆port没有设置");
+                throw new RobotException("车辆port没有设置");
             }
             try {
                 //设置端口范围
@@ -107,7 +107,7 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
                         1024,
                         65535);
             } catch (IllegalArgumentException exc) {
-                throw new AgvException("端口范围值须在"+1024+"~"+65535+"之间");
+                throw new RobotException("端口范围值须在" + 1024 + "~" + 65535 + "之间");
             }
         }
 

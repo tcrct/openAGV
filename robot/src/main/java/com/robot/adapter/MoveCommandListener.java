@@ -1,6 +1,6 @@
 package com.robot.adapter;
 
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;
 import org.opentcs.drivers.vehicle.MovementCommand;
@@ -46,7 +46,7 @@ public class MoveCommandListener implements ActionListener {
             // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
             DispatchFactory.dispatch(new MoveRequest(adapter, new ArrayList<>(commandQueue)));
         } catch (Exception ex) {
-            throw new AgvException("创建移动协议指令时出错: "+ex.getMessage(), ex);
+            throw new RobotException("创建移动协议指令时出错: " + ex.getMessage(), ex);
         }
         // 发送开关，已经发送设置为false，防止重复执行
         isNeetSend = false;

@@ -3,7 +3,7 @@ package com.robot.mvc.main;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.core.telegram.ActionRequest;
 import com.robot.mvc.core.telegram.BusinessRequest;
@@ -94,12 +94,11 @@ public class DispatchFactory {
                 // 将Response对象放入重发队列，确保消息发送到车辆
                 if (response.isResponseTo(request)) {
                     repeatSend.add(response);
-//                    RepeatSendHandler.duang().add(response);
                 }
                 sender.send(response);
             }
         } catch (Exception e) {
-            throw new AgvException(e.getMessage(), e);
+            throw new RobotException(e.getMessage(), e);
         }
     }
 
@@ -110,17 +109,17 @@ public class DispatchFactory {
 
         IComponents agvComponents = RobotContext.getOpenAgvComponents();
         if (ToolsKit.isEmpty(agvComponents)) {
-            throw new AgvException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
+            throw new RobotException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
         }
 
         protocolDecode = agvComponents.getProtocolDecode();
         if (ToolsKit.isEmpty(protocolDecode)) {
-            throw new AgvException("协议解码器不能为空，请先实现IComponents接口里的getProtocolDecode方法");
+            throw new RobotException("协议解码器不能为空，请先实现IComponents接口里的getProtocolDecode方法");
         }
 
         repeatSend = agvComponents.getRepeatSend();
         if (ToolsKit.isEmpty(repeatSend)) {
-            throw new AgvException("重复发送不能为空，请先实现IComponents接口里的getRepeatSend方法");
+            throw new RobotException("重复发送不能为空，请先实现IComponents接口里的getRepeatSend方法");
         }
 
     }

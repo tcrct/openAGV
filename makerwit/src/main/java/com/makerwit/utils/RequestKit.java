@@ -2,14 +2,17 @@ package com.makerwit.utils;
 
 import cn.hutool.core.util.IdUtil;
 import com.makerwit.core.component.Protocol;
-import com.openagv.AgvContext;
-import com.openagv.mvc.core.interfaces.IProtocol;
-import com.openagv.mvc.core.interfaces.IRequest;
-import com.openagv.mvc.core.interfaces.IResponse;
-import com.openagv.mvc.core.interfaces.ISender;
-import com.openagv.mvc.core.telegram.ActionRequest;
-import com.openagv.mvc.core.telegram.BaseResponse;
-import com.openagv.mvc.core.telegram.MoveRequest;
+;
+import com.robot.RobotContext;
+import com.robot.mvc.core.enums.ReqType;
+import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.interfaces.IRequest;
+import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.interfaces.ISender;
+import com.robot.mvc.core.telegram.ActionRequest;
+import com.robot.mvc.core.telegram.BaseRequest;
+import com.robot.mvc.core.telegram.BaseResponse;
+import com.robot.mvc.core.telegram.MoveRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +48,7 @@ public class RequestKit {
         return this;
     }
 
+
     public RequestKit protocol(IProtocol protocol) {
         this.protocol = (Protocol)protocol;
         return this;
@@ -79,12 +83,12 @@ public class RequestKit {
         // 构建握手响应的验证码
         String code = ProtocolUtil.builderHandshakeCode(protocol);
         // 放置到Map集合中，阻塞线程，最多等待3秒响应
-        AgvContext.getResponseProtocolMap().put(code, new LinkedBlockingQueue<IProtocol>(1));
+        RobotContext.getResponseProtocolMap().put(code, new LinkedBlockingQueue<IProtocol>(1));
         IProtocol protocol = getResponseProtocol(code, 3000);
         if (null == protocol) {
             return null;
         }
-        IResponse response = new BaseResponse(IdUtil.objectId());
+        IResponse response = new BaseResponse(new BaseRequest(ReqType.BUSINESS, protocol));
         response.write(protocol);
         return response;
     }
@@ -97,8 +101,8 @@ public class RequestKit {
      */
     private IProtocol getResponseProtocol(String key, long timeout) {
         try {
-            if (AgvContext.getResponseProtocolMap().containsKey(key)) {
-                return AgvContext.getResponseProtocolMap().get(key).poll(timeout, TimeUnit.MILLISECONDS);
+            if (RobotContext.getResponseProtocolMap().containsKey(key)) {
+                return RobotContext.getResponseProtocolMap().get(key).poll(timeout, TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
             LOG.warn("等待请求响应时出错: " + e.getMessage(), e);

@@ -1,10 +1,3 @@
-/**
- * Copyright (c) The openTCS Authors.
- * <p>
- * This program is free software and subject to the MIT license. (For details,
- * see the licensing information (LICENSE.txt) you should have received with
- * this copy of the software.)
- */
 package com.robot.commands;
 
 import javax.annotation.Nullable;
@@ -13,22 +6,21 @@ import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
 /**
- * A command to set a vehicle's position.
+ * 设置车辆位置命令
  *
- * @author Martin Grzenia (Fraunhofer IML)
+ * @author Laotang
  */
-public class SetPositionCommand
-        implements AdapterCommand {
+public class SetPositionCommand implements AdapterCommand {
 
     /**
-     * The position to set.
+     * 需要设置位置的点
      */
     private final String position;
 
     /**
-     * Creates a new instance.
+     * 构造方法
      *
-     * @param position The position to set.
+     * @param position 位置点
      */
     public SetPositionCommand(@Nullable String position) {
         this.position = position;

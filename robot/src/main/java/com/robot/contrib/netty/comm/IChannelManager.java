@@ -1,6 +1,6 @@
 package com.robot.contrib.netty.comm;
 
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public interface IChannelManager<I, O> {
      * @param host 地址
      * @param port 端口
      * */
-    void connect(String host, int port) throws AgvException;
+    void connect(String host, int port) throws RobotException;
 
     /**断开连接*/
     void disconnect();

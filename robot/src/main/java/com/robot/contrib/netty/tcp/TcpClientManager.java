@@ -2,7 +2,7 @@ package com.robot.contrib.netty.tcp;
 
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
-import com.robot.mvc.core.exceptions.AgvException;
+import com.robot.mvc.core.exceptions.RobotException;
 
 import javax.annotation.Nonnull;
 
@@ -33,7 +33,7 @@ public class TcpClientManager implements IChannelManager {
     }
 
     @Override
-    public void connect(String host, int port) throws AgvException {
+    public void connect(String host, int port) throws RobotException {
 
     }
 

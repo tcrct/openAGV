@@ -42,6 +42,9 @@ public enum CmdKeyEnum {
     RPTMAG("rptmag", "上报磁导状态"),
     RPTSTART("rptstart", "小车上电"),
     RPTMODE("rptmode","上报小车手动/自动模式"),
+    RPTBACK("rptback", "小车请求清除残留任务，回仓库"),
+    RPTSCAN("rptscan", "上报扫码枪信息"),
+    RPTVOL("rptvol", ""),
 
     /**opanAGV专用，与公司的请求指令不相关*/
 //    VMR("VMR", "[vehicleMoveRequest]车辆移动请求"),
