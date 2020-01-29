@@ -1,24 +1,11 @@
 package com.robot.mvc.core.telegram;
 
-import com.robot.agv.common.send.SendRequest;
-import com.robot.agv.common.telegrams.Request;
-import com.robot.agv.common.telegrams.Response;
-import com.robot.agv.common.telegrams.TelegramSender;
-import com.robot.agv.vehicle.RobotCommAdapter;
-import com.robot.agv.vehicle.telegrams.Protocol;
-import com.robot.core.AppContext;
-import com.robot.core.handshake.HandshakeTelegram;
-import com.robot.core.handshake.HandshakeTelegramDto;
-import com.robot.mvc.exceptions.RobotException;
-import com.robot.mvc.interfaces.IAction;
-import com.robot.mvc.interfaces.ICallback;
-import com.robot.mvc.interfaces.ICommand;
-import com.robot.numes.RobotEnum;
-import com.robot.service.common.requests.VehicleMoveRequest;
-import com.robot.utils.ActionsQueue;
-import com.robot.utils.CrcUtil;
-import com.robot.utils.ProtocolUtils;
-import com.robot.utils.ToolsKit;
+import com.robot.RobotContext;
+import com.robot.adapter.RobotCommAdapter;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.*;
+import com.robot.mvc.utils.ActionsQueue;
+import com.robot.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +21,20 @@ public abstract class BaseActions implements IAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseActions.class);
 
+    /**
+     * 动作请求队列对象
+     */
     private ActionsQueue actionsQueue;
 
     private RobotCommAdapter adapter;
-
-    private TelegramSender sender;
-
-    private HandshakeTelegram handshakeTelegram;
+    /**
+     * 发送对象
+     */
+    private ISender sender;
+    /**
+     * 请求重发对象
+     */
+    private IRepeatSend repeatSend;
     /**
      * 车辆是否已经提前移走
      */
@@ -48,55 +42,58 @@ public abstract class BaseActions implements IAction {
 
     public BaseActions() {
         actionsQueue = ActionsQueue.duang();
-        handshakeTelegram = HandshakeTelegram.duang(); // AppContext.getAgvConfigure().getHandshakeTelegramQueue();
+        repeatSend = RobotContext.getRobotComponents().getRepeatSend();
+        RobotContext.getRobotComponents().getProtocolDecode();
+        // TODO 待实现
+        sender = null;
     }
 
     @Override
     public void execute() throws Exception {
         //确认车辆没有提前移走
         isVehicleMove = false;
-        List<ICommand> requestList = new ArrayList<>();
+
+        // 工站动作名称
         String actionKey = actionKey();
+        List<IActionCommand> requestList = new ArrayList<>();
+        // 车辆ID
         String vehicleId = vehicleId();
-        if (ToolsKit.isEmpty(sender)) {
-            adapter = AppContext.getCommAdapter(vehicleId);
-            sender = AppContext.getTelegramSender();
-        }
+        // 设备ID
+        String deviceId = deviceId();
+        // 根据子类里的add方法，添加动作指令
         add(requestList);
-        putQueue(actionKey, vehicleId, requestList);
+        // 添加到队列
+        putQueue(actionKey, vehicleId, deviceId, requestList);
+        // 发送第一条指令
         try {
             sendTelegram(actionKey);
-//            LOG.info("车辆[{}]对应的工作站[{}]的所有{}动作已经完成！", vehicleId, deviceId(), actionKey);
-//            return true;
         } catch (Exception e) {
             throw new RobotException("设备[" + deviceId() + "]执行[" + actionKey + "]工站任务时出错: " + e.getMessage(), e);
         }
 
     }
 
-    private void putQueue(String actionKey, String vehicleId, List<ICommand> requestList) throws Exception {
+    private void putQueue(String actionKey, String vehicleId, String deviceId, List<IActionCommand> requestList) throws Exception {
         if (null == requestList || requestList.isEmpty()) {
             throw new NullPointerException("请求指令集不能为空");
         }
 
-        Queue<Request> queue = actionsQueue.getQueue(actionKey);
+        Queue<IRequest> queue = actionsQueue.getQueue(actionKey);
         Double index = 1D; //从1开始，以便在1的位置前插入一个指令
-        for (ICommand command : requestList) {
+        for (IActionCommand command : requestList) {
             ActionRequest request = null;
             if (command instanceof ActionRequest) {
                 request = (ActionRequest) command;
             } else if (command instanceof ActionResponse) {
                 ActionResponse response = (ActionResponse) command;
-                request = response.toRequest();
-//                request.setRequestType(BaseResponse.class.getSimpleName().toLowerCase());
+                request = response.toActionRequest();
             }
             if (ToolsKit.isEmpty(request)) {
                 throw new NullPointerException("请求对象不能为空");
             }
-//            if (!ServiceRequest.CMD_FIELD.equalsIgnoreCase(request.getCmdKey())) {
-            String deviceId = request.deviceId();
-            Protocol protocol = Objects.requireNonNull((Protocol) request.getProtocol(), "协议对象不能为空");
-            String deviceAddress = ToolsKit.isEmpty(protocol.getDeviceId()) ? deviceId : protocol.getDeviceId();
+            IProtocol protocol = Objects.requireNonNull(request.getProtocol(), "协议对象不能为空");
+            deviceId = ToolsKit.isEmpty(protocol.getDeviceId()) ? deviceId : protocol.getDeviceId();
+
             Protocol protocolNew = new Protocol.Builder()
 //                        .serialPortAddress(deviceAddress)
                     .deviceId(deviceAddress)
@@ -119,13 +116,13 @@ public abstract class BaseActions implements IAction {
     }
 
     private void sendTelegram(String actionKey) throws Exception {
-        Queue<Request> queue = Objects.requireNonNull(actionsQueue.getQueue(actionKey), "根据" + actionKey + "查找指令队列不能为空");
-        Request request = peekRequest(queue).isPresent() ? peekRequest(queue).get() : null;
+        Queue<IRequest> queue = Objects.requireNonNull(actionsQueue.getQueue(actionKey), "根据" + actionKey + "查找指令队列不能为空");
+        IRequest request = peekRequest(queue).isPresent() ? peekRequest(queue).get() : null;
         if (null == request) {
             LOG.info("指令集为空，退出");
             return;
         }
-        Protocol protocol = request.getProtocol();
+        IProtocol protocol = request.getProtocol();
         // 先判断是否为VehicleMoveRequest，如果是，则作特殊处理，移动车辆指令发送后，系统会执行下发路径指令到车辆
         if (ToolsKit.isNotEmpty(request) && ToolsKit.isNotEmpty(protocol)) {
             if (VehicleMoveRequest.CMD_FIELD.equals(protocol.getCommandKey())) {
@@ -313,6 +310,6 @@ public abstract class BaseActions implements IAction {
      *
      * @param requestList 要执行的请求指令的有序数组
      */
-    public abstract void add(List<ICommand> requestList);
+    public abstract void add(List<IActionCommand> requestList);
 
 }

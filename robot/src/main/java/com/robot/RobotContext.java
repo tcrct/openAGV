@@ -52,7 +52,7 @@ public class RobotContext {
      * 设置OpenAGV需要使用的第三方组件实例接口
      * @param components 第三方组件实例接口
      */
-    public static void setOpenAgvComponents(IComponents components) {
+    public static void setRobotComponents(IComponents components) {
         RobotContext.components = components;
     }
 
@@ -60,7 +60,7 @@ public class RobotContext {
      * 取第三方组件实例接口
      * @return 第三方组件实例接口
      */
-    public static IComponents getOpenAgvComponents() {
+    public static IComponents getRobotComponents() {
         return components;
     }
 

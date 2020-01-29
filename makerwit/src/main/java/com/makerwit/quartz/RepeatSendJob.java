@@ -3,7 +3,7 @@ package com.makerwit.quartz;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.makerwit.core.component.RepeatSend;
-import com.openagv.mvc.core.annnotations.Job;
+import com.robot.mvc.core.annnotations.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -20,6 +20,7 @@ public class RepeatSendJob implements org.quartz.Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        // TODO 添加发送实现对象到方法
         RepeatSend.duang().sendAll(null);
         LOG.info("RepeatSendJob execute:  {}", context);
     }

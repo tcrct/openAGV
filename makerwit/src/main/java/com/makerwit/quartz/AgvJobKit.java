@@ -3,8 +3,8 @@ package com.makerwit.quartz;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.utils.ToolsKit;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.utils.ToolsKit;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -57,7 +57,7 @@ public class AgvJobKit {
     public AgvJobKit addJob(Class jobClass, String cronExpression) {
 
         if (ToolsKit.isEmpty(scheduler)) {
-            throw new AgvException("创建定时任器调度器时，scheduler为空");
+            throw new RobotException("创建定时任器调度器时，scheduler为空");
         }
 
         boolean isExtendsJob = false;
@@ -69,10 +69,10 @@ public class AgvJobKit {
             }
         }
         if (!isExtendsJob) {
-            throw new AgvException(jobClass.getName()+"必须要实现"+Job.class.getName()+"接口");
+            throw new RobotException(jobClass.getName() + "必须要实现" + Job.class.getName() + "接口");
         }
         if (ToolsKit.isEmpty(cronExpression)) {
-            throw new AgvException("定时器cron表达式不能为空");
+            throw new RobotException("定时器cron表达式不能为空");
         }
        // 构建标识
         String key = IdUtil.objectId();
@@ -89,8 +89,9 @@ public class AgvJobKit {
 
         try {
             scheduler.scheduleJob(jobDetail, trigger);
+            LOG.info("Quatrz 添加任务{}成功", jobDetail.getKey());
         } catch (Exception e) {
-            throw new AgvException("添加定时任务时出错: " + e.getMessage(), e);
+            throw new RobotException("添加定时任务时出错: " + e.getMessage(), e);
         }
         return this;
     }
@@ -104,12 +105,12 @@ public class AgvJobKit {
 
     public void run() {
         if (ToolsKit.isEmpty(scheduler)) {
-            throw new AgvException("创建定时任器调度器时，scheduler为空");
+            throw new RobotException("创建定时任器调度器时，scheduler为空");
         }
         try {
             scheduler.start();
         }  catch (Exception e) {
-            throw new AgvException("定时任务器启动失败: " + e.getMessage(), e);
+            throw new RobotException("定时任务器启动失败: " + e.getMessage(), e);
         }
 
     }

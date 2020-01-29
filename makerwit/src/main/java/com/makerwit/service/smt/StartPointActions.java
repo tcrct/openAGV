@@ -4,6 +4,8 @@ package com.makerwit.service.smt;
 import com.makerwit.core.requests.get.GetMtRequest;
 import com.robot.mvc.core.annnotations.Action;
 import com.robot.mvc.core.interfaces.IAction;
+import com.robot.mvc.core.interfaces.IActionCommand;
+import com.robot.mvc.core.telegram.BaseActions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +48,7 @@ public class StartPointActions extends BaseActions {
      * @param requestList 要执行的请求指令的有序数组
      */
     @Override
-    public void add(List<IAction> requestList) {
+    public void add(List<IActionCommand> requestList) {
         requestList.addAll(Arrays.asList(
                 new GetMtRequest(VEHICLE_ID, "0")
 //           new RptMtResponse(VEHICLE_ID, "1")

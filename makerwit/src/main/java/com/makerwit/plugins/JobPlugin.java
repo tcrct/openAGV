@@ -2,11 +2,11 @@ package com.makerwit.plugins;
 
 import com.makerwit.quartz.AgvJobKit;
 import com.makerwit.quartz.QuartzJobModel;
-import com.openagv.mvc.core.annnotations.Job;
-import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.interfaces.IPlugin;
-import com.openagv.mvc.helpers.ClassHelper;
-import com.openagv.mvc.utils.ToolsKit;
+import com.robot.mvc.core.annnotations.Job;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IPlugin;
+import com.robot.mvc.helpers.ClassHelper;
+import com.robot.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class JobPlugin implements IPlugin {
 
         List<Class<?>> jobClassList = ClassHelper.duang().getJobClassList();
         if (ToolsKit.isEmpty(jobClassList)) {
-            throw new AgvException("没有扫描到相关的Job类，请确保已经在添加@Job类注解");
+            throw new RobotException("没有扫描到相关的Job类，请确保已经在添加@Job类注解");
         }
 
         for (Class<?> jobClass : jobClassList) {

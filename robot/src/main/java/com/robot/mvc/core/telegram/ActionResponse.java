@@ -1,6 +1,7 @@
 package com.robot.mvc.core.telegram;
 
 import com.robot.mvc.core.enums.ReqType;
+import com.robot.mvc.core.interfaces.IActionCommand;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 
@@ -11,7 +12,7 @@ import com.robot.mvc.core.interfaces.IRequest;
  *
  * Created by laotang on 2020/1/12.
  */
-public abstract class ActionResponse {
+public abstract class ActionResponse implements IActionCommand {
 
 
     protected IProtocol protocol;
@@ -25,9 +26,13 @@ public abstract class ActionResponse {
      * 模拟客户端提交的对象数据，存放在队列中等待响应后删除
      * @return
      */
-    public IRequest toRequest() {
-        return new BaseRequest(ReqType.ACTION, protocol);
+    public ActionRequest toActionRequest() {
+        return new ActionRequest(protocol) {
+            @Override
+            public String cmd() {
+                return protocol.getCmdKey();
+            }
+        };
     }
 
-    public abstract String cmd();
 }

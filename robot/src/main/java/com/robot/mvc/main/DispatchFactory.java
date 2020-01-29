@@ -107,7 +107,7 @@ public class DispatchFactory {
      */
     private static void initComponents() {
 
-        IComponents agvComponents = RobotContext.getOpenAgvComponents();
+        IComponents agvComponents = RobotContext.getRobotComponents();
         if (ToolsKit.isEmpty(agvComponents)) {
             throw new RobotException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
         }

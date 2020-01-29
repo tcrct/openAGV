@@ -1,8 +1,9 @@
 package com.makerwit.core.component;
 
-import com.openagv.mvc.core.interfaces.IComponents;
-import com.openagv.mvc.core.interfaces.IProtocolDecode;
-import com.openagv.mvc.core.interfaces.IRepeatSend;
+
+import com.robot.mvc.core.interfaces.IComponents;
+import com.robot.mvc.core.interfaces.IProtocolDecode;
+import com.robot.mvc.core.interfaces.IRepeatSend;
 
 /**
  * OpenAgv组件
@@ -10,7 +11,7 @@ import com.openagv.mvc.core.interfaces.IRepeatSend;
  *
  * @author Laotang
  */
-public class OpenAgvComponent implements IComponents {
+public class RobotComponent implements IComponents {
     @Override
     public IProtocolDecode getProtocolDecode() {
         return ProtocolDecode.duang();
