@@ -26,6 +26,7 @@ public class Route {
     public Route(String key, Object serviceObj) {
         this.key = key;
         this.serviceObj = serviceObj;
+        this.serviceClass = serviceObj.getClass();
     }
 
     public String getKey() {

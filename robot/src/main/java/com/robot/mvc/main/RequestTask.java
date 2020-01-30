@@ -21,13 +21,14 @@ public class RequestTask implements Callable<IResponse> {
     private volatile IRequest iRequest = null;
     private volatile IResponse iResponse = null;
 
-    public RequestTask(IRequest iRequest) {
+    public RequestTask(IRequest iRequest, IResponse iResponse) {
         this.iRequest = iRequest;
+        this.iResponse = iResponse;
     }
 
     @Override
     public IResponse call() {
-        iResponse = new BaseResponse(iRequest);
+
         if (ToolsKit.isEmpty(iRequest) || ToolsKit.isEmpty(iResponse)) {
             throw new RobotException("RequestTask request or response is null");
         }

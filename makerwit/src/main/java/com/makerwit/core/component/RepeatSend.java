@@ -2,8 +2,10 @@ package com.makerwit.core.component;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.makerwit.utils.MakerwitUtil;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
+import com.robot.mvc.model.RepeatSendModel;
 import com.robot.mvc.utils.SettingUtils;
 import com.robot.mvc.utils.ToolsKit;
 
@@ -35,7 +37,7 @@ public class RepeatSend implements IRepeatSend {
         private static final RepeatSend INSTANCE = new RepeatSend();
     }
     private RepeatSend() {
-        isNeedRepeatSend();
+        isNeedRepeatSend = MakerwitUtil.isNeedRepeatSend();
     }
 
     public static final RepeatSend duang() {
@@ -43,9 +45,7 @@ public class RepeatSend implements IRepeatSend {
     }
 
 
-    private void isNeedRepeatSend() {
-        isNeedRepeatSend = SettingUtils.getBoolean("repeat.send", false);
-    }
+
 
     /**
      * 将需要重复发送的响应添加到队列
@@ -53,12 +53,12 @@ public class RepeatSend implements IRepeatSend {
      * @param response 响应对象
      */
     @Override
-    public void add(IResponse response) throws RobotException {
+    public void add(RepeatSendModel repeatSendModel) throws RobotException {
         if (!isNeedRepeatSend) {
             LOG.info("系统默认为不需要重复发送，如需要重复发送，请在配置文件中设置[repeat.send=true]");
             return;
         }
-
+        IResponse response = repeatSendModel.getResponse();
         if (ToolsKit.isEmpty(response)) {
             throw new RobotException("响应对象不能为空");
         }

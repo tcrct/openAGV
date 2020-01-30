@@ -18,6 +18,10 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
      * 用于ActionsQueue队列中，标记该动作请求的下标元素位置
      */
     private double index;
+    /**
+     * 车辆ID
+     */
+    private String vehicleId;
 
     public ActionRequest(IProtocol protocol) {
         super(ReqType.ACTION, protocol);
@@ -33,4 +37,11 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
         this.index = index;
     }
 
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
 }

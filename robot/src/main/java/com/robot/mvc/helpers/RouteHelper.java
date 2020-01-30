@@ -1,9 +1,12 @@
 package com.robot.mvc.helpers;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.robot.mvc.core.annnotations.Action;
 import com.robot.mvc.core.annnotations.Service;
 import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.mvc.utils.ToolsKit;
 
@@ -32,6 +35,14 @@ public class RouteHelper {
      */
     private static Map<String, Route> ACTION_ROUTE_MAP = new HashMap<>();
 
+    public static Map<String, Route> getServiceRouteMap() {
+        return SERVICE_ROUTE_MAP;
+    }
+
+    public static Map<String, Route> getActionRouteMap() {
+        return ACTION_ROUTE_MAP;
+    }
+
     private static RouteHelper ROUTE_HELPER = null;
     public static RouteHelper duang() {
         try {
@@ -47,7 +58,7 @@ public class RouteHelper {
 
     private RouteHelper() {
         routeService();
-//        routeAction();
+        routeAction();
     }
 
     private void routeService() {
@@ -97,7 +108,18 @@ public class RouteHelper {
                 LOG.info("工站逻辑处理类为空,退出routeAction方法");
                 return;
             }
-
+            for (Class<?> actionClass : actionClassList) {
+                Action actionAonn = actionClass.getAnnotation(Action.class);
+                if (ToolsKit.isEmpty(actionAonn)) {
+                    continue;
+                }
+                IAction action = (IAction) ReflectUtil.newInstance(actionClass);
+                if (ToolsKit.isNotEmpty(action)) {
+                    String key = action.actionKey();
+                    ACTION_ROUTE_MAP.put(key, new Route(key, action));
+                }
+            }
+            printActionKey();
         }
     }
 
@@ -112,10 +134,23 @@ public class RouteHelper {
             throw new NullPointerException("业务逻辑处理类不存在！");
         }
         Collections.sort(keyList);
-        LOG.warn("**************** Route Key ****************");
+        LOG.warn("**************** Service Mapping ****************");
         for (String key : keyList) {
             Route route = SERVICE_ROUTE_MAP.get(key);
-            LOG.info(String.format("route mapping: %s, route: %s", key, route.toString()));
+            LOG.info(String.format("service mapping: %s, route: %s", key, route.getServiceClass().getName()));
+        }
+    }
+
+    private void printActionKey() {
+        List<String> keyList = new ArrayList<>(ACTION_ROUTE_MAP.keySet());
+        if (keyList.isEmpty()) {
+            throw new NullPointerException("业务逻辑处理类不存在！");
+        }
+        Collections.sort(keyList);
+        LOG.warn("**************** Action Mapping ****************");
+        for (String key : keyList) {
+            Route action = ACTION_ROUTE_MAP.get(key);
+            LOG.info(String.format("action mapping: %s, action class: %s", key, action.getServiceClass().getName()));
         }
     }
 }

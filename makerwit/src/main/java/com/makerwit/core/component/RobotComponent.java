@@ -2,7 +2,7 @@ package com.makerwit.core.component;
 
 
 import com.robot.mvc.core.interfaces.IComponents;
-import com.robot.mvc.core.interfaces.IProtocolDecode;
+import com.robot.mvc.core.interfaces.IProtocolMatcher;
 import com.robot.mvc.core.interfaces.IRepeatSend;
 
 /**
@@ -13,8 +13,8 @@ import com.robot.mvc.core.interfaces.IRepeatSend;
  */
 public class RobotComponent implements IComponents {
     @Override
-    public IProtocolDecode getProtocolDecode() {
-        return ProtocolDecode.duang();
+    public IProtocolMatcher getProtocolMatcher() {
+        return ProtocolMatcher.duang();
     }
 
     @Override

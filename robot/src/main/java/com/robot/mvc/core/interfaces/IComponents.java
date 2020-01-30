@@ -12,7 +12,7 @@ public interface IComponents {
      * 取协议解析器对象
      * @return
      */
-    IProtocolDecode getProtocolDecode();
+    IProtocolMatcher getProtocolMatcher();
 
     /***
      * 取重复发送处理对象

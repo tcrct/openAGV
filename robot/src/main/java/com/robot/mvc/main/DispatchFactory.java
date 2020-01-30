@@ -5,9 +5,8 @@ import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
-import com.robot.mvc.core.telegram.ActionRequest;
-import com.robot.mvc.core.telegram.BusinessRequest;
-import com.robot.mvc.core.telegram.MoveRequest;
+import com.robot.mvc.core.telegram.*;
+import com.robot.mvc.model.RepeatSendModel;
 import com.robot.mvc.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ public class DispatchFactory {
     private static final Logger LOG = LoggerFactory.getLogger(DispatchFactory.class);
 
     /**协议解码器*/
-    private static IProtocolDecode protocolDecode;
+    private static IProtocolMatcher protocolDecode;
     /**重复发送对象*/
     private static IRepeatSend repeatSend;
     /**操作超时时长*/
@@ -48,7 +47,7 @@ public class DispatchFactory {
             initComponents();
         }
         try {
-            IProtocol protocol = protocolDecode.decode(message);
+            IProtocol protocol = protocolDecode.encode(message);
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
             if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
                 LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
@@ -59,7 +58,7 @@ public class DispatchFactory {
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
             businessRequest.setAdapter(RobotContext.getAdapter(protocol.getDeviceId()));
-            dispatchHandler(businessRequest);
+            dispatchHandler(businessRequest, new BaseResponse(businessRequest));
         } catch (Exception e) {
             LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);
             return;
@@ -72,8 +71,8 @@ public class DispatchFactory {
      *
      * @param request ActionRequest
      */
-    public static void dispatch(ActionRequest request) {
-        dispatchHandler(request);
+    public static IResponse dispatch(ActionRequest request, IResponse response) {
+        return dispatchHandler(request, response);
     }
 
     /**
@@ -83,20 +82,21 @@ public class DispatchFactory {
      * @param request MoveRequest
      */
     public static void dispatch(MoveRequest request) {
-        dispatchHandler(request);
+        dispatchHandler(request, new BaseResponse(request));
     }
 
-    private static void dispatchHandler(IRequest request) {
-        FutureTask<IResponse> futureTask = (FutureTask<IResponse>)ThreadUtil.execAsync(new RequestTask(request));
+    private static IResponse dispatchHandler(IRequest request, IResponse response) {
+        FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
         try {
-            IResponse response = futureTask.get(TIME_OUT, TimeUnit.MILLISECONDS);
+            response = futureTask.get(TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 将Response对象放入重发队列，确保消息发送到车辆
                 if (response.isResponseTo(request)) {
-                    repeatSend.add(response);
+                    repeatSend.add(new RepeatSendModel(request, response));
                 }
                 sender.send(response);
             }
+            return response;
         } catch (Exception e) {
             throw new RobotException(e.getMessage(), e);
         }
@@ -112,7 +112,7 @@ public class DispatchFactory {
             throw new RobotException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
         }
 
-        protocolDecode = agvComponents.getProtocolDecode();
+        protocolDecode = agvComponents.getProtocolMatcher();
         if (ToolsKit.isEmpty(protocolDecode)) {
             throw new RobotException("协议解码器不能为空，请先实现IComponents接口里的getProtocolDecode方法");
         }

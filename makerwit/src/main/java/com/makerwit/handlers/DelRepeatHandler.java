@@ -36,6 +36,7 @@ public class DelRepeatHandler implements IHandler {
                 throw e;
             }
         }
+
         return true;
     }
 }

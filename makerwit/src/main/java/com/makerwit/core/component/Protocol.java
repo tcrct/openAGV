@@ -1,6 +1,9 @@
 package com.makerwit.core.component;
 
+import com.makerwit.utils.ProtocolUtil;
 import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.utils.CrcUtil;
+import com.robot.mvc.utils.ToolsKit;
 
 /**
  * Created by laotang on 2020/1/13.
@@ -65,33 +68,67 @@ public class Protocol implements IProtocol, java.io.Serializable {
         private String params;
         private String code;
 
+        /**
+         * 设备ID标识符
+         *
+         * @param deviceId 设备ID标识符
+         * @return
+         */
         public Builder deviceId(String deviceId) {
             this.deviceId = java.util.Objects.requireNonNull(deviceId, "deviceId is null");
             return this;
         }
 
+        /***
+         * 协议对象发送方向
+         * @param direction 协议对象发送方向
+         * @return
+         */
         public Builder direction(String direction) {
             this.direction = java.util.Objects.requireNonNull(direction, "direction is null");
             return this;
         }
 
+        /**
+         * 操作指令
+         * @param cmdKey 操作指令
+         * @return
+         */
         public Builder cmdKey(String cmdKey) {
             this.cmdKey = java.util.Objects.requireNonNull(cmdKey, "cmdKey is null");
             return this;
         }
 
+        /**
+         * 参数字符串
+         * @param params 参数字符串
+         * @return
+         */
         public Builder params(String params) {
             this.params = java.util.Objects.requireNonNull(params, "params is null");;
             return this;
         }
 
+        /**
+         * 协议对象字符串内容的验证码
+         * @param code 验证码
+         * @return
+         */
         public Builder code(String code) {
             this.code = java.util.Objects.requireNonNull(code, "crc is null");;
             return this;
         }
 
+        /**
+         * 构建协议对象
+         * @return Protocol对象
+         */
         public Protocol build() {
-            return new Protocol(deviceId, direction, cmdKey, params, code);
+            Protocol protocol = new Protocol(deviceId, direction, cmdKey, params, code);
+            if (ToolsKit.isEmpty(code)) {
+                protocol.setCode(CrcUtil.CrcVerify_Str(ProtocolUtil.builderCrcString(protocol)));
+            }
+            return protocol;
         }
     }
 

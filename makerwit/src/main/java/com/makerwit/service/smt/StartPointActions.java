@@ -3,9 +3,8 @@ package com.makerwit.service.smt;
 
 import com.makerwit.core.requests.get.GetMtRequest;
 import com.robot.mvc.core.annnotations.Action;
-import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IActionCommand;
-import com.robot.mvc.core.telegram.BaseActions;
+import com.makerwit.core.component.BaseActions;
 
 import java.util.Arrays;
 import java.util.List;

@@ -19,7 +19,6 @@ public interface IResponse extends ITelegram {
     void write(Object message);
     /**取响应异常*/
     Exception getException();
-
     /**
      * 取握手报文的CODE
      * 即生成请求下发后，握手应答报文的code

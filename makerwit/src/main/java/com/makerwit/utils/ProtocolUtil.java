@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.makerwit.core.component.Protocol;
 import com.makerwit.numes.CmdKeyEnum;
 import com.makerwit.numes.MakerwitEnum;
-import com.openagv.mvc.utils.CrcUtil;
+import com.robot.mvc.utils.CrcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

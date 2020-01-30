@@ -2,15 +2,17 @@ package com.makerwit.utils;
 
 import cn.hutool.core.util.StrUtil;
 import com.makerwit.numes.MakerwitEnum;
-import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.utils.SettingUtils;
-import com.openagv.mvc.utils.ToolsKit;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IAction;
+import com.robot.mvc.helpers.RouteHelper;
+import com.robot.mvc.model.Route;
+import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.ToolsKit;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 工具
@@ -38,10 +40,14 @@ public class MakerwitUtil {
         if(null == DEVICE_FLAG_SET) {
             DEVICE_FLAG_SET = SettingUtils.getStringsToSet("device.name", "security");
             if (ToolsKit.isEmpty(DEVICE_FLAG_SET)) {
-                throw new AgvException("请先在app.setting里设置device.name值！该值用于允许指定的车辆或设备ID访问系统");
+                throw new RobotException("请先在app.setting里设置device.name值！该值用于允许指定的车辆或设备ID访问系统");
             }
         }
         return DEVICE_FLAG_SET;
+    }
+
+    public static boolean isNeedRepeatSend() {
+        return SettingUtils.getBoolean("repeat.send", true);
     }
 
     /**
@@ -69,5 +75,36 @@ public class MakerwitUtil {
             }
         }
         return returnTelegramList;
+    }
+
+
+    /**
+     * 取工站名称
+     *
+     * @param deviceId 车辆或设备ID标识符
+     * @return 工站名称
+     */
+    public static String getActionKey(String deviceId) {
+        if (ToolsKit.isEmpty(deviceId)) {
+            throw new RobotException("取工站命称时，设备或车辆标识ID不能为空");
+        }
+        Map<String, Route> actionRouteMap = RouteHelper.getActionRouteMap();
+        if (ToolsKit.isEmpty(actionRouteMap)) {
+            LOG.debug("根据[{}]没找到动作指令对象，请确保在动作指令类添加@Action注解", deviceId);
+            return null;
+        }
+        for (Iterator<Map.Entry<String, Route>> iterator = RouteHelper.getActionRouteMap().entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<String, Route> entry = iterator.next();
+            Route route = entry.getValue();
+            Object obj = route.getServiceObj();
+            if (!(obj instanceof IAction)) {
+                continue;
+            }
+            IAction action = (IAction) obj;
+            if (deviceId.equals(action.deviceId()) || deviceId.equals(action.vehicleId())) {
+                return action.actionKey();
+            }
+        }
+        return null;
     }
 }

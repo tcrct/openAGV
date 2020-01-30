@@ -4,11 +4,12 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.makerwit.core.component.Protocol;
 import com.makerwit.numes.MakerwitEnum;
 import com.makerwit.utils.ProtocolUtil;
-import com.openagv.mvc.core.exceptions.AgvException;
-import com.openagv.mvc.core.interfaces.IHandler;
-import com.openagv.mvc.core.interfaces.IRequest;
-import com.openagv.mvc.core.interfaces.IResponse;
-import com.openagv.mvc.core.telegram.BusinessResponse;
+import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IHandler;
+import com.robot.mvc.core.interfaces.IRequest;
+import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.interfaces.ISender;
+import com.robot.mvc.core.telegram.BusinessResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,14 @@ public class AnswerHandler implements IHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnswerHandler.class);
 
+    private ISender sender;
+
+    public AnswerHandler() {
+        sender = null;
+    }
+
     @Override
-    public boolean doHandler(String target, IRequest request, IResponse response) throws AgvException {
+    public boolean doHandler(String target, IRequest request, IResponse response) throws RobotException {
         Protocol protocol = (Protocol) request.getProtocol();
 
         String direction = protocol.getDirection();
@@ -41,10 +48,10 @@ public class AnswerHandler implements IHandler {
                     newProtocol.setCode(ProtocolUtil.builderCrcString(newProtocol));
                     // 发送应答回复
                     String protocolStr = ProtocolUtil.converterString(newProtocol);
-                    IResponse businessResponse = new BusinessResponse(request.getId());
+                    IResponse businessResponse = new BusinessResponse(request);
                     businessResponse.write(protocolStr);
                     LOG.info("向设备[{}]回复应答报文[{}]", request.getAdapter().getName(), protocolStr);
-                    request.getAdapter().sender(businessResponse);
+                    sender.send(businessResponse);
                 }
             });
         }
