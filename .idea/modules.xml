@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/agv/agv.iml" filepath="$PROJECT_DIR$/agv/agv.iml" />
-      <module fileurl="file://$PROJECT_DIR$/makerwit/makerwit.iml" filepath="$PROJECT_DIR$/makerwit/makerwit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../java/agv4j/agv4j.iml" filepath="$PROJECT_DIR$/../java/agv4j/agv4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/contrib/net.iml" filepath="$PROJECT_DIR$/contrib/net.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Base/openTCS-API-Base.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-API-Injection/openTCS-API-Injection.iml" />
@@ -26,6 +26,7 @@
       <module fileurl="file://$PROJECT_DIR$/opentcs/openTCS-Strategies-Default/openTCS-Strategies-Default.iml" filepath="$PROJECT_DIR$/opentcs/openTCS-Strategies-Default/openTCS-Strategies-Default.iml" />
       <module fileurl="file://$PROJECT_DIR$/openagv.iml" filepath="$PROJECT_DIR$/openagv.iml" />
       <module fileurl="file://$PROJECT_DIR$/opentcs/opentcs.iml" filepath="$PROJECT_DIR$/opentcs/opentcs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/robot/robot.iml" filepath="$PROJECT_DIR$/robot/robot.iml" />
     </modules>
   </component>
 </project>

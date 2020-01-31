@@ -4,6 +4,7 @@
 package com.robot.adapter;
 
 import com.robot.RobotContext;
+import com.robot.adapter.model.RobotProcessModel;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.utils.ToolsKit;

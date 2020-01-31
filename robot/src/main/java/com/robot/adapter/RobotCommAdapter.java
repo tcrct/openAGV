@@ -1,6 +1,7 @@
 package com.robot.adapter;
 
 import com.google.inject.assistedinject.Assisted;
+import com.robot.adapter.model.RobotProcessModel;
 import com.robot.config.AgvConfiguration;
 import com.robot.config.LoadAction;
 import com.robot.config.LoadState;
