@@ -173,7 +173,17 @@ public abstract class BaseActions implements IAction {
                 //移除第一位请求
                 if (remove(queue)) {
                     // 根据code移除Map里对应的缓存
-                    ACTION_CALLBACK_MAP.remove(code);
+                    Queue<ActionCallback> actionCallbackQueue = ACTION_CALLBACK_MAP.get(actionKey);
+                    if (ToolsKit.isNotEmpty(actionCallbackQueue)) {
+                        ActionCallback actionCallback = actionCallbackQueue.peek();
+                        if (ToolsKit.isNotEmpty(actionCallback)) {
+                            if (actionCallback.getCode().equals(code) && actionCallback.getId().equals(requestId)) {
+                                actionCallbackQueue.remove();
+                            } else {
+                                throw new RobotException("移除ActionCallbackMap里指定队列[" + actionKey + "]里的元素[" + code + "]失败!");
+                            }
+                        }
+                    }
                     sendTelegram(actionKey);// 发送下一个请求
                 }
             }
@@ -219,6 +229,14 @@ public abstract class BaseActions implements IAction {
         return ACTION_CALLBACK_MAP;
     }
 
+    /**
+     * 添加动作指令到集合
+     *
+     * @param protocol  协议对象
+     * @param requestId 请求ID
+     * @param actionKey 工站名称
+     * @param vehicleId 车辆ID
+     */
     private void addActionRequest2Map(Protocol protocol, String requestId, String actionKey, String vehicleId) {
         IActionCallback callback = new IActionCallback() {
             @Override

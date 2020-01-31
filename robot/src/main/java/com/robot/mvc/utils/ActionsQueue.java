@@ -1,6 +1,5 @@
 package com.robot.mvc.utils;
 
-import com.robot.RobotContext;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.telegram.ActionRequest;
@@ -180,6 +179,4 @@ public class ActionsQueue {
         queue.clear();
         queue.addAll(requestList);
     }
-
-
 }
