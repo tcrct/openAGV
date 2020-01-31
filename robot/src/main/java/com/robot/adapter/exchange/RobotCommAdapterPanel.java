@@ -3,6 +3,7 @@ package com.robot.adapter.exchange;
 import com.google.inject.assistedinject.Assisted;
 import com.robot.adapter.enumes.Attribute;
 import com.robot.adapter.model.RobotVehicleModelTO;
+import com.robot.commands.*;
 import com.robot.mvc.utils.SettingUtils;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.customizations.ServiceCallWrapper;
@@ -17,8 +18,9 @@ import org.opentcs.drivers.vehicle.VehicleProcessModel;
 import org.opentcs.drivers.vehicle.management.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.management.VehicleProcessModelTO;
 import org.opentcs.util.CallWrapper;
+import org.opentcs.util.Comparators;
 import org.opentcs.util.gui.StringListCellRenderer;
-import org.opentcs.virtualvehicle.commands.*;
+
 import org.opentcs.virtualvehicle.inputcomponents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +69,9 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
     }
 
     private void initGuiContent() {
-//        for (VehicleProcessModel.Attribute attribute : VehicleProcessModel.Attribute.values()) {
-//            processModelChange(attribute.name(), robotVehicleModelTO);
-//        }
+        for (VehicleProcessModel.Attribute attribute : VehicleProcessModel.Attribute.values()) {
+            processModelChange(attribute.name(), robotVehicleModelTO);
+        }
         for (Attribute attribute : Attribute.values()) {
             processModelChange(attribute.name(), robotVehicleModelTO);
         }
@@ -1002,7 +1004,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
         if (singleModeRadioButton.isSelected()) {
             triggerButton.setEnabled(true);
 
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetSingleStepModeEnabledCommand(true));
+            sendCommAdapterCommand(new SetSingleStepModeEnabledCommand(true));
         }
     }//GEN-LAST:event_singleModeRadioButtonActionPerformed
 
@@ -1010,7 +1012,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
         if (flowModeRadioButton.isSelected()) {
             triggerButton.setEnabled(false);
 
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetSingleStepModeEnabledCommand(false));
+            sendCommAdapterCommand(new SetSingleStepModeEnabledCommand(false));
 //            sendCommAdapterCommand(new com.openagv.opentcs.commands.TriggerCommand());
         }
     }//GEN-LAST:event_flowModeRadioButtonActionPerformed
@@ -1207,7 +1209,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
         String fwdValue = maxFwdVeloTxt.getText();
         try {
             int fwdIntValue = Integer.parseInt(fwdValue);
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetMaxFwdVeloTxtCommand(fwdIntValue));
+            sendCommAdapterCommand(new SetMaxFwdVeloTxtCommand(fwdIntValue));
         } catch (NumberFormatException e) {
             return;
         }
@@ -1215,7 +1217,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
 
     private void pauseVehicleCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_pauseVehicleCheckBoxItemStateChanged
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetVehiclePausedCommand(true));
+            sendCommAdapterCommand(new SetVehiclePausedCommand(true));
         } else if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) {
             sendCommAdapterCommand(new SetVehiclePausedCommand(false));
         }
@@ -1247,7 +1249,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
                 return;
             }
 
-            sendCommAdapterCommand(new com.openagv.opentcs.commands.SetEnergyLevelCommand(energy));
+            sendCommAdapterCommand(new SetEnergyLevelCommand(energy));
         }
     }//GEN-LAST:event_energyLevelTxtMouseClicked
 

@@ -2,6 +2,7 @@ package com.robot.adapter;
 
 import com.google.inject.assistedinject.Assisted;
 import com.robot.adapter.model.RobotProcessModel;
+import com.robot.adapter.model.RobotVehicleModelTO;
 import com.robot.config.AgvConfiguration;
 import com.robot.config.LoadAction;
 import com.robot.config.LoadState;
@@ -321,6 +322,28 @@ public class RobotCommAdapter
             LOG.debug("车辆[{}]开启了空闲时断开连接", getName());
             disconnectVehicle();
         }
+    }
+
+    /**
+     * 覆盖实现
+     * 用于将值传递到控制中心的自定义面板
+     * 启动时，面板点击更新后均会触发
+     *
+     * @return
+     */
+    @Override
+    protected RobotVehicleModelTO createCustomTransferableProcessModel() {
+        // 发送到其他软件（如控制中心或工厂概览）时，添加车辆的附加信息
+        return new RobotVehicleModelTO()
+                .setSingleStepModeEnabled(getProcessModel().isSingleStepModeEnabled());
+//                .setLoadOperation(getProcessModel().getLoadOperation())
+//                .setMaxAcceleration(getProcessModel().getMaxAcceleration())
+//                .setMaxDeceleration(getProcessModel().getMaxDecceleration())
+//                .setMaxFwdVelocity(getProcessModel().getMaxFwdVelocity())
+//                .setMaxRevVelocity(getProcessModel().getMaxRevVelocity())
+//                .setOperatingTime(getProcessModel().getOperatingTime())
+//                .setUnloadOperation(getProcessModel().getUnloadOperation())
+//                .setVehiclePaused(getProcessModel().isVehiclePaused());
     }
 
     //*********************************ITelegramSender*************************************/
