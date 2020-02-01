@@ -103,6 +103,11 @@
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.duangframework.database</groupId>
+            <artifactId>duang-db</artifactId>
+            <version>${db.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

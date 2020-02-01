@@ -94,7 +94,9 @@ public class RouteHelper {
                     for (Method method : methodList) {
                         methodMap.put(method.getName().toLowerCase(), method);
                     }
-                    SERVICE_ROUTE_MAP.put(key, new Route(serviceClass, methodMap));
+                    Route route = new Route(serviceClass, methodMap);
+                    SERVICE_ROUTE_MAP.put(key, route);
+                    BeanHandler.duang().setBean(route.getServiceObj());
                 }
             }
             printRouteKey();
@@ -116,7 +118,9 @@ public class RouteHelper {
                 IAction action = (IAction) ReflectUtil.newInstance(actionClass);
                 if (ToolsKit.isNotEmpty(action)) {
                     String key = action.actionKey();
-                    ACTION_ROUTE_MAP.put(key, new Route(key, action));
+                    Route route = new Route(key, action);
+                    ACTION_ROUTE_MAP.put(key, route);
+                    BeanHandler.duang().setBean(route.getServiceObj());
                 }
             }
             printActionKey();
