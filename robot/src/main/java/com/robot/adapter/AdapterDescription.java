@@ -3,7 +3,7 @@
  */
 package com.robot.adapter;
 
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.SettingUtil;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 
 /**
@@ -15,6 +15,6 @@ public class AdapterDescription extends VehicleCommAdapterDescription {
 
   @Override
   public String getDescription() {
-    return SettingUtils.getString("name","adapter", "OpenAgv");
+      return SettingUtil.getString("name", "adapter", "OpenAgv");
   }
 }

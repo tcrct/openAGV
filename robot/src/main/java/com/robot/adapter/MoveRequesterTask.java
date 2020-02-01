@@ -1,7 +1,7 @@
 package com.robot.adapter;
 
 import com.google.inject.assistedinject.Assisted;
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.SettingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class MoveRequesterTask {
     @Inject
     public MoveRequesterTask(@Nonnull @Assisted ActionListener actionListener) {
         this.actionListener = requireNonNull(actionListener, "actionListener is null");
-        setRequestInterval(SettingUtils.getInt("handshake.interval", "adapter", requestInterval));
+        setRequestInterval(SettingUtil.getInt("handshake.interval", "adapter", requestInterval));
     }
 
     public void enable() {

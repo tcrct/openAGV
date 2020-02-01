@@ -1,18 +1,22 @@
 package com.robot.adapter;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.assistedinject.Assisted;
+import com.robot.adapter.enumes.LoadAction;
+import com.robot.adapter.enumes.LoadState;
 import com.robot.adapter.model.RobotProcessModel;
+import com.robot.adapter.model.RobotStateModel;
 import com.robot.adapter.model.RobotVehicleModelTO;
-import com.robot.config.AgvConfiguration;
-import com.robot.config.LoadAction;
-import com.robot.config.LoadState;
+import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.ITelegram;
 import com.robot.mvc.core.telegram.ITelegramSender;
-import com.robot.mvc.utils.AgvKit;
+import com.robot.mvc.utils.RobotUtil;
+import com.robot.mvc.utils.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
@@ -20,7 +24,6 @@ import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
-import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.util.ExplainedBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +47,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class RobotCommAdapter
         extends BasicVehicleCommAdapter
-        implements ConnectionEventListener<ITelegram>,ITelegramSender {
+        implements ConnectionEventListener<RobotStateModel>, ITelegramSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(RobotCommAdapter.class);
 
@@ -55,7 +58,7 @@ public class RobotCommAdapter
     /**适配器组件工厂*/
     private AdapterComponentsFactory componentsFactory;
     /**配置文件类*/
-    private AgvConfiguration configuration;
+    private RobotConfiguration configuration;
     /**车辆*/
     private Vehicle vehicle;
     /**移动命令监听器*/
@@ -63,7 +66,7 @@ public class RobotCommAdapter
     /**移动请求任务定时器，一车辆实例一次*/
     private MoveRequesterTask moveRequesterTask;
     /**移动命令队列*/
-    private Queue<MovementCommand> movementCommandQueue = new LinkedBlockingQueue<>();
+    private Queue<MovementCommand> movementCommandQueue;
     /**车辆网络连接管理器*/
     private IChannelManager<IRequest, IResponse> vehicleChannelManager;
     /**运行方式，以服务器方式运行还是客户端方式链接车辆*/
@@ -72,7 +75,7 @@ public class RobotCommAdapter
     @Inject
     public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
                             TCSObjectService tcsObjectService,
-                            AgvConfiguration configuration,
+                            RobotConfiguration configuration,
                             @Assisted Vehicle vehicle,
                             @KernelExecutor ExecutorService kernelExecutor) {
         super(new RobotProcessModel(vehicle),
@@ -85,6 +88,8 @@ public class RobotCommAdapter
         this.configuration = requireNonNull(configuration, "configuration");
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.kernelExecutor = requireNonNull(kernelExecutor, "kernelExecutor");
+        /**移动命令队列*/
+        this.movementCommandQueue = new LinkedBlockingQueue<>();
     }
 
     /**
@@ -92,6 +97,11 @@ public class RobotCommAdapter
      */
     @Override
     public void initialize() {
+        if (isInitialized()) {
+            LOG.info("车辆[{}]已初始化通讯管理器，请勿重复初始化", getName());
+            return;
+        }
+        runType = RobotUtil.getRunType();
         //每一个车辆一个定时监听器
         moveCommandListener = new MoveCommandListener(this);
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
@@ -103,7 +113,7 @@ public class RobotCommAdapter
             }
         }
         super.initialize();
-        LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
+        LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType);
     }
 
     @Override
@@ -111,13 +121,6 @@ public class RobotCommAdapter
         if (isEnabled()) {
             LOG.info("车辆[{}]已开启通讯管理器，请勿重复开启", getName());
             return;
-        }
-
-        // 如果是以客户端的方式来启动，则在开启车辆时完成链接，RXTX方式除外
-        if ("client".equalsIgnoreCase(runType)) {
-            String host = AgvKit.getHost(getName());
-            int port = AgvKit.getPort(getName());
-
         }
         super.enable();
     }
@@ -127,15 +130,8 @@ public class RobotCommAdapter
     }
 
     /**
-     * 创建适配器面板
-     * @return
+     * 连接车辆，在BasicVehicleCommAdapter里enable方法下调用
      */
-    @Override
-    protected List<VehicleCommAdapterPanel> createAdapterPanels() {
-        return null;
-    }
-
-    /**连接车辆*/
     @Override
     protected void connectVehicle() {
         if (null == vehicleChannelManager) {
@@ -143,8 +139,8 @@ public class RobotCommAdapter
             return;
         }
         // 根据车辆设置的host与port，连接车辆
-        String host = AgvKit.getHost(getName());
-        int port = AgvKit.getPort(getName());
+        String host = RobotUtil.getHost(getName());
+        int port = RobotUtil.getPort(getName());
         try {
             vehicleChannelManager.connect(host, port);
             LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
@@ -160,8 +156,13 @@ public class RobotCommAdapter
             LOG.warn("车辆[{}]通讯渠道管理器不存在.", getName());
             return;
         }
-
         vehicleChannelManager.disconnect();
+        // 清除与该车辆相关的参数
+        getSentQueue().clear();
+        getCommandQueue().clear();
+        vehicleChannelManager = null;
+        moveCommandListener = null;
+        moveRequesterTask.disable();
     }
 
     /**判断车辆是否已经连接*/
@@ -188,13 +189,14 @@ public class RobotCommAdapter
             reason = "车辆可能没有连接";
         }
 
+        String vehicleStateName = getProcessModel().getVehicleState().name();
         if(canProcess &&
-                LoadState.UNKNOWN.name().equalsIgnoreCase(getProcessModel().getVehicleState().name())) {
+                LoadState.UNKNOWN.name().equalsIgnoreCase(vehicleStateName)) {
             canProcess = false;
             reason = "车辆负载状态未知";
         }
 
-        boolean loaded = LoadState.FULL.name().equalsIgnoreCase(getProcessModel().getVehicleState().name());
+        boolean loaded = LoadState.FULL.name().equalsIgnoreCase(vehicleStateName);
         final Iterator<String> iterator = operations.iterator();
         while (canProcess && iterator.hasNext()) {
             final String nextOp = iterator.next();
@@ -263,18 +265,111 @@ public class RobotCommAdapter
     //*********************************ConnectionEventListener*************************************/
 
     /**
-     * 接收到报文信息
-     * @param telegram 电报对象
+     * 接收到报文信息，此次报文指令应是车辆上报卡号的指令协议
+     * 上报卡号后，opentcs也应该同步更新UI界面以显示车辆最新位置
+     *
+     * @param stateModel 状态对象
      */
     @Override
-    public void onIncomingTelegram(ITelegram telegram) {
-        requireNonNull(telegram, "response");
-
+    public void onIncomingTelegram(RobotStateModel stateModel) {
+        requireNonNull(stateModel, "stateModel");
+        boolean isReportPoint = RobotUtil.isReportPointCmd(stateModel.getCmdKey());
+        // 如果该协议对象不是上报上号的指令，则退出
+        if (!isReportPoint) {
+            return;
+        }
         // 车辆状态设置为不空闲
         getProcessModel().setVehicleIdle(false);
         // 如果是交通管制，此时的队列不为空，则需要将第一位的元素移除
         if (!movementCommandQueue.isEmpty()) {
             movementCommandQueue.remove();
+        }
+
+        // 根据上报的卡号，更新位置
+        getProcessModel().setVehiclePosition(stateModel.getCurrentPosition());
+        // 更新为最新状态
+        getProcessModel().setVehicleState(RobotUtil.translateVehicleState(stateModel.getOperatingState()));
+        //  检查移动订单是否完成
+        checkOrderFinished(stateModel);
+    }
+
+    private void checkOrderFinished(RobotStateModel stateModel) {
+        MovementCommand cmd = getSentQueue().peek();
+        String operation = cmd.getOperation();
+        // 不是NOP，是最后一条指令并且自定义动作组合里包含该动作名称
+        if (null != cmd &&
+                !cmd.isWithoutOperation() &&
+                cmd.isFinalMovement() &&
+                ToolsKit.isNotEmpty(operation)) {
+            // 如果动作指令操作未运行则可以运行
+            LOG.info("车辆[{}]在[{}]位置上的执行工站指令[{}]", getName(), cmd.getStep().getSourcePoint().getName(), operation);
+            executeLocationActions(cmd, getName(), operation);
+        } else {
+            LOG.info("车辆[{}]移动到点[{}]成功", getName(), cmd.getStep().getDestinationPoint().getName());
+            MovementCommand curCommand = getSentQueue().poll();
+            if (null != cmd && null != curCommand && cmd.equals(curCommand)) {
+                getProcessModel().commandExecuted(curCommand);
+            }
+        }
+    }
+
+    /**
+     * 执行工站动作指令
+     *
+     * @param cmd
+     * @param adapterName 通讯适配器名称
+     * @param operation   工站动作指令集名称
+     */
+    private void executeLocationActions(MovementCommand cmd, String adapterName, String operation) {
+        if (!RobotUtil.isContainActionsKey(operation)) {
+            throw new RobotException("调度系统没有发现指定的工站动作名称: " + operation + ", 请检查是否正确设置，工站名称须唯一且一致");
+        }
+        if (!isEnabled()) {
+            LOG.error("车辆[{}]通讯适配器没开启，请先开启！", adapterName);
+            return;
+        }
+        LOG.info("车辆[{}]开始执行自定义指令集合[{}]操作", adapterName, operation);
+        try {
+            //设置为执行状态
+            getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
+            // 设置为允许单步执行，即等待自定义命令执行完成或某一指令取消单步操作模式后，再发送移动车辆命令。
+            getProcessModel().setSingleStepModeEnabled(true);
+            // 线程执行自定义指令队列
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        IAction action = RobotUtil.getLocationAction(operation);
+                        if (ToolsKit.isNotEmpty(action)) {
+                            action.execute();
+                        } else {
+                            LOG.info("根据[{}]查找不到对应的动作指令处理类", operation);
+                        }
+                    } catch (Exception e) {
+                        LOG.error("执行自定义动作组合指令时出错: " + e.getMessage(), e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+    /***
+     * BaseActios执行指令集完成后，调用该方法，执行下一个订单
+     */
+    public void executeNextMoveCmd() {
+        LOG.info("成功执行工站指令集，检查是否有下一订单，如有则继续执行");
+        RobotProcessModel processModel = getProcessModel();
+        //车辆设置为空闲状态，执行下一个移动指令
+        getProcessModel().setVehicleState(Vehicle.State.IDLE);
+        // 取消单步执行状态
+        getProcessModel().setSingleStepModeEnabled(false);
+        // 移除移动命令
+        MovementCommand cmd = getSentQueue().poll();
+        // 如果不为空且是最终移动命令，则执行下一个订单
+        if (null != cmd && cmd.isFinalMovement()) {
+            processModel.commandExecuted(cmd);
         }
     }
 
@@ -296,7 +391,7 @@ public class RobotCommAdapter
         }
         getProcessModel().setCommAdapterConnected(false);
         if (isEnabled() && getProcessModel().isReconnectingOnConnectionLoss()) {
-            vehicleChannelManager.scheduleConnect(AgvKit.getHost(getName()), AgvKit.getPort(getName()), getProcessModel().getReconnectDelay());
+            vehicleChannelManager.scheduleConnect(RobotUtil.getHost(getName()), RobotUtil.getPort(getName()), getProcessModel().getReconnectDelay());
         }
     }
 
@@ -308,7 +403,7 @@ public class RobotCommAdapter
         getProcessModel().setVehicleIdle(true);
         getProcessModel().setVehicleState(Vehicle.State.UNKNOWN);
         if (isEnabled() && getProcessModel().isReconnectingOnConnectionLoss()) {
-            vehicleChannelManager.scheduleConnect(AgvKit.getHost(getName()), AgvKit.getPort(getName()), getProcessModel().getReconnectDelay());
+            vehicleChannelManager.scheduleConnect(RobotUtil.getHost(getName()), RobotUtil.getPort(getName()), getProcessModel().getReconnectDelay());
         }
     }
 
@@ -317,7 +412,7 @@ public class RobotCommAdapter
     public void onIdle() {
         LOG.debug("车辆[{}]空闲", getName());
         getProcessModel().setVehicleIdle(true);
-        // 如果支持重连则的车辆空间时断开连接
+        // 如果支持重连则的车辆空闲时断开连接
         if (isEnabled() && getProcessModel().isDisconnectingOnVehicleIdle()) {
             LOG.debug("车辆[{}]开启了空闲时断开连接", getName());
             disconnectVehicle();

@@ -4,6 +4,7 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
+import com.robot.contrib.netty.udp.UdpServerManager;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by laotang on 2020/1/20.
@@ -25,6 +28,17 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
 
     private RobotCommAdapter commAdapter;
     private RxtxServerChannelManager channelManager;
+    private static RxtxServerManager rxtxServerManager;
+    private static Lock lock = new ReentrantLock();
+
+    public static RxtxServerManager duang(RobotCommAdapter commAdapter) {
+        synchronized (lock) {
+            if (null == rxtxServerManager) {
+                rxtxServerManager = new RxtxServerManager(commAdapter);
+            }
+            return rxtxServerManager;
+        }
+    }
 
     public RxtxServerManager(RobotCommAdapter adapter) {
         this.commAdapter = adapter;
@@ -50,7 +64,9 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     @Override
     public void connect(String serialport, int baudrate) {
         try {
-            channelManager.connect(serialport, baudrate);
+            if (!isConnected()) {
+                channelManager.connect(serialport, baudrate);
+            }
         } catch (Exception e) {
             throw new RobotException("串口链接时出现异常: " + e.getMessage(), e);
         }

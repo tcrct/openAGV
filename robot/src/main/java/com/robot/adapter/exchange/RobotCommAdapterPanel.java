@@ -4,7 +4,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.robot.adapter.enumes.Attribute;
 import com.robot.adapter.model.RobotVehicleModelTO;
 import com.robot.commands.*;
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.SettingUtil;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.customizations.ServiceCallWrapper;
 import org.opentcs.data.TCSObjectReference;
@@ -335,7 +335,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
         connectionPanel.setLayout(new java.awt.GridBagLayout());
 
 //        chkBoxEnable.setText(BUNDLE.getString("loopbackCommAdapterPanel.checkBox_enableAdapter.text")); // NOI18N
-        chkBoxEnable.setText(SettingUtils.getString("name", "adapter", "robot")); // NOI18N
+        chkBoxEnable.setText(SettingUtil.getString("name", "adapter", "robot")); // NOI18N
         chkBoxEnable.setName("chkBoxEnable"); // NOI18N
 //        chkBoxEnable.setEnabled(false);
         chkBoxEnable.addActionListener(new java.awt.event.ActionListener() {
@@ -748,7 +748,7 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
 
         // TODO 标签页名称
 //        getAccessibleContext().setAccessibleName(bundle.getString("loopbackCommAdapterPanel.accessibleName")); // NOI18N
-        getAccessibleContext().setAccessibleName(SettingUtils.getString("label.name", "adapter", "robot options")); // NOI18N
+        getAccessibleContext().setAccessibleName(SettingUtil.getString("label.name", "adapter", "robot options")); // NOI18N
     }
 
     private javax.swing.JPanel PropsPowerInnerContainerPanel;

@@ -31,7 +31,7 @@ public class RouteHelper {
      */
     private static Map<String, Route> SERVICE_ROUTE_MAP = new HashMap<>();
     /**
-     * Action类Map集合，key为设备ID标识符
+     * Action类Map集合，key为动作指令集标识符
      */
     private static Map<String, Route> ACTION_ROUTE_MAP = new HashMap<>();
 

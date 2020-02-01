@@ -5,7 +5,7 @@ import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.SettingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class RobotContext {
     /**是否需要进行握手回复*/
     public static boolean isAnswer() {
         if (null == isAnswer) {
-            isAnswer = SettingUtils.getBoolean("answer", true);
+            isAnswer = SettingUtil.getBoolean("answer", true);
         }
         return isAnswer;
     }

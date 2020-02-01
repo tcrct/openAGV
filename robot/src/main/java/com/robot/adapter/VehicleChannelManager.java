@@ -2,14 +2,14 @@ package com.robot.adapter;
 
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.NetChannelType;
+import com.robot.contrib.netty.comm.RunType;
 import com.robot.contrib.netty.rxtx.RxtxServerManager;
 import com.robot.contrib.netty.tcp.TcpClientManager;
 import com.robot.contrib.netty.tcp.TcpServerManager;
 import com.robot.contrib.netty.udp.UdpClientManager;
 import com.robot.contrib.netty.udp.UdpServerManager;
 import com.robot.mvc.core.exceptions.RobotException;
-import com.robot.mvc.utils.AgvKit;
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.RobotUtil;
 
 /**
  * 车辆网络管理器
@@ -24,11 +24,11 @@ public class VehicleChannelManager {
      */
     public static IChannelManager getChannelManager(RobotCommAdapter adapter) {
         // 如果是以服务器方式启动，则在初始化时完成
-        String runType = SettingUtils.getString("run.type", "server");
-        NetChannelType channelType = AgvKit.getNetChannelType();
-        if ("server".equalsIgnoreCase(runType)) {
+        String runType = RobotUtil.getRunType();
+        NetChannelType channelType = RobotUtil.getNetChannelType();
+        if (RunType.SERVER.name().equalsIgnoreCase(runType)) {
             return getServerChannelManager(adapter, channelType);
-        } else if ("client".equalsIgnoreCase(runType)) {
+        } else if (RunType.CLIENT.name().equalsIgnoreCase(runType)) {
             return getClientChannelManager(adapter, channelType);
         } else {
             throw new RobotException("配置文件[run.type]参数值设置不正确，仅允许server/client两个选项");
@@ -42,14 +42,12 @@ public class VehicleChannelManager {
      * @return
      */
     private static IChannelManager getServerChannelManager(RobotCommAdapter adapter, NetChannelType channelType) {
-        String host = AgvKit.getServerHost();
-        int port = AgvKit.getServerPort();
         if (NetChannelType.TCP.equals(channelType)) {
-            return new TcpServerManager(adapter);
+            return TcpServerManager.duang(adapter);
         } else if (NetChannelType.UDP.equals(channelType)) {
-            return new UdpServerManager(adapter);
+            return UdpServerManager.duang(adapter);
         } else if (NetChannelType.RXTX.equals(channelType)) {
-            return new RxtxServerManager(adapter);
+            return RxtxServerManager.duang(adapter);
         }
         return null;
     }

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class SettingUtils {
+public class SettingUtil {
 
     private static final String SETTING_FILE_NAME = "app.setting";
 

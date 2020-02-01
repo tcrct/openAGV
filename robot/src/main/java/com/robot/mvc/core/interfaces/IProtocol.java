@@ -23,4 +23,11 @@ public interface IProtocol {
      */
     String getCode();
 
+    /**
+     * 取参数内容
+     *
+     * @return
+     */
+    String getParams();
+
 }

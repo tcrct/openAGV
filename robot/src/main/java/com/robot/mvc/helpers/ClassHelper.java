@@ -3,7 +3,7 @@ package com.robot.mvc.helpers;
 import cn.hutool.core.lang.Filter;
 import cn.hutool.core.util.ClassUtil;
 import com.robot.mvc.core.enums.AnnotationType;
-import com.robot.mvc.utils.SettingUtils;
+import com.robot.mvc.utils.SettingUtil;
 import com.robot.mvc.utils.ToolsKit;
 
 import java.util.*;
@@ -35,7 +35,7 @@ public class ClassHelper {
     }
 
     private ClassHelper() {
-        String packageName = SettingUtils.getString("package.name");
+        String packageName = SettingUtil.getString("package.name");
         Set<Class<?>> classSet = ClassUtil.scanPackage(packageName, new Filter<Class<?>>() {
             @Override
             public boolean accept(Class<?> aClass) {

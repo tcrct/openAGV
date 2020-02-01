@@ -2,7 +2,7 @@ package com.robot.contrib.netty.udp;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.robot.adapter.RobotCommAdapter;
-import com.robot.mvc.utils.AgvKit;
+import com.robot.mvc.utils.RobotUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -193,7 +193,7 @@ public class UdpClientChannelManager<O, I> {
             throw new IllegalArgumentException("广播的报文内容不能为空");
         }
 
-        InetSocketAddress address = new InetSocketAddress(AgvKit.getServerHost(), AgvKit.getServerPort());
+        InetSocketAddress address = new InetSocketAddress(RobotUtil.getServerHost(), RobotUtil.getServerPort());
         String telegramStr = telegram.toString();
         LOG.info("send upd client [{}][{}], telegram [{}] ",
                 adapter.getProcessModel().getName(),

@@ -47,9 +47,10 @@ public class MoveCommandListener implements ActionListener {
             DispatchFactory.dispatch(new MoveRequest(adapter, new ArrayList<>(commandQueue)));
         } catch (Exception ex) {
             throw new RobotException("创建移动协议指令时出错: " + ex.getMessage(), ex);
+        } finally {
+            // 发送开关，已经发送设置为false，防止重复执行
+            isNeetSend = false;
         }
-        // 发送开关，已经发送设置为false，防止重复执行
-        isNeetSend = false;
     }
 
     /**

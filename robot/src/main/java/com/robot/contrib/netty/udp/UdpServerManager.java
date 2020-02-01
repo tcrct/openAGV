@@ -7,11 +7,14 @@ import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.channel.ChannelHandler;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * UPD Server Manager
@@ -20,9 +23,19 @@ public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
 
     private RobotCommAdapter adapter;
     private UdpServerChannelManager channelManager;
+    private static UdpServerManager udpServerManager;
+    private static Lock lock = new ReentrantLock();
 
+    public static UdpServerManager duang(RobotCommAdapter commAdapter) {
+        synchronized (lock) {
+            if (null == udpServerManager) {
+                udpServerManager = new UdpServerManager(commAdapter);
+            }
+            return udpServerManager;
+        }
+    }
 
-    public UdpServerManager(RobotCommAdapter commAdapter) {
+    private UdpServerManager(RobotCommAdapter commAdapter) {
         adapter = commAdapter;
 
         channelManager = new UdpServerChannelManager(commAdapter,
@@ -57,7 +70,9 @@ public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
     @Override
     public void connect(String host, int port) {
         try {
-            channelManager.connect(host, port);
+            if (!isConnected()) {
+                channelManager.connect(host, port);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
