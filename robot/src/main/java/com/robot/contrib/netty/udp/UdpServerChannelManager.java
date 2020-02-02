@@ -85,6 +85,7 @@ public class UdpServerChannelManager<O, I> {
             }
         });
         initialized = true;
+        LOG.warn("UdpServerChannelManager initialized is {}", isInitialized());
     }
 
     public boolean isInitialized() {
@@ -97,18 +98,18 @@ public class UdpServerChannelManager<O, I> {
 
     public void connect(String host, int port) throws InterruptedException {
         requireNonNull(host, "host");
-        checkState(isInitialized(), "Not initialized");
-        if (isConnected()) {
-            LOG.debug("Already connected, doing nothing.");
-            return;
+        if (!isInitialized()) {
+            throw new InterruptedException("Not initialized");
         }
-        LOG.warn("Initiating connection attempt to {}:{}...", host, port);
+        if (isConnected()) {
+            throw new InterruptedException("Already connected, doing nothing.");
+        }
         channelFuture = bootstrap.bind(host, port).sync();
         channelFuture.addListener((ChannelFuture future) -> {
             if (future.isSuccess()) {
                 this.initialized = true;
-                adapter.onConnect();
                 LOG.warn("UdpServerChannelManager connect is success:  {}:{}", host, port);
+                adapter.onConnect();
             }
             else {
                 adapter.onFailedConnectionAttempt();
@@ -119,7 +120,7 @@ public class UdpServerChannelManager<O, I> {
     } 
 
     public void disconnect() {
-        if (!this.initialized) {
+        if (!isInitialized()) {
             LOG.warn("UdpServerChannelManager is not initalized!");
             return;
         }

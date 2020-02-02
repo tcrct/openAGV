@@ -1,6 +1,8 @@
 package com.robot.config;
 
+import com.robot.RobotContext;
 import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IPlugin;
 import com.robot.mvc.helpers.ClassHelper;
@@ -27,7 +29,7 @@ import java.util.List;
  */
 public class Application {
 
-    private final static Logger logger = LoggerFactory.getLogger(Application.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Application.class);
 
     /**
      * 在执行Controller前的处理器链
@@ -66,6 +68,11 @@ public class Application {
         return this;
     }
 
+    public Application components(IComponents components) {
+        RobotContext.setRobotComponents(components);
+        return this;
+    }
+
     public void run() {
         try {
             // 扫描类
@@ -79,7 +86,8 @@ public class Application {
             // 启动OpenTCS
             startOpenTcs();
         } catch (Exception e) {
-            throw new RobotException(e.getMessage(), e);
+            LOG.error("启动时发生异常: {}，程序退出！", e.getMessage());
+            System.exit(1);
         }
     }
 
@@ -90,16 +98,16 @@ public class Application {
 
         // 启动内核
         RunKernel.main(null);
-        logger.warn("启动内核完成");
+        LOG.warn("启动内核完成");
 
         // 启动内核心控制中心
         RunKernelControlCenter.main(null);
-        logger.warn("启动内核心控制中心完成");
+        LOG.warn("启动内核心控制中心完成");
 
 
         // 启动工厂概述控制中心
         RunPlantOverview.main(null);
-        logger.warn("启动工厂概述控制中心完成");
+        LOG.warn("启动工厂概述控制中心完成");
 
     }
 }

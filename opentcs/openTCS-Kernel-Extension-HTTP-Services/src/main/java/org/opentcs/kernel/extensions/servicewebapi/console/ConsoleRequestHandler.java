@@ -41,8 +41,8 @@ public class ConsoleRequestHandler
      */
     private boolean initialized;
 
-    // 实际处理的Controller
-    private static final String CONTROLLER_CLASS_NAME = "com.robot.service.console.ConsoleController";
+    // TODO 需要更改为按类实际处理的Controller
+    private static final String CONTROLLER_CLASS_NAME = "com.makerwit.agv4j.controller.ConsoleController";
 
     private Class consoleControllerClass;
     private Object consoleControllerObj;

@@ -13,6 +13,7 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.telegram.BaseResponse;
 import com.robot.mvc.core.telegram.ITelegram;
 import com.robot.mvc.core.telegram.ITelegramSender;
 import com.robot.mvc.utils.RobotUtil;
@@ -61,7 +62,9 @@ public class RobotCommAdapter
     private RobotConfiguration configuration;
     /**车辆*/
     private Vehicle vehicle;
-    /**移动命令监听器*/
+    /**
+     * 移动命令定时发送监听器
+     */
     private MoveCommandListener moveCommandListener;
     /**移动请求任务定时器，一车辆实例一次*/
     private MoveRequesterTask moveRequesterTask;
@@ -102,9 +105,10 @@ public class RobotCommAdapter
             return;
         }
         runType = RobotUtil.getRunType();
-        //每一个车辆一个定时监听器
+        //每一个车辆启动一个定时监听器
         moveCommandListener = new MoveCommandListener(this);
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
+        moveRequesterTask.enable(getName());
         // 初始化车辆渠道管理器
         if (null == vehicleChannelManager) {
             vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
@@ -113,16 +117,20 @@ public class RobotCommAdapter
             }
         }
         super.initialize();
-        LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType);
+        LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType.toLowerCase());
     }
 
+    /**
+     * 开启通讯适配器
+     */
     @Override
     public synchronized void enable() {
         if (isEnabled()) {
-            LOG.info("车辆[{}]已开启通讯管理器，请勿重复开启", getName());
+            LOG.info("车辆[{}]已开启通讯适配器，请勿重复开启", getName());
             return;
         }
         super.enable();
+        LOG.info("成功开启车辆[{}]通讯适配器", getName());
     }
 
     public synchronized void trigger() {
@@ -162,7 +170,8 @@ public class RobotCommAdapter
         getCommandQueue().clear();
         vehicleChannelManager = null;
         moveCommandListener = null;
-        moveRequesterTask.disable();
+        moveRequesterTask.disable(getName());
+        LOG.info("成功断开车辆[{}]通讯适配器", getName());
     }
 
     /**判断车辆是否已经连接*/
@@ -281,18 +290,25 @@ public class RobotCommAdapter
         // 车辆状态设置为不空闲
         getProcessModel().setVehicleIdle(false);
         // 如果是交通管制，此时的队列不为空，则需要将第一位的元素移除
-        if (!movementCommandQueue.isEmpty()) {
-            movementCommandQueue.remove();
+        if (!getMovementCommandQueue().isEmpty()) {
+            getMovementCommandQueue().remove();
         }
-
-        // 根据上报的卡号，更新位置
-        getProcessModel().setVehiclePosition(stateModel.getCurrentPosition());
-        // 更新为最新状态
-        getProcessModel().setVehicleState(RobotUtil.translateVehicleState(stateModel.getOperatingState()));
-        //  检查移动订单是否完成
-        checkOrderFinished(stateModel);
+        try {
+            // 根据上报的卡号，更新位置
+            getProcessModel().setVehiclePosition(stateModel.getCurrentPosition());
+            // 更新为最新状态
+            getProcessModel().setVehicleState(RobotUtil.translateVehicleState(stateModel.getOperatingState()));
+            //  检查移动订单是否完成
+            checkOrderFinished(stateModel);
+        } catch (Exception e) {
+            LOG.error("vehicle[" + getName() + "] adapter onIncomingTelegram is exception: " + e.getMessage(), e);
+        }
     }
 
+    /**
+     * 检查移动订单是否完成
+     * @param stateModel
+     */
     private void checkOrderFinished(RobotStateModel stateModel) {
         MovementCommand cmd = getSentQueue().peek();
         String operation = cmd.getOperation();
@@ -302,7 +318,7 @@ public class RobotCommAdapter
                 cmd.isFinalMovement() &&
                 ToolsKit.isNotEmpty(operation)) {
             // 如果动作指令操作未运行则可以运行
-            LOG.info("车辆[{}]在[{}]位置上的执行工站指令[{}]", getName(), cmd.getStep().getSourcePoint().getName(), operation);
+            LOG.info("车辆[{}]在[{}]位置上准备执行工站[{}]指令集", getName(), cmd.getStep().getSourcePoint().getName(), operation);
             executeLocationActions(cmd, getName(), operation);
         } else {
             LOG.info("车辆[{}]移动到点[{}]成功", getName(), cmd.getStep().getDestinationPoint().getName());
@@ -321,6 +337,11 @@ public class RobotCommAdapter
      * @param operation   工站动作指令集名称
      */
     private void executeLocationActions(MovementCommand cmd, String adapterName, String operation) {
+
+        if (null == cmd && !operation.equalsIgnoreCase(cmd.getOperation())) {
+            throw new RobotException("车辆[" + adapterName + "]通讯适配器移动命令为null或工站指令集名称[" + operation + "!=" + cmd.getOperation() + "]" );
+        }
+
         if (!RobotUtil.isContainActionsKey(operation)) {
             throw new RobotException("调度系统没有发现指定的工站动作名称: " + operation + ", 请检查是否正确设置，工站名称须唯一且一致");
         }
@@ -341,6 +362,7 @@ public class RobotCommAdapter
                     try {
                         IAction action = RobotUtil.getLocationAction(operation);
                         if (ToolsKit.isNotEmpty(action)) {
+                            // 调用BaseActions里execute方法
                             action.execute();
                         } else {
                             LOG.info("根据[{}]查找不到对应的动作指令处理类", operation);
@@ -447,8 +469,8 @@ public class RobotCommAdapter
      * @param telegram 电报对象
      */
     @Override
-    public void sendTelegram(ITelegram telegram) {
-
+    public void sendTelegram(IResponse response) {
+        vehicleChannelManager.send(response);
     }
 
 

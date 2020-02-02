@@ -2,6 +2,7 @@ package com.robot;
 
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.NetChannelType;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
@@ -61,6 +62,9 @@ public class RobotContext {
      * @return 第三方组件实例接口
      */
     public static IComponents getRobotComponents() {
+        if (null == components) {
+            throw new RobotException("第三方组件IComponents接口对象不能为null，请先实现并且在Duang.java里实现components方法");
+        }
         return components;
     }
 
@@ -84,18 +88,6 @@ public class RobotContext {
     /**缓存RequestKit发出的请求，等待响应回复，key为crc验证码*/
     public static Map<String, LinkedBlockingQueue<IProtocol>> getResponseProtocolMap() {
         return RESPONSE_PROTOCOL_MAP;
-    }
-
-    /**
-     * 设置通讯类型
-     */
-    private static NetChannelType CHANNEL_TYPE = null;
-    public  static void setNetChannelType(NetChannelType channelType) {
-        LOG.info("OpenAgv车辆适配器的网络渠道类型为: {}", channelType);
-        CHANNEL_TYPE = channelType;
-    }
-    public static NetChannelType getNetChannelType() {
-        return CHANNEL_TYPE;
     }
 }
 

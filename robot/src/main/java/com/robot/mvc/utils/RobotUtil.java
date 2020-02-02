@@ -1,5 +1,7 @@
 package com.robot.mvc.utils;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.robot.RobotContext;
 import com.robot.adapter.enumes.OperatingState;
 import com.robot.contrib.netty.comm.NetChannelType;
@@ -16,17 +18,21 @@ import java.util.List;
  */
 public class RobotUtil {
 
+    private static final Log LOG = LogFactory.get();
+
     /**
      * 取网络渠道类型，分别为TCP/UDP/RXTX
      *
      * @return
      */
     public static NetChannelType getNetChannelType() {
-        NetChannelType type = RobotContext.getNetChannelType();
-        if (ToolsKit.isEmpty(type)) {
-            type = NetChannelType.UDP;
+        String typeString = SettingUtil.getString("net.channel.type", "UDP");
+        try {
+            return NetChannelType.valueOf(typeString.toUpperCase());
+        } catch (Exception e) {
+            LOG.error("根据{}取网络渠道类型时出错:{}, 返回 UDP 模式", typeString, e.getMessage());
+            return NetChannelType.UDP;
         }
-        return type;
     }
 
     /***

@@ -12,9 +12,9 @@ import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
 /**
- * A command to trigger the comm adapter in single step mode.
+ * 在单步模式下触发通信适配器的命令
  *
- * @author Martin Grzenia (Fraunhofer IML)
+ * @author Laotang
  */
 public class TriggerCommand
         implements AdapterCommand {

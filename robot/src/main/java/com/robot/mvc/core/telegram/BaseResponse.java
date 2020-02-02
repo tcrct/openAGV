@@ -1,6 +1,8 @@
 package com.robot.mvc.core.telegram;
 
 import cn.hutool.http.HttpStatus;
+import com.robot.RobotContext;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -10,11 +12,19 @@ import com.robot.mvc.core.interfaces.IResponse;
  */
 public class BaseResponse implements IResponse {
 
+    /**
+     * 响应对象ID，与请求ID一致
+     */
     private String id;
+    /**响应状态，值等于200时，为正常响应*/
     private int status;
+    /**车辆或设备ID*/
     private String deviceId;
+    /**响应指令，应与请求指令一致*/
     private String cmdKey;
+    /**处理请求过程抛出的异常*/
     private Exception exception;
+    /**握手验证码，在重发机制下，用于验证车辆或设备的应答回复，确保指令发送成功*/
     private String handshakeCode;
     /**
      * 协议原文字符串
@@ -60,9 +70,19 @@ public class BaseResponse implements IResponse {
         return cmdKey;
     }
 
+    /**
+     * 业务逻辑处理完成后，将返回对象写入到响应对象
+     * @param message
+     */
     @Override
     public void write(Object message) {
-
+        if (message instanceof String) {
+            setRawContent(String.valueOf(message));
+        } else if (message instanceof IProtocol) {
+            setRawContent(RobotContext.getRobotComponents().getProtocolMatcher().decode((IProtocol) message));
+        } else {
+            throw new RobotException("返回一个不支持的类型: " + message.getClass());
+        }
     }
 
     /**设置异常信息*/

@@ -3,6 +3,7 @@ package com.robot.adapter.guiceconfig;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.robot.adapter.exchange.RobotCommAdapterPanel;
 import com.robot.adapter.exchange.RobotCommAdapterPanelFactory;
+import com.robot.adapter.exchange.RobotPanelComponentsFactory;
 import org.opentcs.customizations.controlcenter.ControlCenterInjectionModule;
 
 /**
@@ -15,7 +16,7 @@ public class RobotControlCenterInjectionModule
 
     @Override
     protected void configure() {
-        install(new FactoryModuleBuilder().build(RobotCommAdapterPanel.class));
+        install(new FactoryModuleBuilder().build(RobotPanelComponentsFactory.class));
 
         commAdapterPanelFactoryBinder().addBinding().to(RobotCommAdapterPanelFactory.class);
     }

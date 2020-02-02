@@ -26,7 +26,7 @@ public class MoveRequesterTask {
     /**执行移动命令的计时器*/
     private Timer moveRequestTimer;
     /**执行时间间隔，毫秒作单位*/
-    private int requestInterval = 2000;
+    private int requestInterval = 1000;
 
     /**
      * 构造方法
@@ -36,25 +36,28 @@ public class MoveRequesterTask {
     @Inject
     public MoveRequesterTask(@Nonnull @Assisted ActionListener actionListener) {
         this.actionListener = requireNonNull(actionListener, "actionListener is null");
-        setRequestInterval(SettingUtil.getInt("handshake.interval", "adapter", requestInterval));
+        setRequestInterval(SettingUtil.getInt("move.interval", "adapter", requestInterval));
     }
 
-    public void enable() {
+    public void enable(String vehicleName) {
         if (moveRequestTimer != null) {
             return;
         }
-        LOG.info("启动定时执行移动命令任务");
         moveRequestTimer = new Timer(requestInterval, actionListener);
         moveRequestTimer.start();
+        LOG.info("启动车辆通讯适配器[{}]的移动指令定时任务[{}]成功！", vehicleName, actionListener.hashCode());
     }
 
-    public void disable() {
+    /**
+     *
+     */
+    public void disable(String vehicleName) {
         if (moveRequestTimer == null) {
             return;
         }
-        LOG.info("停止定时执行移动命令任务");
         moveRequestTimer.stop();
         moveRequestTimer = null;
+        LOG.info("停止车辆通讯适配器[{}]的移动指令定时任务[{}]成功！", vehicleName, actionListener.hashCode());
     }
 
     /**

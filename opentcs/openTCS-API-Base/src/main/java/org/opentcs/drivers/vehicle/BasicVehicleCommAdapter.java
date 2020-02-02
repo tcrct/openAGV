@@ -173,6 +173,7 @@ public abstract class BasicVehicleCommAdapter
       return;
     }
     connectVehicle();
+    // 开启移动命令调度任务线程
     commandDispatcherTask = new CommandDispatcherTask();
     Thread commandDispatcherThread = new Thread(commandDispatcherTask,
                                                 getName() + "-commandDispatcher");

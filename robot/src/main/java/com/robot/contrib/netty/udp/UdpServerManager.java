@@ -7,8 +7,9 @@ import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.channel.ChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -20,6 +21,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * UPD Server Manager
  */
 public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UdpServerManager.class);
 
     private RobotCommAdapter adapter;
     private UdpServerChannelManager channelManager;
@@ -74,6 +77,7 @@ public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
                 channelManager.connect(host, port);
             }
         } catch (Exception e) {
+            LOG.error("连接[{}:{}]时发生异常: {}", host, port, e.getMessage());
             e.printStackTrace();
         }
     }
@@ -99,7 +103,7 @@ public class UdpServerManager implements IChannelManager<IRequest, IResponse> {
     }
 
     @Override
-    public void send(IResponse telegram) {
-        channelManager.send(telegram.getRawContent());
+    public void send(IResponse response) {
+        channelManager.send(response.getRawContent());
     }
 }

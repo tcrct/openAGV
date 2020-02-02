@@ -78,8 +78,7 @@ public class ClassHelper {
     }
 
     public List<Class<?>> getControllerClassList() {
-//        return CLASS_MAP.get(AnnotationType.CONTROLLER_ANNOTATION.getName());
-        return null;
+        return CLASS_MAP.get(AnnotationType.CONTROLLER_ANNOTATION.getName());
     }
 
     public List<Class<?>> getActionClassList() {
@@ -87,8 +86,7 @@ public class ClassHelper {
     }
 
     public List<Class<?>> getEntityClassList() {
-//        return CLASS_MAP.get(AnnotationType.ENTITY_ANNOTATION.getName());
-        return null;
+        return CLASS_MAP.get(AnnotationType.ENTITY_ANNOTATION.getName());
     }
 
     public List<Class<?>> getJobClassList() {

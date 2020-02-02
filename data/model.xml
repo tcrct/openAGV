@@ -200,32 +200,32 @@
     <vehicle name="A001" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
         <property name="port" value="60000"/>
-        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <vehicle name="A002" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
-        <property name="port" value="60000"/>
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory"/>
+        <property name="port" value="60001"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <vehicle name="A006" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
-        <property name="port" value="60001"/>
-        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
+        <property name="port" value="60002"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <vehicle name="A009" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
-        <property name="port" value="60002"/>
-        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
+        <property name="port" value="60003"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <vehicle name="A010" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
-        <property name="port" value="60003"/>
-        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
+        <property name="port" value="60004"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <vehicle name="A033" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
-        <property name="port" value="60000"/>
-        <property name="tcs:preferredAdapterClass" value="com.openagv.opentcs.adapter.CommAdapterFactory"/>
+        <property name="port" value="60005"/>
+        <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
     </vehicle>
     <locationType name="InjectionMolding">
         <allowedOperation name="NOP"/>
@@ -802,5 +802,5 @@
             <property name="POSITION_Y" value="31750"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2019-12-18T08:15:36.962Z"/>
+    <property name="tcs:modelFileLastModified" value="2020-02-02T03:43:20.242Z"/>
 </model>
