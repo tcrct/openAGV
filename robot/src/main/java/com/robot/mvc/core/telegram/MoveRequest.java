@@ -29,6 +29,7 @@ public class MoveRequest extends BaseRequest {
      * @param commandList 移动队列集合
      */
     public MoveRequest(RobotCommAdapter adapter, List<MovementCommand> commandList) {
+        //移动请求的协议对象为null，也只有移动请求的协议对象为null
         super(ReqType.MOVE, null);
         super.adapter = adapter;
         this.movementCommandList = commandList;

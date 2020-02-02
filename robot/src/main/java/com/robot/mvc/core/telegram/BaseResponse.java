@@ -2,6 +2,7 @@ package com.robot.mvc.core.telegram;
 
 import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
+import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -33,14 +34,21 @@ public class BaseResponse implements IResponse {
 
     public BaseResponse(IRequest request) {
         request = java.util.Objects.requireNonNull(request, "请求对象不能为空");
-        IProtocol protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
+        IProtocol protocol = null;
+        // 不是移动请求，则需要验证协议对象是否为null
+        if (!ReqType.MOVE.equals(request.getReqType())) {
+            protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
+        }
         responseDefaultValue(request, protocol);
     }
 
     private void responseDefaultValue(IRequest request, IProtocol protocol) {
         this.id = request.getId();
-        this.deviceId = protocol.getDeviceId();
-        this.cmdKey = protocol.getCmdKey();
+        // 协议对象不为null
+        if (null != protocol) {
+            this.deviceId = protocol.getDeviceId();
+            this.cmdKey = protocol.getCmdKey();
+        }
         this.exception = null;
         setStatus(HttpStatus.HTTP_OK);
     }
