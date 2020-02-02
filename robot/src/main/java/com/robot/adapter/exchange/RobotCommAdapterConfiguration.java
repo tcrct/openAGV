@@ -1,8 +1,9 @@
 /**
  * Copyright (c) Fraunhofer IML
  */
-package com.robot.adapter;
+package com.robot.adapter.exchange;
 
+import com.robot.adapter.RobotCommAdapter;
 import org.opentcs.configuration.ConfigurationEntry;
 import org.opentcs.configuration.ConfigurationPrefix;
 

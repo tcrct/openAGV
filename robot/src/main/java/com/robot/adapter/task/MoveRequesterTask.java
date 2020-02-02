@@ -1,4 +1,4 @@
-package com.robot.adapter;
+package com.robot.adapter.task;
 
 import com.google.inject.assistedinject.Assisted;
 import com.robot.mvc.utils.SettingUtil;

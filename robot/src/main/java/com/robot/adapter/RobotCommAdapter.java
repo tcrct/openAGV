@@ -4,11 +4,15 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.assistedinject.Assisted;
 import com.robot.adapter.enumes.LoadAction;
 import com.robot.adapter.enumes.LoadState;
+import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.model.RobotProcessModel;
 import com.robot.adapter.model.RobotStateModel;
 import com.robot.adapter.model.RobotVehicleModelTO;
+import com.robot.adapter.task.MoveCommandListener;
+import com.robot.adapter.task.MoveRequesterTask;
 import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.comm.IChannelManager;
+import com.robot.contrib.netty.comm.VehicleChannelManager;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -103,6 +107,7 @@ public class RobotCommAdapter
             return;
         }
         super.initialize();
+        runType = RobotUtil.getRunType();
         LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType.toLowerCase());
     }
 
@@ -115,7 +120,6 @@ public class RobotCommAdapter
             LOG.info("车辆[{}]已开启通讯适配器，请勿重复开启", getName());
             return;
         }
-        runType = RobotUtil.getRunType();
         //每开启一个车辆就启动一个定时监听器
         moveCommandListener = new MoveCommandListener(this);
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
@@ -302,15 +306,25 @@ public class RobotCommAdapter
         getProcessModel().setVehicleIdle(false);
         // 当前位置
         String currentPosition = stateModel.getCurrentPosition();
-        /**
-         *每上报一个卡号，比较上报的卡号与队列中的第1位元素是否匹配，匹配则将第一位的元素移除，否则抛出异常，发送停车协议
-         * 匹配规则：比较上报的卡号与队列中的第一位是否相等
-         */
-        if (!getMovementCommandQueue().isEmpty()) {
-            // 比较卡号是否与队列中的第1位元素一致
-            getMovementCommandQueue().remove();
-        }
+
         try {
+            /**
+             *每上报一个卡号，比较上报的卡号与队列中的第1位元素是否匹配，匹配则将第一位的元素移除，否则抛出异常，发送停车协议
+             * 匹配规则：比较上报的卡号与队列中的第一位是否相等 ,如果不一致，则抛出异常，让业务逻辑代码作后续处理，例如立即停车
+             */
+            if (!getMovementCommandQueue().isEmpty()) {
+                // 比较卡号是否与队列中的第1位元素一致
+                MovementCommand command = getMovementCommandQueue().peek();
+                if (null != command) {
+                    String sourcePointName = command.getStep().getSourcePoint().getName();
+                    if (null != sourcePointName && sourcePointName.equals(currentPosition)) {
+                        getMovementCommandQueue().remove();
+                        LOG.info("车辆[{}]接收到的上报位置[{}]与车辆移动指令队列中的第1位元素一致，移除后继续执行操作!", getName(), currentPosition);
+                    } else {
+                        throw new RobotException("车辆[" + getName() + "]接收到的上报位置[" + currentPosition + "]与车辆移动指令队列中的第1位元素不一致，请检查！");
+                    }
+                }
+            }
             // 根据上报的卡号，更新位置
             getProcessModel().setVehiclePosition(currentPosition);
             // 更新为最新状态
@@ -319,6 +333,7 @@ public class RobotCommAdapter
             checkOrderFinished(stateModel);
         } catch (Exception e) {
             LOG.error("vehicle[" + getName() + "] adapter onIncomingTelegram is exception: " + e.getMessage(), e);
+            throw new RobotException(e.getMessage(), e);
         }
     }
 
@@ -469,15 +484,15 @@ public class RobotCommAdapter
     protected RobotVehicleModelTO createCustomTransferableProcessModel() {
         // 发送到其他软件（如控制中心或工厂概览）时，添加车辆的附加信息
         return new RobotVehicleModelTO()
-                .setSingleStepModeEnabled(getProcessModel().isSingleStepModeEnabled());
-//                .setLoadOperation(getProcessModel().getLoadOperation())
-//                .setMaxAcceleration(getProcessModel().getMaxAcceleration())
-//                .setMaxDeceleration(getProcessModel().getMaxDecceleration())
-//                .setMaxFwdVelocity(getProcessModel().getMaxFwdVelocity())
-//                .setMaxRevVelocity(getProcessModel().getMaxRevVelocity())
-//                .setOperatingTime(getProcessModel().getOperatingTime())
-//                .setUnloadOperation(getProcessModel().getUnloadOperation())
-//                .setVehiclePaused(getProcessModel().isVehiclePaused());
+                .setSingleStepModeEnabled(getProcessModel().isSingleStepModeEnabled())
+                .setLoadOperation(getProcessModel().getLoadOperation())
+                .setUnloadOperation(getProcessModel().getUnloadOperation())
+                .setMaxAcceleration(getProcessModel().getMaxAcceleration())
+                .setMaxDeceleration(getProcessModel().getMaxDecceleration())
+                .setMaxFwdVelocity(getProcessModel().getMaxFwdVelocity())
+                .setMaxRevVelocity(getProcessModel().getMaxRevVelocity())
+                .setOperatingTime(getProcessModel().getOperatingTime())
+                .setVehiclePaused(getProcessModel().isVehiclePaused());
     }
 
     //*********************************ITelegramSender*************************************/

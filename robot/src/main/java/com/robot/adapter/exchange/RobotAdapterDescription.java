@@ -9,8 +9,10 @@ import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
  * @author Laotang
  */
 public class RobotAdapterDescription extends VehicleCommAdapterDescription {
+
     @Override
     public String getDescription() {
         return SettingUtil.getString("name", "adapter", "robot");
     }
+
 }

@@ -5,7 +5,7 @@
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name="account" type="accountType" minOccurs="0"
-          maxOccurs="unbounded"/>
+                     maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -14,7 +14,7 @@
   <xsd:complexType name="accountType">
     <xsd:sequence>
       <xsd:element name="permission" type="permissionType" minOccurs="0"
-        maxOccurs="unbounded"/>
+                   maxOccurs="unbounded"/>
     </xsd:sequence>
     <xsd:attribute name="name" type="xsd:string" use="required"/>
     <xsd:attribute name="password" type="xsd:string" use="required"/>
@@ -25,4 +25,3 @@
     <xsd:attribute name="name" type="xsd:string" use="required"/>
   </xsd:complexType>
 </xsd:schema>
-

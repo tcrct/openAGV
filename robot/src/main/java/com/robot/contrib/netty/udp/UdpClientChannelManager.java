@@ -134,16 +134,15 @@ public class UdpClientChannelManager<O, I> {
 
     /**断开链接*/
     public void disconnect() {
-        if (!this.initialized) {
-            LOG.warn("UdpClientChannelManager没有执行初始化操作!");
+        if (!isConnected()) {
+            LOG.warn("UdpClientChannelManager没有链接!");
             return;
         }
         if (channelFuture != null) {
-            this.channelFuture.channel().close();
-            this.bootstrap.config().group().shutdownGracefully();
+            channelFuture.channel().disconnect();
+            channelFuture = null;
             this.initialized = false;
-            this.channelFuture = null;
-            LOG.warn("UdpClientChannelManager断开连接!");
+            LOG.warn("UdpClientChannelManager断开连接成功!");
         }
     }
 

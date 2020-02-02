@@ -1,8 +1,7 @@
 package com.robot.adapter.guiceconfig;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.robot.adapter.AdapterComponentsFactory;
-import com.robot.adapter.RobotCommAdapterConfiguration;
+import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.RobotCommAdapterFactory;
 import org.opentcs.customizations.kernel.KernelInjectionModule;
 import org.slf4j.Logger;
@@ -16,14 +15,14 @@ public class RoboteKernelInjectionModule
     @Override
     protected void configure() {
 
-        RobotCommAdapterConfiguration configuration
-                = getConfigBindingProvider().get(RobotCommAdapterConfiguration.PREFIX,
-                RobotCommAdapterConfiguration.class);
-
-        if (!configuration.enable()) {
-            LOG.error("######## 配置文件里没有开启Robot适配器 ########");
-            return;
-        }
+//        RobotCommAdapterConfiguration configuration
+//                = getConfigBindingProvider().get(RobotCommAdapterConfiguration.PREFIX,
+//                RobotCommAdapterConfiguration.class);
+//
+//        if (!configuration.enable()) {
+//            LOG.error("######## 配置文件里没有开启Robot适配器 ########");
+//            return;
+//        }
 
         install(new FactoryModuleBuilder().build(AdapterComponentsFactory.class));
         vehicleCommAdaptersBinder().addBinding().to(RobotCommAdapterFactory.class);

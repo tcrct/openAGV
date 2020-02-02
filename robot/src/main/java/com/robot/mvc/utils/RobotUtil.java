@@ -11,6 +11,7 @@ import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
 import org.opentcs.data.model.Vehicle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -166,11 +167,11 @@ public class RobotUtil {
      * @param cmdKey 指令关键字
      * @return
      */
+    private static List<String> REPORTPOINT_CMD_LIST = new ArrayList<>();
     public static boolean isReportPointCmd(String cmdKey) {
-        List<String> reportPointCmdList = SettingUtil.getStringList("vehicle.report.cmd");
-        if (reportPointCmdList.isEmpty()) {
-            return false;
+        if (REPORTPOINT_CMD_LIST.isEmpty()) {
+            REPORTPOINT_CMD_LIST.addAll(SettingUtil.getStringList("vehicle.report.cmd"));
         }
-        return reportPointCmdList.contains(cmdKey);
+        return REPORTPOINT_CMD_LIST.contains(cmdKey);
     }
 }

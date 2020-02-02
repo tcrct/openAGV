@@ -71,8 +71,18 @@ public class DispatchFactory {
                     return;
                 }
                 // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
-                RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(
-                        new RobotStateModel(currentPosition, protocol));
+                try {
+                    // 如果该协议对象是上报卡号的指令
+                    boolean isReportPoint = RobotUtil.isReportPointCmd(protocol.getCmdKey());
+                    if (isReportPoint) {
+                        RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(
+                                new RobotStateModel(currentPosition, protocol));
+                    }
+                } catch (RobotException re) {
+                    //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
+                    LOG.info(re.getMessage(), re);
+                    RobotContext.getRobotComponents().stopVehicle(protocol);
+                }
             }
         } catch (Exception e) {
             LOG.error("分发处理接收到的业务协议字符串时出错: {}, {}", e.getMessage(), e);

@@ -10,7 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>opentcs</module>
-        <module>makerwit</module>
         <module>robot</module>
     </modules>
 

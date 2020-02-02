@@ -82,13 +82,12 @@ public class RobotCommAdapterPanelFactory implements VehicleCommAdapterPanelFact
          * 必须先实现Adapter里的createCustomTransferableProcessModel方法，否则(processModel instanceof RobotVehicleModelTO)会返回false
          */
         if (!providesPanelsFor(description, processModel)) {
-            logger.warn("无法为具有'{}'适配器的'{}'提供面板.", description.getDescription(), processModel.getVehicleName());
+            logger.warn("不能为车辆'{}'提供'{}'适配器面板.", processModel.getVehicleName(), description.getDescription());
             return new ArrayList<>();
         }
 
         List<VehicleCommAdapterPanel> panels = new ArrayList<>();
-        RobotVehicleModelTO vehicleModelTO = (RobotVehicleModelTO) processModel;
-        panels.add(componentsFactory.createControlPanel(vehicleModelTO, servicePortal.getVehicleService()));
+        panels.add(componentsFactory.createControlPanel((RobotVehicleModelTO) processModel, servicePortal.getVehicleService()));
 
         return panels;
     }

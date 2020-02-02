@@ -88,7 +88,7 @@ These coordinates will probably be the same as the model coordinates in most cas
 
 === How can I set priorities for transport orders?
 
-With openTCS, transport orders do not have a priority attribute.
+With openTCS, transport orders do not have a priority attributes.
 That is because a transport order's priority may change over time or when other transport orders are added.
 
 In the end, a single transport order's effective priority depends on the dispatcher implementation used.

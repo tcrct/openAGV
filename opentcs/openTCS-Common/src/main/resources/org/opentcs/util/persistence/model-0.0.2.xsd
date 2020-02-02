@@ -103,7 +103,7 @@
                    type="pointTypeType"
                    use="required"/>
   </xsd:complexType>
-  
+
   <xsd:simpleType name="pointTypeType">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="REPORT_POSITION"/>
@@ -163,7 +163,7 @@
                    type="xsd:boolean"
                    use="required"/>
   </xsd:complexType>
-  
+
   <!-- Data type for typed maximum velocities -->
   <xsd:complexType name="pathTypeMaxVelocityType">
     <xsd:attribute name="vehicleType"
@@ -173,7 +173,7 @@
                    type="xsd:unsignedInt"
                    use="required"/>
   </xsd:complexType>
-  
+
   <!-- Data type for typed path locks -->
   <xsd:complexType name="pathTypeLockType">
     <xsd:attribute name="vehicleType"
@@ -189,7 +189,7 @@
       </xsd:simpleType>
     </xsd:attribute>
   </xsd:complexType>
-  
+
   <!-- Data type for typed path actions -->
   <xsd:complexType name="pathTypeActionsType">
     <xsd:sequence>
@@ -279,7 +279,7 @@
                    type="xsd:unsignedInt"/>
     <xsd:attribute name="maxReverseVelocity"
                    type="xsd:unsignedInt"/>
-    
+
   </xsd:complexType>
 
   <!-- Data type for location type elements -->
@@ -335,7 +335,7 @@
                    type="xsd:string"
                    use="required"/>
   </xsd:complexType>
-  
+
   <!-- Data type for location link elements -->
   <xsd:complexType name="locationLinkType">
     <xsd:sequence>
@@ -353,7 +353,7 @@
                    type="xsd:string"
                    use="required"/>
   </xsd:complexType>
-  
+
   <!-- Data type for block elements -->
   <xsd:complexType name="blockType">
     <xsd:sequence>
@@ -379,14 +379,14 @@
     <xsd:attribute name="type"
                    type="blockTypeType"/>
   </xsd:complexType>
-  
+
   <xsd:simpleType name="blockTypeType">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="SINGLE_VEHICLE_ONLY"/>
       <xsd:enumeration value="SAME_DIRECTION_ONLY"/>
     </xsd:restriction>
-  </xsd:simpleType>  
-  
+  </xsd:simpleType>
+
   <!-- Data type for group elements -->
   <xsd:complexType name="groupType">
     <xsd:sequence>
@@ -410,7 +410,7 @@
                    type="xsd:string"
                    use="required"/>
   </xsd:complexType>
-  
+
   <!-- Data type for static route elements -->
   <xsd:complexType name="staticRouteType">
     <xsd:sequence>
@@ -434,7 +434,7 @@
                    type="xsd:string"
                    use="required"/>
   </xsd:complexType>
-  
+
   <xsd:complexType name="visualLayoutType">
     <xsd:sequence>
       <xsd:element name="color"
@@ -458,7 +458,7 @@
                    minOccurs="0"
                    maxOccurs="unbounded"/>
     </xsd:sequence>
-	
+
     <xsd:attribute name="id"
                    type="xsd:unsignedInt"/>
     <xsd:attribute name="name"
@@ -486,7 +486,7 @@
                    type="xsd:unsignedInt"
                    use="required"/>
   </xsd:complexType>
-  
+
   <xsd:complexType name="shapeLayoutElementType">
     <xsd:sequence>
       <xsd:element name="property"
@@ -498,7 +498,7 @@
                    type="xsd:unsignedInt"
                    use="required"/>
   </xsd:complexType>
-  
+
   <xsd:complexType name="modelLayoutElementType">
     <xsd:sequence>
       <xsd:element name="property"
@@ -513,7 +513,7 @@
                    type="xsd:unsignedInt"
                    use="required"/>
   </xsd:complexType>
-  
+
   <xsd:complexType name="viewBookmarkType">
     <xsd:attribute name="label"
                    type="xsd:string"
@@ -534,7 +534,7 @@
                    type="xsd:int"
                    use="required"/>
   </xsd:complexType>
-  
+
 
   <!-- Data type for properties -->
   <xsd:complexType name="propertyType">

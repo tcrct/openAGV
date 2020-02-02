@@ -1,7 +1,7 @@
 package com.robot.adapter.exchange;
 
 import com.google.inject.assistedinject.Assisted;
-import com.robot.adapter.enumes.Attribute;
+import com.robot.adapter.enumes.Attributes;
 import com.robot.adapter.model.RobotVehicleModelTO;
 import com.robot.commands.*;
 import com.robot.mvc.utils.SettingUtil;
@@ -72,8 +72,8 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
         for (VehicleProcessModel.Attribute attribute : VehicleProcessModel.Attribute.values()) {
             processModelChange(attribute.name(), robotVehicleModelTO);
         }
-        for (Attribute attribute : Attribute.values()) {
-            processModelChange(attribute.name(), robotVehicleModelTO);
+        for (Attributes attributes : Attributes.values()) {
+            processModelChange(attributes.name(), robotVehicleModelTO);
         }
     }
 
@@ -820,25 +820,25 @@ public class RobotCommAdapterPanel extends VehicleCommAdapterPanel {
 
     private void updateVehicleModelData(String attributeChanged, RobotVehicleModelTO processModel) {
         if (Objects.equals(attributeChanged,
-                Attribute.OPERATING_TIME.name())) {
+                Attributes.OPERATING_TIME.name())) {
             updateOperatingTime(processModel.getOperatingTime());
         } else if (Objects.equals(attributeChanged,
-                Attribute.ACCELERATION.name())) {
+                Attributes.ACCELERATION.name())) {
             updateMaxAcceleration(processModel.getMaxAcceleration());
         } else if (Objects.equals(attributeChanged,
-                Attribute.DECELERATION.name())) {
+                Attributes.DECELERATION.name())) {
             updateMaxDeceleration(processModel.getMaxDeceleration());
         } else if (Objects.equals(attributeChanged,
-                Attribute.MAX_FORWARD_VELOCITY.name())) {
+                Attributes.MAX_FORWARD_VELOCITY.name())) {
             updateMaxForwardVelocity(processModel.getMaxFwdVelocity());
         } else if (Objects.equals(attributeChanged,
-                Attribute.MAX_REVERSE_VELOCITY.name())) {
+                Attributes.MAX_REVERSE_VELOCITY.name())) {
             updateMaxReverseVelocity(processModel.getMaxRevVelocity());
         } else if (Objects.equals(attributeChanged,
-                Attribute.SINGLE_STEP_MODE.name())) {
+                Attributes.SINGLE_STEP_MODE.name())) {
             updateSingleStepMode(processModel.isSingleStepModeEnabled());
         } else if (Objects.equals(attributeChanged,
-                Attribute.VEHICLE_PAUSED.name())) {
+                Attributes.VEHICLE_PAUSED.name())) {
             updateVehiclePaused(processModel.isVehiclePaused());
         }
     }

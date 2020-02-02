@@ -279,7 +279,7 @@ This change log lists the most relevant changes for past releases in reverse chr
   The button for creating new static routes in the plant overview has been removed, however.)
 * Introduced caching for configuration entries read via binding interfaces.
 * Prepared immutability for plant model and transport order objects within the kernel.
-* Deprecated dummy references to objects as well as the superfluous ID attribute in `TCSObject`.
+* Deprecated dummy references to objects as well as the superfluous ID attributes in `TCSObject`.
 * Made JHotDraw and Docking Frames libraries available as Maven artifacts so they do not have to be kept in the sources distribution.
 * Updated Mockito to 2.8.47.
 

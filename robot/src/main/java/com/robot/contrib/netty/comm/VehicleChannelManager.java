@@ -1,5 +1,6 @@
-package com.robot.adapter;
+package com.robot.contrib.netty.comm;
 
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.IChannelManager;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.RunType;

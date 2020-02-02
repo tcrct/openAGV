@@ -2,6 +2,7 @@ package com.robot.contrib.netty.udp;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.robot.adapter.RobotCommAdapter;
+import com.robot.contrib.netty.tcp.ClientEntry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -27,10 +28,10 @@ import static org.opentcs.util.Assertions.checkState;
 /**
  * Created by laotang on 2019/12/21.
  *
- *  @param <O> The type of outgoing messages on this UdpServerChannelManager.
  * @param <I> The type of incoming messages on this UdpServerChannelManager.
+ *  @param <O> The type of outgoing messages on this UdpServerChannelManager.
  */
-public class UdpServerChannelManager<O, I> {
+public class UdpServerChannelManager<I, O> {
 
     private static final Logger LOG = LoggerFactory.getLogger(UdpServerChannelManager.class);
 
@@ -92,8 +93,17 @@ public class UdpServerChannelManager<O, I> {
         return initialized;
     }
 
+    /**
+     * 终止
+     */
     public void terminate() {
-        disconnect();
+        if (!initialized) {
+            return;
+        }
+        channelFuture.channel().close();
+        channelFuture = null;
+        bootstrap.config().group().shutdownGracefully();
+        initialized = false;
     }
 
     public void connect(String host, int port) throws InterruptedException {
@@ -126,9 +136,6 @@ public class UdpServerChannelManager<O, I> {
         }
         if (channelFuture != null) {
             this.channelFuture.channel().close();
-            this.bootstrap.config().group().shutdownGracefully();
-            this.initialized = false;
-            this.channelFuture = null;
             LOG.warn("UdpServerChannelManager is disconnect!");
         }
     }

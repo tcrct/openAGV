@@ -1,5 +1,6 @@
-package com.robot.adapter;
+package com.robot.adapter.task;
 
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;

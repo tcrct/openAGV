@@ -114,7 +114,7 @@ A location's attributes are:
 ==== Location type
 
 Location types are abstract elements that group locations.
-A location type has only one relevant attribute:
+A location type has only one relevant attributes:
 
 * A set of _allowed operations_, defining which operations a vehicle may execute at locations of this type.
 
@@ -190,7 +190,7 @@ When creating a transport order, the following attributes can be set:
   Dependencies are transitive, meaning that if order A depends on order B and order B depends on order C, C must be processed first, then B, then A.
   As a result, dependencies are a means to impose an order on sets of transport orders.
   (They do not, however, implicitly require all the transport orders to be processed by the same vehicle.
-  This can optionally be achieved by also setting the _intended vehicle_ attribute of the transport orders.)
+  This can optionally be achieved by also setting the _intended vehicle_ attributes of the transport orders.)
   The following image shows an example of dependencies between multiple transport orders:
 
 .Transport order dependencies

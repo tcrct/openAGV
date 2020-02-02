@@ -1,9 +1,10 @@
-package com.robot.adapter;
+package com.robot.adapter.exchange;
 
+import com.robot.adapter.RobotCommAdapter;
 import org.opentcs.data.model.Vehicle;
 
 /**
- * AdapterComponentsFactory
+ * 适配器组件工厂
  *
  * @blame OpenAgv
  */

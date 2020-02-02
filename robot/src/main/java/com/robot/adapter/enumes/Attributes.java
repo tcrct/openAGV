@@ -5,7 +5,7 @@ package com.robot.adapter.enumes;
  *
  * @author Laotang
  */
-public enum Attribute {
+public enum Attributes {
     CURRENT_STATE,
     PREVIOUS_STATE,
     LAST_ORDER,
@@ -19,7 +19,6 @@ public enum Attribute {
     RECONNECTING_ON_CONNECTION_LOSS,
     LOGGING_ENABLED,
     RECONNECT_DELAY,
-
 
     /**
      * Indicates a change of the virtual vehicle's single step mode setting.

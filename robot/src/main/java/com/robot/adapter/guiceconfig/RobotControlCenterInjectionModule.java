@@ -16,8 +16,9 @@ public class RobotControlCenterInjectionModule
 
     @Override
     protected void configure() {
-        install(new FactoryModuleBuilder().build(RobotPanelComponentsFactory.class));
 
+        install(new FactoryModuleBuilder().build(RobotPanelComponentsFactory.class));
         commAdapterPanelFactoryBinder().addBinding().to(RobotCommAdapterPanelFactory.class);
+
     }
 }

@@ -86,7 +86,7 @@ public class Application {
             // 启动OpenTCS
             startOpenTcs();
         } catch (Exception e) {
-            LOG.error("启动时发生异常: {}，程序退出！", e.getMessage());
+            LOG.error("启动时发生异常: {}，程序退出！{}", e.getMessage(), e);
             System.exit(1);
         }
     }

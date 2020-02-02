@@ -4,12 +4,13 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.mvc.main.DispatchFactory;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 
-
+@ChannelHandler.Sharable
 public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private final static Log logger = LogFactory.get();

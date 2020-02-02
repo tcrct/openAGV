@@ -20,4 +20,11 @@ public interface IComponents {
      */
     IRepeatSend getRepeatSend();
 
+    /**
+     * 立即停车
+     *
+     * @param protocol 协议对象
+     */
+    void stopVehicle(IProtocol protocol);
+
 }

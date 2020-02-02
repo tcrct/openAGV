@@ -1,6 +1,8 @@
 package com.robot.adapter;
 
 import com.robot.RobotContext;
+import com.robot.adapter.exchange.AdapterComponentsFactory;
+import com.robot.adapter.exchange.RobotAdapterDescription;
 import com.robot.adapter.model.RobotProcessModel;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
@@ -82,7 +84,7 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
      */
     @Override
     public VehicleCommAdapterDescription getDescription() {
-        return new AdapterDescription();
+        return new RobotAdapterDescription();
     }
 
     @Override
