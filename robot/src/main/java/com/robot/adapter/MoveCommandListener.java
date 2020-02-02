@@ -29,6 +29,11 @@ public class MoveCommandListener implements ActionListener {
     /**车辆适配器*/
     private RobotCommAdapter adapter;
 
+    /**
+     * 构造方法
+     *
+     * @param adapter 车辆通讯适配器
+     */
     public MoveCommandListener(RobotCommAdapter adapter) {
         this.adapter = adapter;
         this.isNeetSend = false;

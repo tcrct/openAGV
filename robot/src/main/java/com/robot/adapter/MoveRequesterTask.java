@@ -39,17 +39,23 @@ public class MoveRequesterTask {
         setRequestInterval(SettingUtil.getInt("move.interval", "adapter", requestInterval));
     }
 
+    /**
+     * 开启车辆通讯适配器移动指令定时任务
+     *
+     * @param vehicleName 车辆名称
+     */
     public void enable(String vehicleName) {
         if (moveRequestTimer != null) {
             return;
         }
         moveRequestTimer = new Timer(requestInterval, actionListener);
         moveRequestTimer.start();
-        LOG.info("启动车辆通讯适配器[{}]的移动指令定时任务[{}]成功！", vehicleName, actionListener.hashCode());
+        LOG.info("启动车辆通讯适配器[{}]的移动指令定时任务[actionListener.hashCode: {}]成功！", vehicleName, actionListener.hashCode());
     }
 
     /**
-     *
+     *停止车辆通讯适配器移动指令定时任务
+     * @param vehicleName 车辆名称
      */
     public void disable(String vehicleName) {
         if (moveRequestTimer == null) {

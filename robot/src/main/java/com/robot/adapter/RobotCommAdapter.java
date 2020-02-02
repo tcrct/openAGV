@@ -13,8 +13,6 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.robot.mvc.core.telegram.BaseResponse;
-import com.robot.mvc.core.telegram.ITelegram;
 import com.robot.mvc.core.telegram.ITelegramSender;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.ToolsKit;
@@ -104,18 +102,6 @@ public class RobotCommAdapter
             LOG.info("车辆[{}]已初始化通讯管理器，请勿重复初始化", getName());
             return;
         }
-        runType = RobotUtil.getRunType();
-        //每一个车辆启动一个定时监听器
-        moveCommandListener = new MoveCommandListener(this);
-        moveRequesterTask = new MoveRequesterTask(moveCommandListener);
-        moveRequesterTask.enable(getName());
-        // 初始化车辆渠道管理器
-        if (null == vehicleChannelManager) {
-            vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
-            if (!vehicleChannelManager.isInitialized()) {
-                vehicleChannelManager.initialize();
-            }
-        }
         super.initialize();
         LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType.toLowerCase());
     }
@@ -129,6 +115,18 @@ public class RobotCommAdapter
             LOG.info("车辆[{}]已开启通讯适配器，请勿重复开启", getName());
             return;
         }
+        runType = RobotUtil.getRunType();
+        //每开启一个车辆就启动一个定时监听器
+        moveCommandListener = new MoveCommandListener(this);
+        moveRequesterTask = new MoveRequesterTask(moveCommandListener);
+        moveRequesterTask.enable(getName());
+        // 初始化车辆渠道管理器
+        if (null == vehicleChannelManager) {
+            vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
+            if (!vehicleChannelManager.isInitialized()) {
+                vehicleChannelManager.initialize();
+            }
+        }
         super.enable();
         LOG.info("成功开启车辆[{}]通讯适配器", getName());
     }
@@ -138,7 +136,7 @@ public class RobotCommAdapter
     }
 
     /**
-     * 连接车辆，在BasicVehicleCommAdapter里enable方法下调用
+     * 连接车辆，在BasicVehicleCommAdapter里enable方法下回调
      */
     @Override
     protected void connectVehicle() {
@@ -151,8 +149,10 @@ public class RobotCommAdapter
         int port = RobotUtil.getPort(getName());
         try {
             vehicleChannelManager.connect(host, port);
+            LOG.info("LOG.info(vehicleChannelManager.hashCode: {}", vehicleChannelManager.hashCode());
             LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
         } catch (RobotException e) {
+            LOG.error("连接车辆[{}]时发生异常: {}", getName(), e.getMessage());
             throw e;
         }
     }
@@ -164,14 +164,19 @@ public class RobotCommAdapter
             LOG.warn("车辆[{}]通讯渠道管理器不存在.", getName());
             return;
         }
-        vehicleChannelManager.disconnect();
-        // 清除与该车辆相关的参数
-        getSentQueue().clear();
-        getCommandQueue().clear();
-        vehicleChannelManager = null;
-        moveCommandListener = null;
-        moveRequesterTask.disable(getName());
-        LOG.info("成功断开车辆[{}]通讯适配器", getName());
+        try {
+            vehicleChannelManager.disconnect();
+            // 清除与该车辆相关的参数
+            getSentQueue().clear();
+            getCommandQueue().clear();
+            vehicleChannelManager = null;
+            moveCommandListener = null;
+            moveRequesterTask.disable(getName());
+            LOG.info("成功断开车辆[{}]通讯适配器链接", getName());
+        } catch (Exception e) {
+            LOG.error("断开车辆[{}]通讯适配器链接时发生异常: {}", getName(), e.getMessage());
+            throw e;
+        }
     }
 
     /**判断车辆是否已经连接*/
@@ -234,11 +239,13 @@ public class RobotCommAdapter
 
     /**
      * 发送移动命令
-     * 当有多个车辆需要进行交通管制时，
-     * 以下方法会自动对应的MovementCommand，告诉可以使用的MC对象
-     * 利用这个回调发送移动命令，再次处理后，将协议发送到车辆
+     * 当有车辆需要进行交通管制时，会自动将可以移动的MovementCommand对象回调到sendCommand方法，
+     * 告诉可以使用的MovementCommand对象，可能回调多次或一次，回调次数是根据OpenTCS的交通管制算法将可运行的路径
+     * 添加到getCommandQueue()队列，队列再poll到方法
+     * 利用这个回调发送移动命令，将多次回调的MovementCommand再次组装成List集合，
+     * 再交由业务逻辑部份处理，生成相应的协议内容发送到车辆
      *
-     * @param cmd The command to be sent.
+     * @param cmd 移动命令对象
      * @throws IllegalArgumentException
      */
     @Override
@@ -246,7 +253,11 @@ public class RobotCommAdapter
         cmd = requireNonNull(cmd, "MovementCommand is null");
         // 添加到队列
         movementCommandQueue.add(cmd);
-        // 监听器引用队列，处理后发送协议
+        /**
+         * 监听器引用队列，处理后发送协议，由于监听定时器是由指定时间间隔执行一次，所以这间隔时间不能设置太少
+         * 如果设置间隔时间太少，则有可能导致movementCommandQueue添加队列时没有全部添加完成就执行了发送。
+         * 目前默认是1秒执行一次，理论上来说，时间是足够的
+         */
         moveCommandListener.quoteCommand(movementCommandQueue);
     }
 
@@ -289,13 +300,19 @@ public class RobotCommAdapter
         }
         // 车辆状态设置为不空闲
         getProcessModel().setVehicleIdle(false);
-        // 如果是交通管制，此时的队列不为空，则需要将第一位的元素移除
+        // 当前位置
+        String currentPosition = stateModel.getCurrentPosition();
+        /**
+         *每上报一个卡号，比较上报的卡号与队列中的第1位元素是否匹配，匹配则将第一位的元素移除，否则抛出异常，发送停车协议
+         * 匹配规则：比较上报的卡号与队列中的第一位是否相等
+         */
         if (!getMovementCommandQueue().isEmpty()) {
+            // 比较卡号是否与队列中的第1位元素一致
             getMovementCommandQueue().remove();
         }
         try {
             // 根据上报的卡号，更新位置
-            getProcessModel().setVehiclePosition(stateModel.getCurrentPosition());
+            getProcessModel().setVehiclePosition(currentPosition);
             // 更新为最新状态
             getProcessModel().setVehicleState(RobotUtil.translateVehicleState(stateModel.getOperatingState()));
             //  检查移动订单是否完成
@@ -466,7 +483,7 @@ public class RobotCommAdapter
     //*********************************ITelegramSender*************************************/
     /**
      * 发送报文
-     * @param telegram 电报对象
+     * @param response 电报响应对象
      */
     @Override
     public void sendTelegram(IResponse response) {
