@@ -21,10 +21,15 @@ public interface IComponents {
     IRepeatSend getRepeatSend();
 
     /**
-     * 立即停车
+     * 立即停车，当上报的点与移动队列里第1位元素不一致时，可能需要作停车处理
      *
      * @param protocol 协议对象
      */
     void stopVehicle(IProtocol protocol);
+
+    /***
+     * 取移动协议指令关键字，用于生成移动请求时，设置cmdKey值
+     */
+    String getMoveProtocolKey();
 
 }

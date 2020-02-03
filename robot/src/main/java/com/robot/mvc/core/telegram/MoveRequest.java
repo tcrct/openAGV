@@ -1,8 +1,10 @@
 package com.robot.mvc.core.telegram;
 
+import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.utils.SettingUtil;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
 import java.util.List;
@@ -29,8 +31,28 @@ public class MoveRequest extends BaseRequest {
      * @param commandList 移动队列集合
      */
     public MoveRequest(RobotCommAdapter adapter, List<MovementCommand> commandList) {
-        //移动请求的协议对象为null，也只有移动请求的协议对象为null
-        super(ReqType.MOVE, null);
+
+        super(ReqType.MOVE, new IProtocol() {
+            @Override
+            public String getCmdKey() {
+                return RobotContext.getRobotComponents().getMoveProtocolKey();
+            }
+
+            @Override
+            public String getDeviceId() {
+                return adapter.getName();
+            }
+
+            @Override
+            public String getCode() {
+                return null;
+            }
+
+            @Override
+            public String getParams() {
+                return null;
+            }
+        });
         super.adapter = adapter;
         this.movementCommandList = commandList;
     }

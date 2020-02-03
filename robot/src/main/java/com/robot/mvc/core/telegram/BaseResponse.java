@@ -9,7 +9,9 @@ import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 
 /**
- * Created by laotang on 2020/1/12.
+ * 响应对象基类
+ * @author Laotang
+ * @date 2020/1/12
  */
 public class BaseResponse implements IResponse {
 
@@ -34,21 +36,14 @@ public class BaseResponse implements IResponse {
 
     public BaseResponse(IRequest request) {
         request = java.util.Objects.requireNonNull(request, "请求对象不能为空");
-        IProtocol protocol = null;
-        // 不是移动请求，则需要验证协议对象是否为null
-        if (!ReqType.MOVE.equals(request.getReqType())) {
-            protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
-        }
+        IProtocol protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
         responseDefaultValue(request, protocol);
     }
 
     private void responseDefaultValue(IRequest request, IProtocol protocol) {
         this.id = request.getId();
-        // 协议对象不为null
-        if (null != protocol) {
-            this.deviceId = protocol.getDeviceId();
-            this.cmdKey = protocol.getCmdKey();
-        }
+        this.deviceId = protocol.getDeviceId();
+        this.cmdKey = protocol.getCmdKey();
         this.exception = null;
         setStatus(HttpStatus.HTTP_OK);
     }

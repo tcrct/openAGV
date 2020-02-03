@@ -505,5 +505,13 @@ public class RobotCommAdapter
         vehicleChannelManager.send(response);
     }
 
+    /**
+     * 返回TCSObjectService
+     *
+     * @return
+     */
+    public TCSObjectService getTcsObjectService() {
+        return tcsObjectService;
+    }
 
 }

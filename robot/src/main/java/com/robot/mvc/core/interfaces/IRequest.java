@@ -3,6 +3,8 @@ package com.robot.mvc.core.interfaces;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 
+import java.util.Map;
+
 /**
  * 请求对象接口
  * Created by laotang on 2020/1/12.
@@ -41,5 +43,11 @@ public interface IRequest extends ITelegram {
 
     /**请求类型枚举*/
     ReqType getReqType();
+
+    /***
+     * 请求参数值，用于扩展自定义参数
+     * @return
+     */
+    Map<String, Object> getParams();
 
 }

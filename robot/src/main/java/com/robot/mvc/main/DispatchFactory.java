@@ -3,7 +3,6 @@ package com.robot.mvc.main;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
-import com.robot.adapter.enumes.OperatingState;
 import com.robot.adapter.model.RobotStateModel;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
@@ -32,7 +31,7 @@ public class DispatchFactory {
     /**重复发送对象*/
     private static IRepeatSend repeatSend;
     /**操作超时时长*/
-    private static int TIME_OUT = 3000;
+    private static Integer REQUEST_TIME_OUT = 3000;
     /**发送接口**/
     private static ISender sender;
 
@@ -113,13 +112,14 @@ public class DispatchFactory {
     private static IResponse dispatchHandler(IRequest request, IResponse response) {
         FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
         try {
-            response = futureTask.get(TIME_OUT, TimeUnit.MILLISECONDS);
+            response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 将Response对象放入重发队列，确保消息发送到车辆
                 if (response.isResponseTo(request)) {
                     repeatSend.add(new RepeatSendModel(request, response));
                 }
-                sender.send(response);
+                // 发送到车辆或设备
+                request.getAdapter().sendTelegram(response);
             }
             return response;
         } catch (Exception e) {

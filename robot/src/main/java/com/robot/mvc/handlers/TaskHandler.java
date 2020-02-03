@@ -3,6 +3,7 @@ package com.robot.mvc.handlers;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.robot.mvc.core.exceptions.ExceptionEnums;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -51,8 +52,13 @@ public class TaskHandler {
                 return emptyRouteOrMehtod(deviceId, target, request, response);
             }
             Object resultObj = ReflectUtil.invoke(route.getServiceObj(), method, request, response);
-            if (response.isResponseTo(request)) {
+            // 如果是同一个请求响应单元并且rawContent值为空，则写入响应对象
+            if (response.isResponseTo(request) && ToolsKit.isEmpty(response.getRawContent())) {
                 response.write(resultObj);
+            }
+            // 如果没有设置响应内容，则抛出异常
+            if (ToolsKit.isEmpty(response.getRawContent())) {
+                throw new RobotException(ExceptionEnums.RESPONSE_RAW_NULL);
             }
         } catch (Exception e) {
             throw new RobotException(e.getMessage(), e);

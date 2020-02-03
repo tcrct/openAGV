@@ -3,16 +3,23 @@ package com.robot.mvc.utils;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.RobotContext;
+import com.robot.adapter.RobotCommAdapter;
 import com.robot.adapter.enumes.OperatingState;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.RunType;
+import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IAction;
+import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
+import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.data.model.Path;
+import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by laotang on 2020/1/22.
@@ -20,6 +27,49 @@ import java.util.List;
 public class RobotUtil {
 
     private static final Log LOG = LogFactory.get();
+
+
+    public static RobotCommAdapter getAdapter(String name) {
+        return RobotContext.getAdapter(name);
+    }
+
+    /**
+     * 大杀器----TCS的对象服务器
+     *
+     * @param vehicleName 车辆名称
+     */
+    public static TCSObjectService getOpenTcsObjectService(String vehicleName) {
+        return Optional.ofNullable(getAdapter(vehicleName).getTcsObjectService()).orElseThrow(NullPointerException::new);
+    }
+
+    /***
+     * 根据线名称取openTCS线路图上的车辆
+     * @param vehicleName 车辆名称
+     */
+    public static Vehicle getVehicle(String vehicleName) {
+        java.util.Objects.requireNonNull(vehicleName, "车辆名称不能为空");
+        return getOpenTcsObjectService(vehicleName).fetchObject(Vehicle.class, vehicleName);
+    }
+
+    /***
+     * 根据点名称取openTCS线路图上的点
+     * @param vehicleName 车辆名称
+     * @param pointName 点名称
+     */
+    public static Point getPoint(String vehicleName, String pointName) {
+        java.util.Objects.requireNonNull(pointName, "点名称不能为空");
+        return getOpenTcsObjectService(vehicleName).fetchObject(Point.class, pointName);
+    }
+
+    /***
+     * 根据点名称取openTCS线路图上的路径
+     * @param vehicleName 车辆名称
+     * @param pathName 路径名称
+     */
+    public static Path getPath(String vehicleName, String pathName) {
+        java.util.Objects.requireNonNull(pathName, "路径名称不能为空");
+        return getOpenTcsObjectService(vehicleName).fetchObject(Path.class, pathName);
+    }
 
     /**
      * 取网络渠道类型，分别为TCP/UDP/RXTX
@@ -168,10 +218,42 @@ public class RobotUtil {
      * @return
      */
     private static List<String> REPORTPOINT_CMD_LIST = new ArrayList<>();
+
     public static boolean isReportPointCmd(String cmdKey) {
         if (REPORTPOINT_CMD_LIST.isEmpty()) {
             REPORTPOINT_CMD_LIST.addAll(SettingUtil.getStringList("vehicle.report.cmd"));
         }
         return REPORTPOINT_CMD_LIST.contains(cmdKey);
     }
+
+    /**
+     * 是否移动请求
+     *
+     * @param request 请求对象
+     * @return
+     */
+    public static boolean isMoveRequest(IRequest request) {
+        return ReqType.MOVE.equals(request.getReqType());
+    }
+
+    /**
+     * 是否工站动作请求
+     *
+     * @param request 请求对象
+     * @return
+     */
+    public static boolean isActionRequest(IRequest request) {
+        return ReqType.ACTION.equals(request.getReqType());
+    }
+
+    /**
+     * 是否业务请求
+     *
+     * @param request 请求对象
+     * @return
+     */
+    public static boolean isBusinessRequest(IRequest request) {
+        return ReqType.BUSINESS.equals(request.getReqType());
+    }
+
 }

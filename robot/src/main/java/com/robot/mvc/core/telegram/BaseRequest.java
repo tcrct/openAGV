@@ -6,10 +6,14 @@ import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * Created by laotang on 2020/1/12.
+ * 请求对象基类
+ * @author Laotang
+ * @date 2020/1/12
  */
 public class BaseRequest implements IRequest, java.io.Serializable {
 
@@ -23,6 +27,7 @@ public class BaseRequest implements IRequest, java.io.Serializable {
     protected String rawContent;
     /**车辆适配器，每一个请求里都必须包含*/
     protected RobotCommAdapter adapter;
+    protected Map<String, Object> paramMap;
 
     public BaseRequest(ReqType reqType, IProtocol protocol) {
         Objects.requireNonNull(reqType, "请求对象枚举值不能为空");
@@ -30,6 +35,7 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         setId(IdUtil.objectId());
         setProtocol(protocol);
         setReqType(reqType);
+        paramMap = new HashMap();
     }
 
     public void setAdapter(RobotCommAdapter adapter) {
@@ -70,6 +76,19 @@ public class BaseRequest implements IRequest, java.io.Serializable {
     @Override
     public ReqType getReqType() {
         return reqType;
+    }
+
+    @Override
+    public Map<String, Object> getParams() {
+        return paramMap;
+    }
+
+    public <T> T getValue(String key) {
+        return (T) paramMap.get(key);
+    }
+
+    public void setValue(String key, Object value) {
+        paramMap.put(key, value);
     }
 
     @Override
