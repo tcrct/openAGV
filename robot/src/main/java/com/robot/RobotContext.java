@@ -6,7 +6,9 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.utils.SettingUtil;
+import org.opentcs.components.kernel.services.TCSObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +25,12 @@ public class RobotContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(RobotContext.class);
 
-    private static final List<IHandler> BEFORE_HEANDLER_LIST = new ArrayList<>();
-    // 是否需要应答回复
-    private static Boolean isAnswer = null;
     // RequestKit发送的请求后，缓存到此Map，等待回复
     private static Map<String, LinkedBlockingQueue<IProtocol>> RESPONSE_PROTOCOL_MAP = new ConcurrentHashMap<>();
     // OpenAgv需要的组件接口
     private static IComponents components;
     // 车辆适配器集合
     private static Map<String, RobotCommAdapter> ADAPTER_MAP = new ConcurrentHashMap<>();
-
 
     /**
      * 取车辆适配器集合
@@ -68,26 +66,24 @@ public class RobotContext {
         return components;
     }
 
-    /***
-     * 取前置处理器
-     * @return
-     */
-    public static List<IHandler> getBeforeHeandlerList() {
-        return BEFORE_HEANDLER_LIST;
-    }
-
-
-    /**是否需要进行握手回复*/
-    public static boolean isAnswer() {
-        if (null == isAnswer) {
-            isAnswer = SettingUtil.getBoolean("answer", true);
-        }
-        return isAnswer;
-    }
-
     /**缓存RequestKit发出的请求，等待响应回复，key为crc验证码*/
     public static Map<String, LinkedBlockingQueue<IProtocol>> getResponseProtocolMap() {
         return RESPONSE_PROTOCOL_MAP;
+    }
+
+    /**
+     * 大杀器
+     */
+    private static TCSObjectService tcsObjectService;
+
+    public static void setTCSObjectService(TCSObjectService objectService) {
+        if (null == tcsObjectService) {
+            tcsObjectService = objectService;
+        }
+    }
+
+    public static TCSObjectService getTCSObjectService() {
+        return RobotContext.tcsObjectService;
     }
 }
 

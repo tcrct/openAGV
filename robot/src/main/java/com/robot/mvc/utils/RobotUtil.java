@@ -38,8 +38,8 @@ public class RobotUtil {
      *
      * @param vehicleName 车辆名称
      */
-    public static TCSObjectService getOpenTcsObjectService(String vehicleName) {
-        return Optional.ofNullable(getAdapter(vehicleName).getTcsObjectService()).orElseThrow(NullPointerException::new);
+    public static TCSObjectService getOpenTcsObjectService() {
+        return Optional.ofNullable(RobotContext.getTCSObjectService()).orElseThrow(NullPointerException::new);
     }
 
     /***
@@ -48,27 +48,25 @@ public class RobotUtil {
      */
     public static Vehicle getVehicle(String vehicleName) {
         java.util.Objects.requireNonNull(vehicleName, "车辆名称不能为空");
-        return getOpenTcsObjectService(vehicleName).fetchObject(Vehicle.class, vehicleName);
+        return getOpenTcsObjectService().fetchObject(Vehicle.class, vehicleName);
     }
 
     /***
      * 根据点名称取openTCS线路图上的点
-     * @param vehicleName 车辆名称
      * @param pointName 点名称
      */
-    public static Point getPoint(String vehicleName, String pointName) {
+    public static Point getPoint(String pointName) {
         java.util.Objects.requireNonNull(pointName, "点名称不能为空");
-        return getOpenTcsObjectService(vehicleName).fetchObject(Point.class, pointName);
+        return getOpenTcsObjectService().fetchObject(Point.class, pointName);
     }
 
     /***
      * 根据点名称取openTCS线路图上的路径
-     * @param vehicleName 车辆名称
      * @param pathName 路径名称
      */
-    public static Path getPath(String vehicleName, String pathName) {
+    public static Path getPath(String pathName) {
         java.util.Objects.requireNonNull(pathName, "路径名称不能为空");
-        return getOpenTcsObjectService(vehicleName).fetchObject(Path.class, pathName);
+        return getOpenTcsObjectService().fetchObject(Path.class, pathName);
     }
 
     /**
@@ -219,6 +217,12 @@ public class RobotUtil {
      */
     private static List<String> REPORTPOINT_CMD_LIST = new ArrayList<>();
 
+    /**
+     * 是否上报卡号/位置的指令
+     *
+     * @param cmdKey 操作指令
+     * @return
+     */
     public static boolean isReportPointCmd(String cmdKey) {
         if (REPORTPOINT_CMD_LIST.isEmpty()) {
             REPORTPOINT_CMD_LIST.addAll(SettingUtil.getStringList("vehicle.report.cmd"));

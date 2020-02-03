@@ -71,12 +71,8 @@ public class DispatchFactory {
                 }
                 // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
                 try {
-                    // 如果该协议对象是上报卡号的指令
-                    boolean isReportPoint = RobotUtil.isReportPointCmd(protocol.getCmdKey());
-                    if (isReportPoint) {
-                        RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(
-                                new RobotStateModel(currentPosition, protocol));
-                    }
+                    RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(
+                            new RobotStateModel(currentPosition, protocol));
                 } catch (RobotException re) {
                     //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
                     LOG.info(re.getMessage(), re);
@@ -96,7 +92,12 @@ public class DispatchFactory {
      * @param request ActionRequest
      */
     public static IResponse dispatch(ActionRequest request, IResponse response) {
-        return dispatchHandler(request, response);
+        try {
+            return dispatchHandler(request, response);
+        } catch (Exception e) {
+            LOG.error("分发工站动作请求时发生异常: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     /**
@@ -105,8 +106,13 @@ public class DispatchFactory {
      *
      * @param request MoveRequest
      */
-    public static void dispatch(MoveRequest request) {
-        dispatchHandler(request, new BaseResponse(request));
+    public static IResponse dispatch(MoveRequest request) {
+        try {
+            return dispatchHandler(request, new BaseResponse(request));
+        } catch (Exception e) {
+            LOG.error("分发移动请求时发生异常: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     private static IResponse dispatchHandler(IRequest request, IResponse response) {
@@ -116,7 +122,7 @@ public class DispatchFactory {
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 将Response对象放入重发队列，确保消息发送到车辆
                 if (response.isResponseTo(request)) {
-                    repeatSend.add(new RepeatSendModel(request, response));
+                    repeatSend.add(response);
                 }
                 // 发送到车辆或设备
                 request.getAdapter().sendTelegram(response);

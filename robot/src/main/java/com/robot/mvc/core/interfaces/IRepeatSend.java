@@ -15,7 +15,7 @@ public interface IRepeatSend {
      * 添加需要重复发送的响应对象
      * @param response
      */
-    void add(RepeatSendModel repeatSendModel) throws RobotException;
+    void add(IResponse response) throws RobotException;
 
     /**
      * 根据请求对象删除需要重复发送的响应对象

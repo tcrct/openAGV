@@ -2,6 +2,7 @@ package com.robot.adapter;
 
 import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.assistedinject.Assisted;
+import com.robot.RobotContext;
 import com.robot.adapter.enumes.LoadAction;
 import com.robot.adapter.enumes.LoadState;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
@@ -95,6 +96,7 @@ public class RobotCommAdapter
         this.kernelExecutor = requireNonNull(kernelExecutor, "kernelExecutor");
         /**移动命令队列*/
         this.movementCommandQueue = new LinkedBlockingQueue<>();
+        RobotContext.setTCSObjectService(tcsObjectService);
     }
 
     /**
@@ -504,14 +506,4 @@ public class RobotCommAdapter
     public void sendTelegram(IResponse response) {
         vehicleChannelManager.send(response);
     }
-
-    /**
-     * 返回TCSObjectService
-     *
-     * @return
-     */
-    public TCSObjectService getTcsObjectService() {
-        return tcsObjectService;
-    }
-
 }

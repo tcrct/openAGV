@@ -1,7 +1,6 @@
 package com.robot.adapter.task;
 
 import com.robot.adapter.RobotCommAdapter;
-import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;
 import org.opentcs.drivers.vehicle.MovementCommand;
@@ -10,8 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * 车辆移动指令监听器
@@ -57,17 +55,28 @@ public class MoveCommandListener implements ActionListener {
         if ((null == commandQueue || commandQueue.isEmpty())) {
             return;
         }
-
-        //进行业务处理，定时器每隔指定时间执行一次
-        try {
-            // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
-            DispatchFactory.dispatch(new MoveRequest(adapter, new ArrayList<>(commandQueue)));
-        } catch (Exception ex) {
-            throw new RobotException("创建移动协议指令时出错: " + ex.getMessage(), ex);
-        } finally {
-            // 发送开关，已经发送设置为false，防止重复执行
-            isNeetSend = false;
+        // 去重
+        Map<String, MovementCommand> commandMap = new LinkedHashMap<>();
+        for (MovementCommand command : commandQueue) {
+            String key = command.getStep().getSourcePoint().getName();
+            commandMap.put(key, command);
         }
+        //清空Apadter里的命令队列，再重新添加，以免重复多次添加
+        commandQueue.clear();
+        List<MovementCommand> commandList = new ArrayList<>(commandMap.size());
+        for (Iterator<Map.Entry<String, MovementCommand>> iterator = commandMap.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<String, MovementCommand> entry = iterator.next();
+            MovementCommand command = entry.getValue();
+            // 去重后重新添加
+            commandQueue.add(command);
+            commandList.add(command);
+        }
+        // 进行业务处理，定时器每隔指定时间执行一次
+        // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
+        MoveRequest moveRequest = new MoveRequest(adapter, commandList);
+        DispatchFactory.dispatch(moveRequest);
+        // 发送开关，已经发送设置为false，防止重复执行
+        isNeetSend = false;
 
     }
 
