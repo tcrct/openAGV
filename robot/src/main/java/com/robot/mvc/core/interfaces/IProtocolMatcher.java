@@ -26,13 +26,4 @@ public interface IProtocolMatcher {
      * @throws RobotException
      */
     String decode(IProtocol protocol) throws RobotException;
-
-    /**
-     * 根据协议对象取当前点
-     *
-     * @param protocol 协议对象
-     * @return 当前点位置
-     * @throws RobotException
-     */
-    String getPoint(IProtocol protocol) throws RobotException;
 }

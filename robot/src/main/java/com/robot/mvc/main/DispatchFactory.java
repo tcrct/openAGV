@@ -61,18 +61,16 @@ public class DispatchFactory {
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
             businessRequest.setAdapter(RobotContext.getAdapter(protocol.getDeviceId()));
             IResponse response = dispatchHandler(businessRequest, new BaseResponse(businessRequest));
-            // 如果是上报位置指令，则需要进入到apadter进行更新位置，判断是否执行指令集等操作
-            if (response.getStatus() == HttpStatus.HTTP_OK &&
-                    RobotUtil.isReportPointCmd(response.getCmdKey())) {
-                String currentPosition = protocolMatcher.getPoint(protocol);
-                if (ToolsKit.isEmpty(currentPosition)) {
-                    LOG.debug("当前位置不能为空或当前点需要预停车指令上报");
-                    return;
-                }
+            // 如果状态等于200并且是需要进行到适配器进行操作的
+            // isNeedAdapterOperation在BaseService里设置，默认为false;
+            if (response.getStatus() == HttpStatus.HTTP_OK && response.isNeedAdapterOperation()) {
                 // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
+                RobotStateModel robotStateModel = response.getRobotStateModel();
+                if (ToolsKit.isEmpty(robotStateModel) || ToolsKit.isEmpty(robotStateModel.getCurrentPosition())) {
+                    throw new RobotException("robotStateModel对象或更新位置不能为空");
+                }
                 try {
-                    RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(
-                            new RobotStateModel(currentPosition, protocol));
+                    RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(robotStateModel);
                 } catch (RobotException re) {
                     //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
                     LOG.info(re.getMessage(), re);
@@ -120,12 +118,13 @@ public class DispatchFactory {
         try {
             response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
-                // 将Response对象放入重发队列，确保消息发送到车辆
-                if (response.isResponseTo(request)) {
+                //是同一单元的请求响应且需要发送的响应
+                if (response.isResponseTo(request) && response.isNeedSend()) {
+                    // 将Response对象放入重发队列，确保消息发送到车辆
                     repeatSend.add(response);
+                    // 发送到车辆或设备
+                    request.getAdapter().sendTelegram(response);
                 }
-                // 发送到车辆或设备
-                request.getAdapter().sendTelegram(response);
             }
             return response;
         } catch (Exception e) {

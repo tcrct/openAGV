@@ -24,4 +24,11 @@ public interface IRepeatSend {
      */
     void remove(IRequest request) throws RobotException;
 
+    /**
+     * 根据车辆ID删除重发队列里的所有响应对象
+     *
+     * @param vehicleId 车辆ID
+     * @throws RobotException
+     */
+    void removeAll(String vehicleId) throws RobotException;
 }

@@ -7,6 +7,7 @@ import com.robot.mvc.core.interfaces.IProtocol;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
 import java.util.List;
+import java.util.Queue;
 
 /**
  * 移动请求
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class MoveRequest extends BaseRequest {
 
-    private List<MovementCommand> movementCommandList;
+    private Queue<MovementCommand> movementCommandQueue;
 
     public MoveRequest(IProtocol protocol) {
         super(ReqType.MOVE, protocol);
@@ -29,11 +30,11 @@ public class MoveRequest extends BaseRequest {
      * @param adapter 车辆适配器
      * @param commandList 移动队列集合
      */
-    public MoveRequest(RobotCommAdapter adapter, List<MovementCommand> commandList) {
+    public MoveRequest(RobotCommAdapter adapter, Queue<MovementCommand> commandList) {
         super(ReqType.MOVE, null);
         super.protocol = new MoveProtocol(adapter.getName(), RobotContext.getRobotComponents().getMoveProtocolKey());
         super.adapter = adapter;
-        this.movementCommandList = commandList;
+        this.movementCommandQueue = commandList;
     }
 
     /**
@@ -41,8 +42,8 @@ public class MoveRequest extends BaseRequest {
      *
      * @return
      */
-    public List<MovementCommand> getMovementCommandList() {
-        return movementCommandList;
+    public Queue<MovementCommand> getMovementCommandQueue() {
+        return movementCommandQueue;
     }
 
     //定义一个内部类

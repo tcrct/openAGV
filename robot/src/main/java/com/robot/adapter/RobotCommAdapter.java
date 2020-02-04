@@ -71,8 +71,13 @@ public class RobotCommAdapter
     private MoveCommandListener moveCommandListener;
     /**移动请求任务定时器，一车辆实例一次*/
     private MoveRequesterTask moveRequesterTask;
+    /**
+     * 临时移动命令队列
+     */
+    private Queue<MovementCommand> tempCommandQueue;
     /**移动命令队列*/
     private Queue<MovementCommand> movementCommandQueue;
+
     /**车辆网络连接管理器*/
     private IChannelManager<IRequest, IResponse> vehicleChannelManager;
     /**运行方式，以服务器方式运行还是客户端方式链接车辆*/
@@ -95,6 +100,7 @@ public class RobotCommAdapter
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.kernelExecutor = requireNonNull(kernelExecutor, "kernelExecutor");
         /**移动命令队列*/
+        this.tempCommandQueue = new LinkedBlockingQueue<>();
         this.movementCommandQueue = new LinkedBlockingQueue<>();
         RobotContext.setTCSObjectService(tcsObjectService);
     }
@@ -258,14 +264,15 @@ public class RobotCommAdapter
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         cmd = requireNonNull(cmd, "MovementCommand is null");
         // 添加到队列
-        movementCommandQueue.add(cmd);
+        tempCommandQueue.add(cmd);
         /**
          * 监听器引用队列，处理后发送协议，由于监听定时器是由指定时间间隔执行一次，所以这间隔时间不能设置太少
          * 如果设置间隔时间太少，则有可能导致movementCommandQueue添加队列时没有全部添加完成就执行了发送。
          * 目前默认是1秒执行一次，理论上来说，时间是足够的
          */
-        moveCommandListener.quoteCommand(movementCommandQueue);
+        moveCommandListener.quoteCommand(tempCommandQueue);
     }
+
 
     /**进程消息*/
     @Override
@@ -299,16 +306,13 @@ public class RobotCommAdapter
     @Override
     public void onIncomingTelegram(RobotStateModel stateModel) {
         requireNonNull(stateModel, "stateModel");
-        boolean isReportPoint = RobotUtil.isReportPointCmd(stateModel.getCmdKey());
-        // 如果该协议对象不是上报上号的指令，则退出
-        if (!isReportPoint) {
-            return;
-        }
         // 车辆状态设置为不空闲
         getProcessModel().setVehicleIdle(false);
         // 当前位置
         String currentPosition = stateModel.getCurrentPosition();
-
+        if (ToolsKit.isEmpty(currentPosition)) {
+            throw new RobotException("更新位置不能为空！");
+        }
         try {
             /**
              *每上报一个卡号，比较上报的卡号与队列中的第1位元素是否匹配，匹配则将第一位的元素移除，否则抛出异常，发送停车协议

@@ -6,6 +6,6 @@ package com.robot.mvc.core.interfaces;
  */
 public interface IPlugin {
 
-    boolean start();
+    void start() throws Exception;
 
 }

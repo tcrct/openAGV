@@ -2,6 +2,7 @@ package com.robot.mvc.core.telegram;
 
 import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
+import com.robot.adapter.model.RobotStateModel;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
@@ -30,13 +31,23 @@ public class BaseResponse implements IResponse {
     /**握手验证码，在重发机制下，用于验证车辆或设备的应答回复，确保指令发送成功*/
     private String handshakeCode;
     /**
-     * 协议原文字符串
+     * 是否需要适配器操作，默认为fase, 值为true时需要适配器后续操作
      */
+    private boolean isNeedAdapterOperation;
+    /**
+     * 是否需要发送协议，默认为fase, 值为true时需要发送
+     */
+    private boolean isNeedSend;
+    /*** 协议字符串*/
     protected String rawContent;
+
+    private RobotStateModel robotStateModel;
 
     public BaseResponse(IRequest request) {
         request = java.util.Objects.requireNonNull(request, "请求对象不能为空");
         IProtocol protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
+        isNeedAdapterOperation = false;
+        isNeedSend = false;
         responseDefaultValue(request, protocol);
     }
 
@@ -109,6 +120,51 @@ public class BaseResponse implements IResponse {
     @Override
     public String getHandshakeCode() {
         return handshakeCode;
+    }
+
+    @Override
+    public boolean isNeedAdapterOperation() {
+        return isNeedAdapterOperation;
+    }
+
+    /***
+     * 设置是否需要适配器继续操作，默认为false, 为true时代表需要
+     * @param needAdapterOperation  是否需要
+     */
+    public void setNeedAdapterOperation(boolean needAdapterOperation) {
+        isNeedAdapterOperation = needAdapterOperation;
+    }
+
+    @Override
+    public boolean isNeedSend() {
+        return isNeedSend;
+    }
+
+    @Override
+    public RobotStateModel getRobotStateModel() {
+        if (null == robotStateModel) {
+            throw new RobotException("请在Service里实现RobotStateModel设置，" +
+                    "该model不能为null，用于Adapter根据该model更新位置及是否进行工站操作等处理！");
+        }
+        return robotStateModel;
+    }
+
+    /**
+     * 设置Robot adapter需要的状态模型对象
+     *
+     * @param robotStateModel 状态模型对象
+     */
+    public void setRobotStateModel(RobotStateModel robotStateModel) {
+        this.robotStateModel = robotStateModel;
+    }
+
+    /**
+     * 设置是否需要发送协议，默认为false, 为true时代表需要发送
+     *
+     * @param needSend
+     */
+    public void setNeedSend(boolean needSend) {
+        isNeedSend = needSend;
     }
 
     @Override

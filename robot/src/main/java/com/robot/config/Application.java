@@ -5,11 +5,13 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IPlugin;
+import com.robot.mvc.core.interfaces.ISystemInit;
 import com.robot.mvc.helpers.ClassHelper;
 import com.robot.mvc.helpers.IocHelper;
 import com.robot.mvc.helpers.PluginsHelper;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.utils.ToolsKit;
+import org.opentcs.App;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
@@ -44,6 +46,7 @@ public class Application {
      */
     public static final List<IPlugin> PLUGIN_LIST = new ArrayList<>();
 
+    private ISystemInit systemInit;
     private static Application application;
 
     public static Application duang() {
@@ -73,6 +76,11 @@ public class Application {
         return this;
     }
 
+    public Application init(ISystemInit systemInit) {
+        this.systemInit = systemInit;
+        return this;
+    }
+
     public void run() {
         try {
             // 扫描类
@@ -85,6 +93,8 @@ public class Application {
             IocHelper.duang();
             // 启动OpenTCS
             startOpenTcs();
+            // 初始化
+            initRobot();
         } catch (Exception e) {
             LOG.error("启动时发生异常: {}，程序退出！{}", e.getMessage(), e);
             System.exit(1);
@@ -109,5 +119,9 @@ public class Application {
         RunPlantOverview.main(null);
         LOG.warn("启动工厂概述控制中心完成");
 
+    }
+
+    private void initRobot() throws Exception {
+        systemInit.init();
     }
 }

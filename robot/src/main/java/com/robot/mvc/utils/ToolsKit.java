@@ -1,14 +1,20 @@
 package com.robot.mvc.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.robot.mvc.core.exceptions.RobotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by laotang on 2020/1/12.
@@ -17,6 +23,27 @@ public class ToolsKit {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToolsKit.class);
     private static final Set<String> EXCLUDED_METHOD_NAME = new HashSet<>();
+
+    public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        /**过滤对象的null属性*/
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        /**过滤map中的null key*/
+        objectMapper.getSerializerProvider().setNullKeySerializer(new JsonSerializer<Object>() {
+            @Override
+            public void serialize(Object value, JsonGenerator generator, SerializerProvider serializers) throws IOException, JsonProcessingException {
+                generator.writeFieldName("");
+            }
+        });
+        /**过滤map中的null值*/
+        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
+            @Override
+            public void serialize(Object value, JsonGenerator generator, SerializerProvider serializers) throws IOException, JsonProcessingException {
+                generator.writeString("");
+            }
+        });
+    }
 
     /***
      * 判断传入的对象是否为空
@@ -115,5 +142,39 @@ public class ToolsKit {
      */
     public static boolean isPublicMethod(int mod) {
         return !(Modifier.isAbstract(mod) || Modifier.isStatic(mod) || Modifier.isFinal(mod) || Modifier.isInterface(mod) || Modifier.isPrivate(mod) || Modifier.isProtected(mod));
+    }
+
+    /**
+     * json字符串转换为对象
+     *
+     * @param jsonStr json格式的字符串
+     * @param clazz   待转换的对象
+     * @param <T>     返回泛型值
+     * @return
+     * @throws Exception
+     */
+    public static <T> T jsonParseObject(String jsonStr, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(jsonStr, clazz);
+        } catch (Exception e) {
+            throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+    public static <T> List<T> jsonParseArray(String jsonStr, TypeReference<T> typeReference) {
+        try {
+            return (List<T>) objectMapper.readValue(jsonStr, typeReference);
+        } catch (Exception e) {
+            throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+
+    public static String toJsonString(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RobotException(e.getMessage(), e);
+        }
     }
 }

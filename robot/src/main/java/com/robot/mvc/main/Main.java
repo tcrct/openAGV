@@ -1,7 +1,11 @@
 package com.robot.mvc.main;
 
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.robot.RobotContext;
 import com.robot.config.Application;
+import com.robot.mvc.core.enums.ReqType;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -37,11 +41,11 @@ public class Main {
     }
 
     public void doTask(IRequest request, IResponse response) throws Exception {
+        Objects.requireNonNull(request, "request is null");
+        Objects.requireNonNull(response, "response is null");
+        IProtocol protocol = Objects.requireNonNull(request.getProtocol(), "response is null");
+        String target = java.util.Objects.requireNonNull(protocol.getCmdKey(), "协议动作指令值不能为空，必须设置，该值用于反射调用方法");
         try {
-            Objects.requireNonNull(request, "request is null");
-            Objects.requireNonNull(response, "response is null");
-            IProtocol protocol = Objects.requireNonNull(request.getProtocol(), "response is null");
-            String target = java.util.Objects.requireNonNull(protocol.getCmdKey(), "协议动作指令值不能为空，必须设置，该值用于反射调用方法");
             if(doBeforeHandler(target, request, response)) {
                 TaskHandler.duang().doHandler(target, request, response);
             }
@@ -51,11 +55,12 @@ public class Main {
             response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             response.write(e.getMessage());
         }
+        doAfterHandler(target, request, response);
     }
 
     /**
-     * 执行Controller方法前的前置处理器
-     * 抛出异常中止执行
+     * 执行TaskHandler前的前置处理器
+     * 抛出异常中止执行，返回false，则丢弃该次请求
      *
      * @param target 协议指令
      * @param request   请求对象
@@ -67,20 +72,34 @@ public class Main {
             return true;
         }
 
-        // 如果是MoveRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
-        if(request instanceof MoveRequest){
+        ReqType reqType = request.getReqType();
+        // 如果是ActionRequest, MoveRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
+        if (ReqType.MOVE.equals(reqType) || ReqType.ACTION.equals(reqType)) {
             return true;
         }
-
-        if(request instanceof BusinessRequest) {
+        if (ReqType.BUSINESS.equals(reqType)) {
             for (Iterator<IHandler> it = Application.BEFORE_HEANDLER_LIST.iterator(); it.hasNext(); ) {
                 boolean isNextHandle = it.next().doHandler(target, request, response);
-                if(!isNextHandle){
+                if (!isNextHandle) {
+                    // 程序终止处理链执行，直接丢弃该次请求
                     return false;
                 }
             }
         }
+        // 抛出异常
+        throw new RobotException("该请求没有设置请求类型[reqType]，请先设置！");
+    }
 
-        return true;
+    /**
+     * 执行TaskHandler后的后置处理器
+     *
+     * @param target   协议指令
+     * @param request  请求对象
+     * @param response 返回对象
+     */
+    private void doAfterHandler(String target, IRequest request, IResponse response) {
+        for (Iterator<IHandler> it = Application.AFTER_HEANDLER_LIST.iterator(); it.hasNext(); ) {
+            it.next().doHandler(target, request, response);
+        }
     }
 }

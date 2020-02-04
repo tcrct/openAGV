@@ -1,5 +1,7 @@
 package com.robot.mvc.core.interfaces;
 
+import com.robot.adapter.model.RobotStateModel;
+
 /**
  * Created by laotang on 2020/1/12.
  */
@@ -27,6 +29,21 @@ public interface IResponse extends ITelegram {
      * @return
      */
     String getHandshakeCode();
+
+    /**
+     * 是否需要适配器操作
+     */
+    boolean isNeedAdapterOperation();
+
+    /**
+     * 是否需要发送协议到车辆
+     **/
+    boolean isNeedSend();
+
+    /**
+     * 取回Robot状态对象
+     */
+    RobotStateModel getRobotStateModel();
 
     /**比较请求与响应是否对应*/
     default boolean isResponseTo(IRequest request) {

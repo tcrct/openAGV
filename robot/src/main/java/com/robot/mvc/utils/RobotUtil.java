@@ -210,27 +210,6 @@ public class RobotUtil {
     }
 
     /**
-     * 是否车辆报告点指令
-     *
-     * @param cmdKey 指令关键字
-     * @return
-     */
-    private static List<String> REPORTPOINT_CMD_LIST = new ArrayList<>();
-
-    /**
-     * 是否上报卡号/位置的指令
-     *
-     * @param cmdKey 操作指令
-     * @return
-     */
-    public static boolean isReportPointCmd(String cmdKey) {
-        if (REPORTPOINT_CMD_LIST.isEmpty()) {
-            REPORTPOINT_CMD_LIST.addAll(SettingUtil.getStringList("vehicle.report.cmd"));
-        }
-        return REPORTPOINT_CMD_LIST.contains(cmdKey);
-    }
-
-    /**
      * 是否移动请求
      *
      * @param request 请求对象

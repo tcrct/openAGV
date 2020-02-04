@@ -22,7 +22,7 @@ public class MoveCommandListener implements ActionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoveCommandListener.class);
     /***/
-    private Queue<MovementCommand> commandQueue;
+    private Queue<MovementCommand> tempCommandQueue;
     /**是否需要发送，true时为需要发送*/
     private boolean isNeetSend;
     /**车辆适配器*/
@@ -52,32 +52,39 @@ public class MoveCommandListener implements ActionListener {
             return;
         }
         // 如果命令队列为空，则退出
-        if ((null == commandQueue || commandQueue.isEmpty())) {
+        if ((null == tempCommandQueue || tempCommandQueue.isEmpty())) {
             return;
         }
-        // 去重
-        Map<String, MovementCommand> commandMap = new LinkedHashMap<>();
-        for (MovementCommand command : commandQueue) {
-            String key = command.getStep().getSourcePoint().getName();
-            commandMap.put(key, command);
-        }
-        //清空Apadter里的命令队列，再重新添加，以免重复多次添加
-        commandQueue.clear();
-        List<MovementCommand> commandList = new ArrayList<>(commandMap.size());
-        for (Iterator<Map.Entry<String, MovementCommand>> iterator = commandMap.entrySet().iterator(); iterator.hasNext(); ) {
-            Map.Entry<String, MovementCommand> entry = iterator.next();
-            MovementCommand command = entry.getValue();
-            // 去重后重新添加
-            commandQueue.add(command);
-            commandList.add(command);
-        }
+//        // 去重
+//        Map<String, MovementCommand> commandMap = new LinkedHashMap<>();
+//        for (MovementCommand command : tempCommandQueue) {
+//            String key = command.getStep().getSourcePoint().getName();
+//            commandMap.put(key, command);
+//        }
+//        List<MovementCommand> commandList = new ArrayList<>(commandMap.size());
+//        for (Iterator<Map.Entry<String, MovementCommand>> iterator = commandMap.entrySet().iterator(); iterator.hasNext(); ) {
+//            Map.Entry<String, MovementCommand> entry = iterator.next();
+//            MovementCommand command = entry.getValue();
+//            commandList.add(command);
+//        }
+        /**
+         * 添加移动指令队列到通讯适配器，让适配器在处理卡号上报时拥有所有的指令
+         * 场景说明：
+         * 车辆收到第一次协议后，适配器在车辆移动的过程中，但移动过程还没完成时，再次发送了新的指令，
+         * 此时，应该要将第1次发送的移动队列与再次发送的队列合并，再次生成新的(即所有的队列)再重新发指令到车辆
+         */
+//        adapter.getMovementCommandQueue().addAll(commandList);
+        adapter.getMovementCommandQueue().addAll(tempCommandQueue);
         // 进行业务处理，定时器每隔指定时间执行一次
         // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
-        MoveRequest moveRequest = new MoveRequest(adapter, commandList);
+        MoveRequest moveRequest = new MoveRequest(adapter, adapter.getMovementCommandQueue());
         DispatchFactory.dispatch(moveRequest);
         // 发送开关，已经发送设置为false，防止重复执行
         isNeetSend = false;
-
+        //清空Apadter里的命令队列，再重新添加，以免重复多次添加
+        if (null != tempCommandQueue) {
+            tempCommandQueue.clear();
+        }
     }
 
     /**
@@ -85,7 +92,7 @@ public class MoveCommandListener implements ActionListener {
      * @param commandQueue 移动命令队列
      */
     public void quoteCommand(Queue<MovementCommand> commandQueue) {
-        this.commandQueue = commandQueue;
+        this.tempCommandQueue = commandQueue;
         // 接收到新的队列引用后，将变量设置为 true，说明需要发送，等待定时器执行发送
         isNeetSend = true;
     }
