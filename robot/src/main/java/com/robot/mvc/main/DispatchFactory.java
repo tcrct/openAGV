@@ -10,6 +10,7 @@ import com.robot.mvc.core.telegram.*;
 import com.robot.mvc.model.RepeatSendModel;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.ToolsKit;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,6 @@ public class DispatchFactory {
     private static IRepeatSend repeatSend;
     /**操作超时时长*/
     private static Integer REQUEST_TIME_OUT = 3000;
-    /**发送接口**/
-    private static ISender sender;
 
     static {
         initComponents();
@@ -90,12 +89,7 @@ public class DispatchFactory {
      * @param request ActionRequest
      */
     public static IResponse dispatch(ActionRequest request, IResponse response) {
-        try {
-            return dispatchHandler(request, response);
-        } catch (Exception e) {
-            LOG.error("分发工站动作请求时发生异常: {}", e.getMessage(), e);
-            return null;
-        }
+        return dispatchHandler(request, response);
     }
 
     /**
@@ -105,31 +99,44 @@ public class DispatchFactory {
      * @param request MoveRequest
      */
     public static IResponse dispatch(MoveRequest request) {
-        try {
-            return dispatchHandler(request, new BaseResponse(request));
-        } catch (Exception e) {
-            LOG.error("分发移动请求时发生异常: {}", e.getMessage(), e);
-            return null;
-        }
+        return dispatchHandler(request, new BaseResponse(request));
     }
 
     private static IResponse dispatchHandler(IRequest request, IResponse response) {
-        FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
         try {
+            FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
             response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 //是同一单元的请求响应且需要发送的响应
                 if (response.isResponseTo(request) && response.isNeedSend()) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     repeatSend.add(response);
-                    // 发送到车辆或设备
+                    // 正确的响应才发送到车辆或设备
                     request.getAdapter().sendTelegram(response);
                 }
             }
-            return response;
+        } catch (TimeoutException te) {
+            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            IProtocol protocol = request.getProtocol();
+            String errorMsg = protocol.getDeviceId() + "进行" + protocol.getCmdKey() + "操作超时" + te.getMessage();
+            response.write(errorMsg);
+            LOG.error(errorMsg, te);
         } catch (Exception e) {
-            throw new RobotException(e.getMessage(), e);
+            //设置为错误500状态
+            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            String errorMsg = "";
+            if (RobotUtil.isMoveRequest(request)) {
+                errorMsg = "分发移动请求时发生异常:";
+            } else if (RobotUtil.isActionRequest(request)) {
+                errorMsg = "分发工站动作请求时发生异常:";
+            } else {
+                errorMsg = "分发处理接收到的业务协议字符串时异常:";
+            }
+            errorMsg += e.getMessage();
+            response.write(errorMsg);
+            LOG.error(errorMsg, e);
         }
+        return response;
     }
 
     /**

@@ -607,21 +607,20 @@ public class Point
   public enum Type {
 
     /**
-     * Indicates a position at which a vehicle is expected to report in.
-     * Halting or even parking at such a position is not allowed.
+     *指示车辆预计报告的位置。
+     *不允许在这样的位置停车。
+     * 也不允许所有位置也是报告位置，因为会导致无法停车
      */
     REPORT_POSITION,
     /**
-     * Indicates a position at which a vehicle may halt temporarily, e.g. for executing an
-     * operation.
-     * The vehicle is also expected to report in when it arrives at such a position.
-     * It may not park here for longer than necessary, though.
+     *表示车辆可能暂时停止的位置，例如执行操作。
+     *当车辆到达这样一个位置时，也要报告。
+     *不过，它可能不会在这里停得太久。默认点类型
      */
     HALT_POSITION,
     /**
-     * Indicates a position at which a vehicle may halt for longer periods of time when it is not
-     * processing orders.
-     * The vehicle is also expected to report in when it arrives at such a position.
+     *表示一个位置，在该位置，车辆可以在较长时间内停止正在处理订单。
+     *当车辆到达这样一个位置时，也要报告。
      */
     PARK_POSITION;
   }

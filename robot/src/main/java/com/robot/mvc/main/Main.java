@@ -40,7 +40,7 @@ public class Main {
         return MAIN;
     }
 
-    public void doTask(IRequest request, IResponse response) throws Exception {
+    public void doTask(IRequest request, IResponse response) {
         Objects.requireNonNull(request, "request is null");
         Objects.requireNonNull(response, "response is null");
         IProtocol protocol = Objects.requireNonNull(request.getProtocol(), "response is null");
@@ -50,10 +50,10 @@ public class Main {
                 TaskHandler.duang().doHandler(target, request, response);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            //设置为错误500状态
+            //设置为错误500状态, 这里只捕捉，不抛出异常，让doAfterHandler继续执行
             response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             response.write(e.getMessage());
+            LOG.error("Main.doTask时出错: " + e.getMessage(), e);
         }
         doAfterHandler(target, request, response);
     }

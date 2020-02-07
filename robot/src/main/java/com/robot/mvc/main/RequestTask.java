@@ -33,11 +33,7 @@ public class RequestTask implements Callable<IResponse> {
             throw new RobotException("RequestTask request or response is null");
         }
         // 执行请求任务
-        try {
-            Main.duang().doTask(iRequest, iResponse);
-        }  catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
+        Main.duang().doTask(iRequest, iResponse);
         return iResponse;
     }
 }
