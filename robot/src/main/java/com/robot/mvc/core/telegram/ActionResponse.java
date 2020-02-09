@@ -1,9 +1,7 @@
 package com.robot.mvc.core.telegram;
 
-import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IActionCommand;
 import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.core.interfaces.IRequest;
 
 /**
  * 工站动作响应对象
@@ -27,12 +25,15 @@ public abstract class ActionResponse implements IActionCommand {
      * @return
      */
     public ActionRequest toActionRequest() {
-        return new ActionRequest(protocol) {
+        ActionRequest actionRequest = new ActionRequest(protocol) {
             @Override
             public String cmd() {
                 return protocol.getCmdKey();
             }
         };
+        // 等待回复的响应，一律不需要发送
+        actionRequest.setNeedSend(false);
+        return actionRequest;
     }
 
 }

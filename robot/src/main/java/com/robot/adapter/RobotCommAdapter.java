@@ -308,9 +308,9 @@ public class RobotCommAdapter
         requireNonNull(stateModel, "stateModel");
         // 车辆状态设置为不空闲
         getProcessModel().setVehicleIdle(false);
-        // 当前位置
-        String currentPosition = stateModel.getCurrentPosition();
-        if (ToolsKit.isEmpty(currentPosition)) {
+        // 当前位置,上报的位置
+        String currentReportPosition = stateModel.getCurrentPosition();
+        if (ToolsKit.isEmpty(currentReportPosition)) {
             throw new RobotException("更新位置不能为空！");
         }
         try {
@@ -322,17 +322,28 @@ public class RobotCommAdapter
                 // 比较卡号是否与队列中的第1位元素一致
                 MovementCommand command = getMovementCommandQueue().peek();
                 if (null != command) {
-                    String sourcePointName = command.getStep().getSourcePoint().getName();
-                    if (null != sourcePointName && sourcePointName.equals(currentPosition)) {
+                    String destinationPointName = command.getStep().getDestinationPoint().getName();
+                    if (null == destinationPointName) {
+                        throw new RobotException("适配器[" + getName() + "]移动命令中的目标点名称不能为空！");
+                    }
+                    // 如果目标点与上报的点不一致，则取起始点再进行比较
+                    if (!destinationPointName.equals(currentReportPosition)) {
+                        String sourcePointName = command.getStep().getSourcePoint().getName();
+                        if (sourcePointName.equals(currentReportPosition)) {
+                            LOG.info("由于上报位置[{}]是车辆起始位置，适配器[{}]将忽略该上报请求！", currentReportPosition, getName());
+                            return;
+                        }
+                    }
+                    if (destinationPointName.equals(currentReportPosition)) {
                         getMovementCommandQueue().remove();
-                        LOG.info("车辆[{}]接收到的上报位置[{}]与车辆移动指令队列中的第1位元素一致，移除后继续执行操作!", getName(), currentPosition);
+                        LOG.info("车辆[{}]接收到的上报位置[{}]与车辆移动指令队列中的第1位元素一致，移除后继续执行操作!", getName(), currentReportPosition);
                     } else {
-                        throw new RobotException("车辆[" + getName() + "]接收到的上报位置[" + currentPosition + "]与车辆移动指令队列中的第1位元素不一致，请检查！");
+                        throw new RobotException("车辆[" + getName() + "]接收到的上报位置[" + currentReportPosition + "]与车辆移动指令队列中的第1位元素[" + destinationPointName + "]不一致，请检查！");
                     }
                 }
             }
             // 根据上报的卡号，更新位置
-            getProcessModel().setVehiclePosition(currentPosition);
+            getProcessModel().setVehiclePosition(currentReportPosition);
             // 更新为最新状态
             getProcessModel().setVehicleState(RobotUtil.translateVehicleState(stateModel.getOperatingState()));
             //  检查移动订单是否完成
@@ -356,12 +367,17 @@ public class RobotCommAdapter
                 cmd.isFinalMovement() &&
                 ToolsKit.isNotEmpty(operation)) {
             // 如果动作指令操作未运行则可以运行
-            LOG.info("车辆[{}]在[{}]位置上准备执行工站[{}]指令集", getName(), cmd.getStep().getSourcePoint().getName(), operation);
             executeLocationActions(cmd, getName(), operation);
         } else {
             LOG.info("车辆[{}]移动到点[{}]成功", getName(), cmd.getStep().getDestinationPoint().getName());
             MovementCommand curCommand = getSentQueue().poll();
             if (null != cmd && null != curCommand && cmd.equals(curCommand)) {
+                if (curCommand.isFinalMovement()) {
+                    //车辆设置为空闲状态，执行下一个移动指令
+                    getProcessModel().setVehicleState(Vehicle.State.IDLE);
+                    // 取消单步执行状态
+                    getProcessModel().setSingleStepModeEnabled(false);
+                }
                 getProcessModel().commandExecuted(curCommand);
             }
         }
@@ -419,7 +435,7 @@ public class RobotCommAdapter
      * BaseActios执行指令集完成后，调用该方法，执行下一个订单
      */
     public void executeNextMoveCmd() {
-        LOG.info("成功执行工站指令集，检查是否有下一订单，如有则继续执行");
+        LOG.info("检查车辆[{}]是否有下一个移动订单，如有则继续执行！", getName());
         RobotProcessModel processModel = getProcessModel();
         //车辆设置为空闲状态，执行下一个移动指令
         getProcessModel().setVehicleState(Vehicle.State.IDLE);

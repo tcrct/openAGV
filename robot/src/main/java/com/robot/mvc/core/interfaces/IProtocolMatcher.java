@@ -2,6 +2,8 @@ package com.robot.mvc.core.interfaces;
 
 import com.robot.mvc.core.exceptions.RobotException;
 
+import java.util.List;
+
 /**
  * 协议对象编码解码器匹配器接口
  * <p>
@@ -16,7 +18,7 @@ public interface IProtocolMatcher {
      * @return 协议对象
      * @throws RobotException
      */
-    IProtocol encode(String message) throws RobotException;
+    List<IProtocol> encode(String message) throws RobotException;
 
     /**
      * 解码，将协议对象转换为字符串

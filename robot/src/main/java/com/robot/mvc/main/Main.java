@@ -10,6 +10,7 @@ import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.telegram.BaseResponse;
 import com.robot.mvc.core.telegram.BusinessRequest;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.handlers.TaskHandler;
@@ -51,9 +52,11 @@ public class Main {
             }
         } catch (Exception e) {
             //设置为错误500状态, 这里只捕捉，不抛出异常，让doAfterHandler继续执行
-            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            response.write(e.getMessage());
-            LOG.error("Main.doTask时出错: " + e.getMessage(), e);
+            BaseResponse baseResponse = ((BaseResponse) response);
+            baseResponse.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            baseResponse.write(e.getMessage());
+            ((BaseResponse) response).setException(e);
+//            LOG.error("Main.doTask时出错: " + e.getMessage(), e);
         }
         doAfterHandler(target, request, response);
     }
@@ -77,17 +80,18 @@ public class Main {
         if (ReqType.MOVE.equals(reqType) || ReqType.ACTION.equals(reqType)) {
             return true;
         }
-        if (ReqType.BUSINESS.equals(reqType)) {
-            for (Iterator<IHandler> it = Application.BEFORE_HEANDLER_LIST.iterator(); it.hasNext(); ) {
-                boolean isNextHandle = it.next().doHandler(target, request, response);
-                if (!isNextHandle) {
-                    // 程序终止处理链执行，直接丢弃该次请求
-                    return false;
-                }
+        // 不是业务处理请求则抛出异常
+        if (!ReqType.BUSINESS.equals(reqType)) {
+            throw new RobotException("该请求没有设置请求类型[reqType]，请先设置！");
+        }
+        for (Iterator<IHandler> it = Application.BEFORE_HEANDLER_LIST.iterator(); it.hasNext(); ) {
+            boolean isNextHandle = it.next().doHandler(target, request, response);
+            if (!isNextHandle) {
+                // 程序终止处理链执行，直接丢弃该次请求
+                return false;
             }
         }
-        // 抛出异常
-        throw new RobotException("该请求没有设置请求类型[reqType]，请先设置！");
+        return true;
     }
 
     /**

@@ -26,10 +26,4 @@ public interface IComponents {
      * @param protocol 协议对象
      */
     void stopVehicle(IProtocol protocol);
-
-    /***
-     * 取移动协议指令关键字，用于生成移动请求时，设置cmdKey值
-     */
-    String getMoveProtocolKey();
-
 }

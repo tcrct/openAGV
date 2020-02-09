@@ -50,4 +50,14 @@ public interface IRequest extends ITelegram {
      */
     Map<String, Object> getParams();
 
+    /**
+     * 是否需要适配器操作
+     */
+    boolean isNeedAdapterOperation();
+
+    /**
+     * 是否需要发送协议到车辆
+     **/
+    boolean isNeedSend();
+
 }

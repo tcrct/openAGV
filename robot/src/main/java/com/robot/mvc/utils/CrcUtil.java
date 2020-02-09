@@ -135,7 +135,7 @@ public class CrcUtil {
     }
 
     public static void main(String[] args) {
-        String aa = "##,,A002,,r,,setrout,,rf310::rf31,,";
+        String aa = "##,,A006,,r,,setrout,,mf705::mf706::sf702,,";
         System.out.println(CrcVerify_Str(aa));
     }
 }

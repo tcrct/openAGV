@@ -4,6 +4,7 @@ import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.utils.RobotUtil;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
 import java.util.List;
@@ -32,9 +33,10 @@ public class MoveRequest extends BaseRequest {
      */
     public MoveRequest(RobotCommAdapter adapter, Queue<MovementCommand> commandList) {
         super(ReqType.MOVE, null);
-        super.protocol = new MoveProtocol(adapter.getName(), RobotContext.getRobotComponents().getMoveProtocolKey());
+        super.protocol = new MoveProtocol(adapter.getName(), RobotUtil.getMoveProtocolKey());
         super.adapter = adapter;
         this.movementCommandQueue = commandList;
+        super.setNeedSend(true);
     }
 
     /**

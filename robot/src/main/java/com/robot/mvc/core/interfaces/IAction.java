@@ -1,6 +1,8 @@
 package com.robot.mvc.core.interfaces;
 
 
+import com.robot.adapter.RobotCommAdapter;
+
 /**
  * 工站动作接口
  *

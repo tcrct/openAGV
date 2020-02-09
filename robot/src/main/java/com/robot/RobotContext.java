@@ -7,6 +7,7 @@ import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.telegram.MoveRequest;
+import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.SettingUtil;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class RobotContext {
      * @param key 车辆标识关键字
      */
     public static RobotCommAdapter getAdapter(String key) {
+        key = NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) ? key : RobotUtil.getVehicleId(key);
         return ADAPTER_MAP.get(key);
     }
     /**

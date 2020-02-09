@@ -8,6 +8,7 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.utils.ToolsKit;
 
 /**
  * 响应对象基类
@@ -46,8 +47,6 @@ public class BaseResponse implements IResponse {
     public BaseResponse(IRequest request) {
         request = java.util.Objects.requireNonNull(request, "请求对象不能为空");
         IProtocol protocol = java.util.Objects.requireNonNull(request.getProtocol(), "请求协议对象不能为空");
-        isNeedAdapterOperation = false;
-        isNeedSend = false;
         responseDefaultValue(request, protocol);
     }
 
@@ -57,6 +56,12 @@ public class BaseResponse implements IResponse {
         this.cmdKey = protocol.getCmdKey();
         this.exception = null;
         setStatus(HttpStatus.HTTP_OK);
+        if (request.isNeedAdapterOperation()) {
+            setNeedAdapterOperation(true);
+        }
+        if (request.isNeedSend()) {
+            setNeedSend(true);
+        }
     }
 
     @Override
@@ -90,6 +95,11 @@ public class BaseResponse implements IResponse {
      */
     @Override
     public void write(Object message) {
+
+        if (ToolsKit.isEmpty(message)) {
+            throw new RobotException("写入到响应对象时，值对象不能为空！");
+        }
+
         if (message instanceof String) {
             setRawContent(String.valueOf(message));
         } else if (message instanceof IProtocol) {

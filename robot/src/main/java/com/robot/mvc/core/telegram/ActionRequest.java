@@ -25,6 +25,7 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
 
     public ActionRequest(IProtocol protocol) {
         super(ReqType.ACTION, protocol);
+        super.setNeedSend(true);
     }
 
     public abstract String cmd();

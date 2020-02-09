@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -48,32 +49,38 @@ public class DispatchFactory {
             initComponents();
         }
         try {
-            IProtocol protocol = protocolMatcher.encode(message);
-            // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
-            if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
-                LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
-                protocolQueue.add(protocol);
-                RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+            List<IProtocol> protocolList = protocolMatcher.encode(message);
+            if (ToolsKit.isEmpty(protocolList)) {
+                LOG.info("协议报文对象列表不能为空，请注意是否在app.setting配置文件[security]节点里设置了[device.name]值");
                 return;
             }
-            BusinessRequest businessRequest = new BusinessRequest(message, protocol);
-            // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
-            businessRequest.setAdapter(RobotContext.getAdapter(protocol.getDeviceId()));
-            IResponse response = dispatchHandler(businessRequest, new BaseResponse(businessRequest));
-            // 如果状态等于200并且是需要进行到适配器进行操作的
-            // isNeedAdapterOperation在BaseService里设置，默认为false;
-            if (response.getStatus() == HttpStatus.HTTP_OK && response.isNeedAdapterOperation()) {
-                // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
-                RobotStateModel robotStateModel = response.getRobotStateModel();
-                if (ToolsKit.isEmpty(robotStateModel) || ToolsKit.isEmpty(robotStateModel.getCurrentPosition())) {
-                    throw new RobotException("robotStateModel对象或更新位置不能为空");
+            for (IProtocol protocol : protocolList) {
+                // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并退出
+                if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
+                    LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
+                    protocolQueue.add(protocol);
+                    RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                    return;
                 }
-                try {
-                    RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(robotStateModel);
-                } catch (RobotException re) {
-                    //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
-                    LOG.info(re.getMessage(), re);
-                    RobotContext.getRobotComponents().stopVehicle(protocol);
+                BusinessRequest businessRequest = new BusinessRequest(message, protocol);
+                // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
+                businessRequest.setAdapter(RobotUtil.getAdapter(protocol.getDeviceId()));
+                IResponse response = dispatchHandler(businessRequest, new BaseResponse(businessRequest));
+                // 如果状态等于200并且是需要进行到适配器进行操作的
+                // isNeedAdapterOperation在BaseService里设置，默认为false;
+                if (response.getStatus() == HttpStatus.HTTP_OK && response.isNeedAdapterOperation()) {
+                    // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
+                    RobotStateModel robotStateModel = response.getRobotStateModel();
+                    if (ToolsKit.isEmpty(robotStateModel) || ToolsKit.isEmpty(robotStateModel.getCurrentPosition())) {
+                        throw new RobotException("robotStateModel对象或更新位置不能为空");
+                    }
+                    try {
+                        RobotContext.getAdapter(response.getDeviceId()).onIncomingTelegram(robotStateModel);
+                    } catch (RobotException re) {
+                        //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
+                        LOG.info(re.getMessage(), re);
+                        RobotContext.getRobotComponents().stopVehicle(protocol);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -105,38 +112,54 @@ public class DispatchFactory {
     private static IResponse dispatchHandler(IRequest request, IResponse response) {
         try {
             FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
-            response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
+            if (RobotUtil.isDevMode()) {
+                response = futureTask.get();
+            } else {
+                response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
+            }
             if (response.getStatus() == HttpStatus.HTTP_OK) {
-                //是同一单元的请求响应且需要发送的响应
-                if (response.isResponseTo(request) && response.isNeedSend()) {
+                // 不是业务请求的都需要添加到重发队列
+                if (!RobotUtil.isBusinessRequest(request)) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     repeatSend.add(response);
+                }
+                //是同一单元的请求响应且需要发送的响应
+                if (response.isResponseTo(request) && response.isNeedSend()) {
                     // 正确的响应才发送到车辆或设备
                     request.getAdapter().sendTelegram(response);
                 }
+            } else {
+                createResponseException(request, response, response.getException());
             }
         } catch (TimeoutException te) {
-            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            IProtocol protocol = request.getProtocol();
-            String errorMsg = protocol.getDeviceId() + "进行" + protocol.getCmdKey() + "操作超时" + te.getMessage();
-            response.write(errorMsg);
-            LOG.error(errorMsg, te);
+            createResponseException(request, response, te);
         } catch (Exception e) {
-            //设置为错误500状态
-            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            String errorMsg = "";
-            if (RobotUtil.isMoveRequest(request)) {
-                errorMsg = "分发移动请求时发生异常:";
-            } else if (RobotUtil.isActionRequest(request)) {
-                errorMsg = "分发工站动作请求时发生异常:";
-            } else {
-                errorMsg = "分发处理接收到的业务协议字符串时异常:";
-            }
-            errorMsg += e.getMessage();
-            response.write(errorMsg);
-            LOG.error(errorMsg, e);
+            createResponseException(request, response, e);
         }
         return response;
+    }
+
+    private static void createResponseException(IRequest request, IResponse response, Exception e) {
+        //设置为错误500状态
+        response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        String errorMsg = "";
+        IProtocol protocol = request.getProtocol();
+        String deviceId = protocol.getDeviceId();
+        String cmdKey = protocol.getCmdKey();
+        if (RobotUtil.isMoveRequest(request)) {
+            errorMsg = "分发[" + deviceId + "][" + cmdKey + "]移动请求时发生异常：";
+        } else if (RobotUtil.isActionRequest(request)) {
+            errorMsg = "分发[" + deviceId + "][" + cmdKey + "]工站动作请求时发生异常：";
+        } else if (RobotUtil.isBusinessRequest(request)) {
+            errorMsg = "分发[" + deviceId + "][" + cmdKey + "]业务协议字符串时异常：";
+        } else if (e instanceof TimeoutException) {
+            errorMsg = protocol.getDeviceId() + "进行" + protocol.getCmdKey() + "操作超时" + e.getMessage();
+        } else {
+            errorMsg = "抛出未知异常";
+        }
+        errorMsg += e.getMessage();
+        response.write(errorMsg);
+        LOG.error(errorMsg, e);
     }
 
     /**

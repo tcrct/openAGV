@@ -22,7 +22,7 @@ public interface IRepeatSend {
      * @param request 请求对象
      * @return 删除成功返回true
      */
-    void remove(IRequest request) throws RobotException;
+    boolean remove(IRequest request) throws RobotException;
 
     /**
      * 根据车辆ID删除重发队列里的所有响应对象

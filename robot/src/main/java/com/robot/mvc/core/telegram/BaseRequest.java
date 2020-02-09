@@ -27,7 +27,18 @@ public class BaseRequest implements IRequest, java.io.Serializable {
     protected String rawContent;
     /**车辆适配器，每一个请求里都必须包含*/
     protected RobotCommAdapter adapter;
+    /**
+     * 用于扩展参数
+     */
     protected Map<String, Object> paramMap;
+    /**
+     * 是否需要进入适配器，默认不需要
+     */
+    protected boolean isNeedAdapterOperation;
+    /**
+     * 是否需要发送，默认是不需要发送
+     */
+    protected boolean isNeedSend;
 
     public BaseRequest(ReqType reqType, IProtocol protocol) {
         Objects.requireNonNull(reqType, "请求对象枚举值不能为空");
@@ -36,6 +47,8 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         setProtocol(protocol);
         setReqType(reqType);
         paramMap = new HashMap();
+        isNeedAdapterOperation = false;
+        isNeedSend = false;
     }
 
     public void setAdapter(RobotCommAdapter adapter) {
@@ -99,5 +112,32 @@ public class BaseRequest implements IRequest, java.io.Serializable {
     @Override
     public void setRawContent(String raw) {
         this.rawContent = raw;
+    }
+
+    @Override
+    public boolean isNeedAdapterOperation() {
+        return isNeedAdapterOperation;
+    }
+
+    /***
+     * 设置是否需要适配器继续操作，默认为false, 为true时代表需要
+     * @param needAdapterOperation  是否需要
+     */
+    public void setNeedAdapterOperation(boolean needAdapterOperation) {
+        isNeedAdapterOperation = needAdapterOperation;
+    }
+
+    @Override
+    public boolean isNeedSend() {
+        return isNeedSend;
+    }
+
+    /**
+     * 设置是否需要发送协议，默认为false, 为true时代表需要发送
+     *
+     * @param needSend
+     */
+    public void setNeedSend(boolean needSend) {
+        isNeedSend = needSend;
     }
 }
