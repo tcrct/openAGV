@@ -1,6 +1,8 @@
 package com.robot.adapter;
 
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import com.google.inject.assistedinject.Assisted;
 import com.robot.RobotContext;
 import com.robot.adapter.enumes.LoadAction;
@@ -22,12 +24,15 @@ import com.robot.mvc.core.telegram.ITelegramSender;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 import org.opentcs.customizations.kernel.KernelExecutor;
+import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.guing.application.OpenTCSView;
 import org.opentcs.util.ExplainedBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +43,7 @@ import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -93,7 +99,6 @@ public class RobotCommAdapter
                 configuration.commandQueueCapacity(),
                 configuration.sentQueueCapacity(),
                 configuration.rechargeOperation());
-
         this.tcsObjectService = requireNonNull(tcsObjectService, "tcsObjectService");
         this.vehicle = requireNonNull(vehicle, "vehicle");
         this.configuration = requireNonNull(configuration, "configuration");
@@ -128,23 +133,57 @@ public class RobotCommAdapter
             LOG.info("车辆[{}]已开启通讯适配器，请勿重复开启", getName());
             return;
         }
-        //每开启一个车辆就启动一个定时监听器
+        // TODO 是否移动到initialize方法下???
+        //***********************************************************//
+        // 每开启一个车辆就启动一个定时监听器
         moveCommandListener = new MoveCommandListener(this);
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
         moveRequesterTask.enable(getName());
-        // 初始化车辆渠道管理器
+        initVehicleChannelManager();
+//        enable();
+        //**********************************************************//
+        super.enable();
+        initVehiclePosition(getName());
+        LOG.info("成功开启车辆[{}]通讯适配器", getName());
+    }
+
+    public synchronized void trigger() {
+
+    }
+
+    public synchronized void initVehiclePosition(String newPos) {
+
+        getProcessModel().setVehicleIdle(true);
+        getProcessModel().setVehicleState(Vehicle.State.IDLE);
+        HttpRequest.put("http://127.0.0.1:55200/v1/vehicles/" + getName() + "/integrationLevel?newValue=TO_BE_UTILIZED").executeAsync().body();
+        if ("A006".equals(newPos)) {
+            getProcessModel().setVehiclePosition("705");
+        }
+        if ("A010".equals(newPos)) {
+            getProcessModel().setVehiclePosition("1");
+        }
+        if ("A009".equals(newPos)) {
+            getProcessModel().setVehiclePosition("237");
+        }
+        if ("A033".equals(newPos)) {
+            getProcessModel().setVehiclePosition("49");
+        }
+        if ("A001".equals(newPos)) {
+            getProcessModel().setVehiclePosition("218");
+        }
+        if ("A002".equals(newPos)) {
+            getProcessModel().setVehiclePosition("231");
+        }
+    }
+
+    // 初始化车辆渠道管理器
+    private void initVehicleChannelManager() {
         if (null == vehicleChannelManager) {
             vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
             if (!vehicleChannelManager.isInitialized()) {
                 vehicleChannelManager.initialize();
             }
         }
-        super.enable();
-        LOG.info("成功开启车辆[{}]通讯适配器", getName());
-    }
-
-    public synchronized void trigger() {
-
     }
 
     /**
@@ -524,6 +563,11 @@ public class RobotCommAdapter
      */
     @Override
     public void sendTelegram(IResponse response) {
+        if (null == vehicleChannelManager) {
+//            initVehicleChannelManager();
+//            connectVehicle();
+            throw new RobotException("vehicleChannelManager is null");
+        }
         vehicleChannelManager.send(response);
     }
 }

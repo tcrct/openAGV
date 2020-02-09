@@ -9,6 +9,7 @@ import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.SettingUtil;
+import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +84,22 @@ public class RobotContext {
             tcsObjectService = objectService;
         }
     }
-
     public static TCSObjectService getTCSObjectService() {
         return RobotContext.tcsObjectService;
+    }
+
+
+    /**
+     * 内核服务
+     */
+    private static KernelServicePortal kernelServicePortal;
+
+    public static void setKernelServicePortal(KernelServicePortal servicePortal) {
+        kernelServicePortal = servicePortal;
+    }
+
+    public static KernelServicePortal getKernelServicePortal() {
+        return kernelServicePortal;
     }
 }
 

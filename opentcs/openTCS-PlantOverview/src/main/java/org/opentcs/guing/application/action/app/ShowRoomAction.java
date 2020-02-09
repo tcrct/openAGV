@@ -8,7 +8,6 @@
  */
 package org.opentcs.guing.application.action.app;
 
-import com.google.inject.*;
 import org.opentcs.access.SharedKernelServicePortalProvider;
 import org.opentcs.customizations.plantoverview.ApplicationFrame;
 import org.opentcs.guing.application.ApplicationState;
@@ -20,16 +19,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static org.opentcs.guing.util.I18nPlantOverview.MENU_PATH;
 
 /**
- * Displays a dialog showing information about the application.
+ * 展厅功能
  *
- * @author Heinz Huber (Fraunhofer IML)
- * @author Stefan Walter (Fraunhofer IML)
+ * @author Laotang
  */
 public class ShowRoomAction
     extends AbstractAction {
@@ -52,6 +49,9 @@ public class ShowRoomAction
    * The parent component for dialogs shown by this action.
    */
   private final Component dialogParent;
+  /***
+   * 展厅类路径
+   */
   private static final String SERVICE_CLASS_NAME = "com.robot.service.ShowRoomService";
 
   /**
@@ -77,9 +77,9 @@ public class ShowRoomAction
     putValue(LARGE_ICON_KEY, icon);
   }
 
+  //TODO 展厅鼠标动作触发器
   @Override
   public void actionPerformed(ActionEvent evt) {
-
     int dialogResult
             = JOptionPane.showConfirmDialog(dialogParent,
             "<html><p>运行展厅所有示例</p></html>",

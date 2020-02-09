@@ -178,7 +178,7 @@ public class UdpServerChannelManager<I, O> {
 
     public void send(O telegram) {
         if (!this.isConnected()) {
-            throw new IllegalArgumentException("Not initialized.");
+            throw new IllegalArgumentException("Not Connected.");
         }
         if (ObjectUtil.isEmpty(telegram)) {
             throw new IllegalArgumentException("广播的报文内容不能为空");

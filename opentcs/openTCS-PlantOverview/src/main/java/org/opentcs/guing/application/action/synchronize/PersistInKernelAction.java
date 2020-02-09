@@ -20,12 +20,12 @@ import org.opentcs.guing.util.ResourceBundleUtil;
 
 /**
  * An action to save the (local) model in the kernel.
- *
+ * 持久化到内核
  * @author Philipp Seifert (Philipp.Seifert@iml.fraunhofer.de)
  */
 public class PersistInKernelAction
     extends AbstractAction {
-
+    // TODO... alt+p
   public static final String ID = "synchronize.saveModelInKernel";
 
   private static final ResourceBundleUtil BUNDLE = ResourceBundleUtil.getBundle(MENU_PATH);

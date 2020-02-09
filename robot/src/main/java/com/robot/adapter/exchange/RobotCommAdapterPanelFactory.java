@@ -1,5 +1,6 @@
 package com.robot.adapter.exchange;
 
+import com.robot.RobotContext;
 import com.robot.adapter.model.RobotVehicleModelTO;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.data.TCSObjectReference;
@@ -45,6 +46,7 @@ public class RobotCommAdapterPanelFactory implements VehicleCommAdapterPanelFact
     public RobotCommAdapterPanelFactory(KernelServicePortal servicePortal, RobotPanelComponentsFactory componentsFactory) {
         this.servicePortal = requireNonNull(servicePortal, "servicePortal");
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
+        RobotContext.setKernelServicePortal(servicePortal);
     }
 
     @Override

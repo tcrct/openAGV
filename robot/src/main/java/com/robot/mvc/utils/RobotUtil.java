@@ -14,6 +14,7 @@ import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
@@ -91,6 +92,14 @@ public class RobotUtil {
     public static Path getPath(String pathName) {
         java.util.Objects.requireNonNull(pathName, "路径名称不能为空");
         return getOpenTcsObjectService().fetchObject(Path.class, pathName);
+    }
+
+    /***
+     * 根据线名称取openTCS线路图上的车辆
+     */
+    public static Location getLocation(String locationName) {
+        java.util.Objects.requireNonNull(locationName, "位置名称不能为空且必须唯一");
+        return getOpenTcsObjectService().fetchObject(Location.class, locationName);
     }
 
     /**

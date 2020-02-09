@@ -75,6 +75,19 @@ public class MoveCommandListener implements ActionListener {
          */
 //        adapter.getMovementCommandQueue().addAll(commandList);
         adapter.getMovementCommandQueue().addAll(tempCommandQueue);
+        // 去重，在概述工厂里，对车辆进行立即停车操作后，再重新生成新的移动订单时，队列里的移动指令会出现重复
+        // TODO... 如果找到立即停车触发事件，可以执行adapter.getMovementCommandQueue().clear()后
+        Map<String, MovementCommand> commandMap = new LinkedHashMap<>();
+        Queue<MovementCommand> movementCommandQueue = adapter.getMovementCommandQueue();
+        for (MovementCommand command : movementCommandQueue) {
+            String key = command.getStep().getSourcePoint().getName();
+            commandMap.put(key, command);
+        }
+        adapter.getMovementCommandQueue().clear();
+        for (Iterator<Map.Entry<String, MovementCommand>> iterator = commandMap.entrySet().iterator(); iterator.hasNext(); ) {
+            adapter.getMovementCommandQueue().add(iterator.next().getValue());
+        }
+
         // 进行业务处理，定时器每隔指定时间执行一次
         // 将请求发送到业务逻辑处理，自行实现所有的协议内容发送
         MoveRequest moveRequest = new MoveRequest(adapter, adapter.getMovementCommandQueue());

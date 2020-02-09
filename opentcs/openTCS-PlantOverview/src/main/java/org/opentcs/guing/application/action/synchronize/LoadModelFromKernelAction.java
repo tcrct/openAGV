@@ -23,9 +23,10 @@ import org.opentcs.guing.util.ResourceBundleUtil;
 
 /**
  * An action to load the current kernel model in the plant overview.
- *
+ *载入模型
  * @author Philipp Seifert (Philipp.Seifert@iml.fraunhofer.de)
  */
+// TODO alt+k
 public class LoadModelFromKernelAction
     extends AbstractAction {
 

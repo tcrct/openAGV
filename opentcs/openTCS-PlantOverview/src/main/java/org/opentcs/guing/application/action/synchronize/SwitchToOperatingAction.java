@@ -21,9 +21,10 @@ import org.opentcs.guing.util.ResourceBundleUtil;
 
 /**
  * An action to switch to operating mode.
- *
+ * 操作模式
  * @author Mustafa Yalciner (Fraunhofer IML)
  */
+// TODO alt+0
 public class SwitchToOperatingAction
     extends AbstractAction {
 
