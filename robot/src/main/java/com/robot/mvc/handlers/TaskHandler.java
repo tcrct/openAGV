@@ -15,6 +15,7 @@ import com.robot.mvc.model.Route;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.ToolsKit;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -65,7 +66,13 @@ public class TaskHandler {
                 throw new RobotException(ExceptionEnums.RESPONSE_RAW_NULL);
             }
         } catch (Exception e) {
-            throw new RobotException(e.getMessage(), e);
+            if (e instanceof InvocationTargetException) {
+                InvocationTargetException ite = (InvocationTargetException) e;
+                Throwable t = ite.getTargetException();// 获取目标异常
+                throw new RobotException(t.getMessage(), t);
+            } else {
+                throw new RobotException(e.getMessage(), e);
+            }
         }
         return response;
     }
