@@ -140,10 +140,9 @@ public class RobotCommAdapter
         moveRequesterTask = new MoveRequesterTask(moveCommandListener);
         moveRequesterTask.enable(getName());
         initVehicleChannelManager();
-//        enable();
         //**********************************************************//
-        super.enable();
         initVehiclePosition(getName());
+        super.enable();
         LOG.info("成功开启车辆[{}]通讯适配器", getName());
     }
 
@@ -155,7 +154,12 @@ public class RobotCommAdapter
 
         getProcessModel().setVehicleIdle(true);
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
-        HttpRequest.put("http://127.0.0.1:55200/v1/vehicles/" + getName() + "/integrationLevel?newValue=TO_BE_UTILIZED").executeAsync().body();
+
+        //  开启以下代码，会导致页面卡死，原因不明
+//        VehicleService vehicleService = RobotContext.getKernelServicePortal().getVehicleService();
+//        vehicleService.updateVehicleIntegrationLevel(RobotUtil.getVehicle(getName()).getReference(), Vehicle.IntegrationLevel.TO_BE_UTILIZED);
+        //或者
+//        HttpRequest.put("http://127.0.0.1:55200/v1/vehicles/" + getName() + "/integrationLevel?newValue=TO_BE_UTILIZED").executeAsync().body();
         if ("A006".equals(newPos)) {
             getProcessModel().setVehiclePosition("705");
         }
