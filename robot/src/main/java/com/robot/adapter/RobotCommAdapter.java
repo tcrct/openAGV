@@ -178,6 +178,11 @@ public class RobotCommAdapter
         if ("A002".equals(newPos)) {
             getProcessModel().setVehiclePosition("231");
         }
+
+        // 顶升AGV
+        if ("A030".equals(newPos)) {
+            getProcessModel().setVehiclePosition("1");
+        }
     }
 
     // 初始化车辆渠道管理器

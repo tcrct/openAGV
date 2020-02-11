@@ -72,7 +72,7 @@ public class ServiceWebApi
     /**
      * 控制中心(web)端请求处理器
      */
-    private final ConsoleRequestHandler consoleRequestHandler;
+//    private final ConsoleRequestHandler consoleRequestHandler;
 
   /**
    * Creates a new instance.
@@ -86,13 +86,13 @@ public class ServiceWebApi
   public ServiceWebApi(ServiceWebApiConfiguration configuration,
                        SslParameterSet sslParamSet,
                        Authenticator authenticator,
-                       V1RequestHandler v1RequestHandler,
-                       ConsoleRequestHandler consoleRequestHandler) {
+                       V1RequestHandler v1RequestHandler) {
+//                       ConsoleRequestHandler consoleRequestHandler) {
     this.configuration = requireNonNull(configuration, "configuration");
     this.authenticator = requireNonNull(authenticator, "authenticator");
     this.v1RequestHandler = requireNonNull(v1RequestHandler, "v1RequestHandler");
     this.sslParamSet = requireNonNull(sslParamSet, "sslParamSet");
-    this.consoleRequestHandler = requireNonNull(consoleRequestHandler, "consoleRequestHandler");
+//    this.consoleRequestHandler = requireNonNull(consoleRequestHandler, "consoleRequestHandler");
   }
 
   @Override
@@ -149,7 +149,7 @@ public class ServiceWebApi
     // Register routes for API versions here.
     service.path("/v1", () -> v1RequestHandler.addRoutes(service));
     //  注册控制中心请求路由到处理器，所有以/console的请求视为控制中心的请求
-    service.path("/console", () -> consoleRequestHandler.addRoutes(service));
+//    service.path("/console", () -> consoleRequestHandler.addRoutes(service));
     service.exception(IllegalArgumentException.class, (exception, request, response) -> {
                     response.status(400);
                     response.type(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
