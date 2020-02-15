@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import javax.annotation.Nonnull;
 
+import com.robot.adapter.RobotCommAdapter;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterEvent;
@@ -39,6 +40,12 @@ public class PublishEventCommand
 
     @Override
     public void execute(VehicleCommAdapter adapter) {
-        adapter.getProcessModel().publishEvent(event);
+        if (!(adapter instanceof RobotCommAdapter)) {
+            return;
+        }
+
+        RobotCommAdapter robotCommAdapter = (RobotCommAdapter) adapter;
+        robotCommAdapter.getProcessModel().publishEvent(event);
+
     }
 }

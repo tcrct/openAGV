@@ -122,7 +122,7 @@ public class RobotUtil {
      * @return
      */
     public static String getRunType() {
-        return SettingUtil.getString("run.type", "server").toUpperCase();
+        return SettingUtil.getString("run.type", "client").toUpperCase();
     }
 
     /***

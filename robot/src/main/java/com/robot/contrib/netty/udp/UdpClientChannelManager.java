@@ -119,11 +119,13 @@ public class UdpClientChannelManager<O, I> {
             return;
         }
         LOG.warn("正在启动连接尝试{}:{}...", host, port);
-        channelFuture = bootstrap.bind(host, port).sync();
+        channelFuture = bootstrap.connect(host, port);
         channelFuture.addListener((ChannelFuture future) -> {
             if (future.isSuccess()) {
                 this.initialized = true;
-                LOG.warn("UdpClientChannelManager链接城功:  {}:{}", host, port);
+                this.host = host;
+                this.port = port;
+                LOG.warn("UdpClientChannelManager链接[{}:{}]成功", host, port);
             }
             else {
                 throw new InterruptedException("UdpClientChannelManager链接失败");
@@ -192,7 +194,7 @@ public class UdpClientChannelManager<O, I> {
             throw new IllegalArgumentException("广播的报文内容不能为空");
         }
 
-        InetSocketAddress address = new InetSocketAddress(RobotUtil.getServerHost(), RobotUtil.getServerPort());
+        InetSocketAddress address = new InetSocketAddress(host, port);
         String telegramStr = telegram.toString();
         LOG.info("send upd client [{}][{}], telegram [{}] ",
                 adapter.getProcessModel().getName(),

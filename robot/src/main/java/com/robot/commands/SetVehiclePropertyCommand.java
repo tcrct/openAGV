@@ -16,7 +16,7 @@ import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
 /**
- * A command to set a vehicle's property.
+ * 设置车辆属性
  *
  * @author Martin Grzenia (Fraunhofer IML)
  */

@@ -25,7 +25,7 @@ public class SetMaxFwdVeloTxtCommand implements AdapterCommand {
         if (!(adapter instanceof RobotCommAdapter)) {
             return;
         }
-        RobotCommAdapter commAdapter = (RobotCommAdapter) adapter;
-        commAdapter.getProcessModel().setVehicleMaxVelocity(value);
+        RobotCommAdapter robotCommAdapter = (RobotCommAdapter) adapter;
+        robotCommAdapter.getProcessModel().setVehicleMaxVelocity(value);
     }
 }

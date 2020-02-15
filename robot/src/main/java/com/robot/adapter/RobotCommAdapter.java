@@ -209,7 +209,6 @@ public class RobotCommAdapter
         int port = RobotUtil.getPort(getName());
         try {
             vehicleChannelManager.connect(host, port);
-            LOG.info("LOG.info(vehicleChannelManager.hashCode: {}", vehicleChannelManager.hashCode());
             LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
         } catch (RobotException e) {
             LOG.error("连接车辆[{}]时发生异常: {}", getName(), e.getMessage());
