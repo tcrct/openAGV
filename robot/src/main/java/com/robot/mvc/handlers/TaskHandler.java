@@ -4,7 +4,6 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.robot.RobotContext;
 import com.robot.mvc.core.exceptions.ExceptionEnums;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -25,13 +24,15 @@ public class TaskHandler {
 
     private static final Log LOG = LogFactory.get();
 
-    private static final Object[] NULL_ARGS = new Object[0];		// 默认参数
+    private static final Object[] NULL_ARGS = new Object[0];        // 默认参数
 
     private static class TaskHandlerHolder {
         private static final TaskHandler INSTANCE = new TaskHandler();
     }
+
     private TaskHandler() {
     }
+
     public static final TaskHandler duang() {
         return TaskHandlerHolder.INSTANCE;
     }
@@ -44,7 +45,7 @@ public class TaskHandler {
      * @param response 返回对象
      * @throws Exception
      */
-    public IResponse doHandler(String target, IRequest request, IResponse response) throws Exception{
+    public IResponse doHandler(String target, IRequest request, IResponse response) throws Exception {
         String deviceId = request.getProtocol().getDeviceId();
         try {
             Route route = RouteHelper.duang().getRoutes().get(deviceId);
@@ -91,7 +92,7 @@ public class TaskHandler {
             throw new RobotException("移动请求必须要实现协议指令对应的[" + RobotUtil.getMoveProtocolKey() + "]方法！");
         }
 
-        if (response.isResponseTo(request) ) {
+        if (response.isResponseTo(request)) {
             LOG.info("{}Service没有实现{}方法，直接返回请求对象协议内容字符串", deviceId, methodName);
             response.write(request.getRawContent());
             response.setStatus(HttpStatus.HTTP_OK);

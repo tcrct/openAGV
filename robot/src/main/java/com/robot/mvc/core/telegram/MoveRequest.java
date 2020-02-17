@@ -1,13 +1,11 @@
 package com.robot.mvc.core.telegram;
 
-import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.utils.RobotUtil;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -28,7 +26,8 @@ public class MoveRequest extends BaseRequest {
 
     /**
      * 构造方法，将移动队列放置到移动请求对象中
-     * @param adapter 车辆适配器
+     *
+     * @param adapter     车辆适配器
      * @param commandList 移动队列集合
      */
     public MoveRequest(RobotCommAdapter adapter, Queue<MovementCommand> commandList) {

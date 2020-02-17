@@ -5,11 +5,13 @@ import cn.hutool.log.LogFactory;
 import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.adapter.enumes.OperatingState;
+import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.RunType;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
+import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
@@ -53,6 +55,7 @@ public class RobotUtil {
 
     /**
      * 根据名称取适配器，
+     *
      * @param name
      * @return
      */
@@ -102,19 +105,24 @@ public class RobotUtil {
         return getOpenTcsObjectService().fetchObject(Location.class, locationName);
     }
 
+    private static NetChannelType netChannelType;
+
     /**
      * 取网络渠道类型，分别为TCP/UDP/RXTX
      *
      * @return
      */
     public static NetChannelType getNetChannelType() {
-        String typeString = SettingUtil.getString("net.channel.type", "UDP");
-        try {
-            return NetChannelType.valueOf(typeString.toUpperCase());
-        } catch (Exception e) {
-            LOG.error("根据{}取网络渠道类型时出错:{}, 返回 UDP 模式", typeString, e.getMessage());
-            return NetChannelType.UDP;
+        if (null == netChannelType) {
+            String typeString = SettingUtil.getString("net.channel.type", "UDP");
+            try {
+                netChannelType = NetChannelType.valueOf(typeString.toUpperCase());
+            } catch (Exception e) {
+                LOG.error("根据{}取网络渠道类型时出错:{}, 返回 UDP 模式", typeString, e.getMessage());
+                netChannelType = NetChannelType.UDP;
+            }
         }
+        return netChannelType;
     }
 
     /***
@@ -134,7 +142,7 @@ public class RobotUtil {
                 NetChannelType.UDP.equals(getNetChannelType())) {
             return SettingUtil.getString("host", "net", "0.0.0.0");
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
-            return SettingUtil.getString("name", "serialport", "COM6");
+            return SettingUtil.getString("name", "serialport", "COM3");
         }
         return "";
     }
@@ -167,7 +175,7 @@ public class RobotUtil {
                 return RobotContext.getAdapter(vehicleName).getProcessModel().getVehicleHost();
             }
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
-            return SettingUtil.getString("name", "serialport", "COM6");
+            return SettingUtil.getString("name", "rxtx", "COM3");
         }
         return "";
     }
@@ -186,7 +194,7 @@ public class RobotUtil {
                 return RobotContext.getAdapter(vehicleName).getProcessModel().getVehiclePort();
             }
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
-            return SettingUtil.getInt("baudrate", "serialport", 38400);
+            return SettingUtil.getInt("baudrate", "rxtx", 38400);
         }
         return 0;
     }
@@ -379,4 +387,35 @@ public class RobotUtil {
         ACTION_KEY_MAP.put(deviceName, deviceNameSet);
     }
 
+    /**
+     * 是否以客户端的方式运行
+     */
+    public static boolean isClientRunType() {
+        return RunType.CLIENT.name().toUpperCase().equals(getRunType());
+    }
+
+    /**
+     * 是否以服务器端的方式运行
+     */
+    public static boolean isServerRunType() {
+        return RunType.SERVER.name().toLowerCase().equals(getRunType());
+    }
+
+    private static final Map<String, String> CLIENT_ENTRY_KEY_MAP = new HashMap<>();
+
+    public static void setClientEntryKey(String name, String host, int port) {
+        CLIENT_ENTRY_KEY_MAP.put(name, ClientEntry.createClientEntryKey(host, port));
+    }
+
+    public static String getCleintEntryKey(String msg) {
+        List<IProtocol> protocolList = RobotContext.getRobotComponents().getProtocolMatcher().encode(msg);
+        if (ToolsKit.isEmpty(protocolList)) {
+            throw new RobotException("protocolList is null");
+        }
+        String clientEntryKey = "";
+        for (IProtocol protocol : protocolList) {
+            clientEntryKey = CLIENT_ENTRY_KEY_MAP.get(protocol.getDeviceId());
+        }
+        return clientEntryKey;
+    }
 }

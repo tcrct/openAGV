@@ -3,8 +3,8 @@ package com.robot.config;
 /**
  * Robot配置
  *
- * @blame opentcs
  * @author Laotang
+ * @blame opentcs
  * @since 1.0
  */
 public class RobotConfiguration {
@@ -19,7 +19,6 @@ public class RobotConfiguration {
     }
 
     /**
-     *
      * @return
      */
     public int sentQueueCapacity() {

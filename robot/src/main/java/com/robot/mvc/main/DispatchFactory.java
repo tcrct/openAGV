@@ -6,8 +6,10 @@ import com.robot.RobotContext;
 import com.robot.adapter.model.RobotStateModel;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
-import com.robot.mvc.core.telegram.*;
-import com.robot.mvc.model.RepeatSendModel;
+import com.robot.mvc.core.telegram.ActionRequest;
+import com.robot.mvc.core.telegram.BaseResponse;
+import com.robot.mvc.core.telegram.BusinessRequest;
+import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.utils.RobotUtil;
 import com.robot.mvc.utils.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -15,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 调度分发工厂
@@ -28,11 +33,17 @@ public class DispatchFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchFactory.class);
 
-    /**协议解码器*/
+    /**
+     * 协议解码器
+     */
     private static IProtocolMatcher protocolMatcher;
-    /**重复发送对象*/
+    /**
+     * 重复发送对象
+     */
     private static IRepeatSend repeatSend;
-    /**操作超时时长*/
+    /**
+     * 操作超时时长，默认为3秒
+     */
     private static Integer REQUEST_TIME_OUT = 3000;
 
     static {
@@ -41,6 +52,7 @@ public class DispatchFactory {
 
     /**
      * 系统接收到车辆或工作站发起的业务协议字符串
+     *
      * @param message 协议内容
      */
     public static void onIncomingTelegram(String message) {

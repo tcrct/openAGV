@@ -37,16 +37,16 @@ public class CrcUtil {
     }
 
     public static int CrcVerify(String sourceStr) {
-        int i,j;
+        int i, j;
         int wCrc = 0xffff;
         int wPolynom = 0xA001;
         char[] cBuffer = sourceStr.toCharArray();
         int iBufLen = cBuffer.length;
 
-        for(i=0; i<iBufLen; i++) {
+        for (i = 0; i < iBufLen; i++) {
             wCrc ^= cBuffer[i];
-            for(j=0; j<8; j++) {
-                if((wCrc & 0x0001)>0) {
+            for (j = 0; j < 8; j++) {
+                if ((wCrc & 0x0001) > 0) {
                     wCrc = (wCrc >> 1) ^ wPolynom;
                 } else {
                     wCrc = wCrc >> 1;
@@ -99,6 +99,7 @@ public class CrcUtil {
 
     /**
      * int --> byte[] 整形转byte[]
+     *
      * @param res
      * @return
      */
@@ -114,6 +115,7 @@ public class CrcUtil {
 
     /**
      * byte[] -->int byte[]转整形
+     *
      * @param res
      * @return
      */
@@ -125,7 +127,7 @@ public class CrcUtil {
         return targets;
     }
 
-    private static String toString(String format,int crcInt) {
+    private static String toString(String format, int crcInt) {
 //        String format = "%04x"
         try {
             return String.format(format, crcInt);

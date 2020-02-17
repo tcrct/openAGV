@@ -4,18 +4,13 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
-import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.utils.RobotUtil;
-import com.robot.mvc.utils.SettingUtil;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,6 +31,7 @@ public class RobotContext {
 
     /**
      * 取车辆适配器集合
+     *
      * @return
      */
     public static Map<String, RobotCommAdapter> getAdapterMap() {
@@ -50,8 +46,10 @@ public class RobotContext {
         key = NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) ? key : RobotUtil.getVehicleId(key);
         return ADAPTER_MAP.get(key);
     }
+
     /**
      * 设置OpenAGV需要使用的第三方组件实例接口
+     *
      * @param components 第三方组件实例接口
      */
     public static void setRobotComponents(IComponents components) {
@@ -60,6 +58,7 @@ public class RobotContext {
 
     /**
      * 取第三方组件实例接口
+     *
      * @return 第三方组件实例接口
      */
     public static IComponents getRobotComponents() {
@@ -69,7 +68,9 @@ public class RobotContext {
         return components;
     }
 
-    /**缓存RequestKit发出的请求，等待响应回复，key为crc验证码*/
+    /**
+     * 缓存RequestKit发出的请求，等待响应回复，key为crc验证码
+     */
     public static Map<String, LinkedBlockingQueue<IProtocol>> getResponseProtocolMap() {
         return RESPONSE_PROTOCOL_MAP;
     }
@@ -84,6 +85,7 @@ public class RobotContext {
             tcsObjectService = objectService;
         }
     }
+
     public static TCSObjectService getTCSObjectService() {
         return RobotContext.tcsObjectService;
     }

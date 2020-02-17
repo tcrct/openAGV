@@ -1,12 +1,10 @@
 package com.robot.mvc.main;
 
-import cn.hutool.http.HttpStatus;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.robot.mvc.core.telegram.BaseResponse;
 import com.robot.mvc.utils.ToolsKit;
 
 import java.util.concurrent.Callable;

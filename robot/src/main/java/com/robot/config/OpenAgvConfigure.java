@@ -3,11 +3,8 @@ package com.robot.config;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.util.CharsetUtil;
 import org.apache.log4j.PropertyConfigurator;
-import org.opentcs.contrib.tcp.netty.ConnectionEventListener;
 
 import java.io.File;
 import java.net.URL;

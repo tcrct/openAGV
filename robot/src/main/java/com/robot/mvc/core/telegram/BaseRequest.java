@@ -12,20 +12,31 @@ import java.util.Objects;
 
 /**
  * 请求对象基类
+ *
  * @author Laotang
  * @date 2020/1/12
  */
 public class BaseRequest implements IRequest, java.io.Serializable {
 
-    /**请求ID*/
+    /**
+     * 请求ID
+     */
     protected String id;
-    /**协议对象*/
+    /**
+     * 协议对象
+     */
     protected IProtocol protocol;
-    /**请求对象类型枚举*/
+    /**
+     * 请求对象类型枚举
+     */
     protected ReqType reqType;
-    /**协议原文字符串*/
+    /**
+     * 协议原文字符串
+     */
     protected String rawContent;
-    /**车辆适配器，每一个请求里都必须包含*/
+    /**
+     * 车辆适配器，每一个请求里都必须包含
+     */
     protected RobotCommAdapter adapter;
     /**
      * 用于扩展参数

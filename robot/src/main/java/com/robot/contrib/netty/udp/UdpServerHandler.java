@@ -35,7 +35,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.close();
+//        ctx.close();
         logger.error("UdpServerHandler exception: " + cause.getMessage(), cause);
     }
 }

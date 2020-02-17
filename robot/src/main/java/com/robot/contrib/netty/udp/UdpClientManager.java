@@ -1,8 +1,8 @@
 package com.robot.contrib.netty.udp;
 
 
-import com.robot.adapter.RobotCommAdapter;
-import com.robot.contrib.netty.comm.IChannelManager;
+import com.robot.contrib.netty.ConnectionEventListener;
+import com.robot.contrib.netty.comm.ClientChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -16,24 +16,21 @@ import java.util.List;
 /**
  * UPD Client Manager
  */
-public class UdpClientManager implements IChannelManager<IRequest, IResponse> {
+public class UdpClientManager extends ClientChannelManager<IRequest, IResponse> {
 
-    private RobotCommAdapter adapter;
     private UdpClientChannelManager channelManager;
 
-
-    public UdpClientManager(RobotCommAdapter commAdapter) {
-        adapter = commAdapter;
-
-        channelManager = new UdpClientChannelManager(commAdapter,
+    public UdpClientManager(ConnectionEventListener connectionEventListener) {
+        channelManager = new UdpClientChannelManager(connectionEventListener,
                 this::getChannelHandlers,
                 10000,
                 true);
     }
 
-    /**解码及编码器*/
+    /**
+     * 解码及编码器
+     */
     private List<ChannelHandler> getChannelHandlers() {
-
         return Arrays.asList(
                 new VehicleTelegramDecoder(),
                 new VehicleTelegramEncoder());

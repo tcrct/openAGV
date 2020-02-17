@@ -1,7 +1,6 @@
 package com.robot.config;
 
 import com.robot.RobotContext;
-import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IPlugin;
@@ -10,8 +9,6 @@ import com.robot.mvc.helpers.ClassHelper;
 import com.robot.mvc.helpers.IocHelper;
 import com.robot.mvc.helpers.PluginsHelper;
 import com.robot.mvc.helpers.RouteHelper;
-import com.robot.mvc.utils.ToolsKit;
-import org.opentcs.App;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
@@ -19,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**

@@ -1,8 +1,7 @@
 package com.robot.contrib.netty.udp;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.robot.adapter.RobotCommAdapter;
-import com.robot.mvc.utils.RobotUtil;
+import com.robot.contrib.netty.ConnectionEventListener;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -28,7 +27,7 @@ import static org.opentcs.util.Assertions.checkState;
 /**
  * Created by laotang on 2019/12/21.
  *
- *  @param <O> 发送到车辆或设备的对象
+ * @param <O> 发送到车辆或设备的对象
  * @param <I> 接收车辆或设备提交的对象
  */
 public class UdpClientChannelManager<O, I> {
@@ -39,29 +38,37 @@ public class UdpClientChannelManager<O, I> {
     private EventLoopGroup workerGroup;
     private ChannelFuture channelFuture;
     private ScheduledFuture<?> connectFuture;
-    private RobotCommAdapter adapter;
     private Supplier<List<ChannelHandler>> channelSupplier;
     private String host;
     private int port;
-    /**读超时*/
+    /**
+     * 读超时
+     */
     private int readTimeout;
-    /**开启日志**/
+    /**
+     * 开启日志
+     **/
     private boolean enableLogging;
 
-    /**是否已经初始化*/
+    /**
+     * 是否已经初始化
+     */
     private boolean initialized;
-    /**缓冲大小*/
+    /**
+     * 缓冲大小
+     */
     private static int BUFFER_SIZE = 64 * 1024;
     private static final String LOGGING_HANDLER_NAME = "ChannelLoggingHandler";
+    private final ConnectionEventListener<I> connectionEventListener;
 
-    public UdpClientChannelManager(@Nonnull RobotCommAdapter adapter,
+    public UdpClientChannelManager(@Nonnull ConnectionEventListener connEventListener,
                                    Supplier<List<ChannelHandler>> channelSupplier,
                                    int readTimeout,
                                    boolean enableLogging) {
-        this.adapter = adapter;
         this.channelSupplier = channelSupplier;
         this.readTimeout = readTimeout;
         this.enableLogging = enableLogging;
+        this.connectionEventListener = requireNonNull(connEventListener, "connEventListener");
     }
 
     public void initialized() {
@@ -83,6 +90,7 @@ public class UdpClientChannelManager<O, I> {
         this.bootstrap.handler(new ChannelInitializer<NioDatagramChannel>() {
             @Override
             protected void initChannel(NioDatagramChannel ch) throws Exception {
+//                ch.pipeline().addLast(new ClientConnectionDropNotifier(connectionEventListener));
                 Iterator channelIterator = ((List) UdpClientChannelManager.this.channelSupplier.get()).iterator();
                 while (channelIterator.hasNext()) {
                     ChannelHandler handler = (ChannelHandler) channelIterator.next();
@@ -92,20 +100,26 @@ public class UdpClientChannelManager<O, I> {
             }
         });
         initialized = true;
+        LOG.warn("UdpServerChannelManager initialized is {}", isInitialized());
     }
 
-    /**是否初始化*/
+    /**
+     * 是否初始化
+     */
     public boolean isInitialized() {
         return initialized;
     }
 
-    /**断开链接*/
+    /**
+     * 断开链接
+     */
     public void terminate() {
         disconnect();
     }
 
     /**
      * 根据host与port链接客户端
+     *
      * @param host 客户端地址
      * @param port 客户端端口
      * @throws InterruptedException
@@ -118,23 +132,25 @@ public class UdpClientChannelManager<O, I> {
             LOG.info("请勿重复连接");
             return;
         }
-        LOG.warn("正在启动连接尝试{}:{}...", host, port);
-        channelFuture = bootstrap.connect(host, port);
+        channelFuture = bootstrap.connect(host, port).sync();
         channelFuture.addListener((ChannelFuture future) -> {
             if (future.isSuccess()) {
                 this.initialized = true;
                 this.host = host;
                 this.port = port;
+                connectionEventListener.onConnect();
                 LOG.warn("UdpClientChannelManager链接[{}:{}]成功", host, port);
-            }
-            else {
-                throw new InterruptedException("UdpClientChannelManager链接失败");
+            } else {
+                LOG.warn("UdpClientChannelManager链接失败, 如果有开启重连，则尝试重连");
+                connectionEventListener.onFailedConnectionAttempt();
             }
         });
         connectFuture = null;
     }
 
-    /**断开链接*/
+    /**
+     * 断开链接
+     */
     public void disconnect() {
         if (!isConnected()) {
             LOG.warn("UdpClientChannelManager没有链接!");
@@ -148,12 +164,16 @@ public class UdpClientChannelManager<O, I> {
         }
     }
 
-    /**是否链接*/
+    /**
+     * 是否链接
+     */
     public boolean isConnected() {
         return channelFuture != null && channelFuture.channel().isActive();
     }
 
-    /**日志开启*/
+    /**
+     * 日志开启
+     */
     public void setLoggingEnabled(boolean enabled) {
         checkState(initialized, "Not initialized.");
 
@@ -166,8 +186,7 @@ public class UdpClientChannelManager<O, I> {
         if (enabled && pipeline.get(LOGGING_HANDLER_NAME) == null) {
             pipeline.addFirst(LOGGING_HANDLER_NAME,
                     new LoggingHandler(UdpClientChannelManager.this.getClass()));
-        }
-        else if (!enabled && pipeline.get(LOGGING_HANDLER_NAME) != null) {
+        } else if (!enabled && pipeline.get(LOGGING_HANDLER_NAME) != null) {
             pipeline.remove(LOGGING_HANDLER_NAME);
         }
     }
@@ -188,7 +207,7 @@ public class UdpClientChannelManager<O, I> {
 
     public void send(O telegram) {
         if (!this.isConnected()) {
-            throw new IllegalArgumentException("没有初始化.");
+            throw new IllegalArgumentException("没有链接成功.");
         }
         if (ObjectUtil.isEmpty(telegram)) {
             throw new IllegalArgumentException("广播的报文内容不能为空");
@@ -196,11 +215,8 @@ public class UdpClientChannelManager<O, I> {
 
         InetSocketAddress address = new InetSocketAddress(host, port);
         String telegramStr = telegram.toString();
-        LOG.info("send upd client [{}][{}], telegram [{}] ",
-                adapter.getProcessModel().getName(),
-                (address.getAddress().toString()+":"+address.getPort()),
-                telegramStr);
-        channelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegramStr, CharsetUtil.UTF_8),  address));
+        LOG.info("send upd client [{}:{}], telegram [{}] ", address.getAddress().toString(), address.getPort(), telegramStr);
+        channelFuture.channel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegramStr, CharsetUtil.UTF_8), address));
     }
 
 

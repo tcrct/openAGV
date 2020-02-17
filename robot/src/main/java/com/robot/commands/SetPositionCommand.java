@@ -1,9 +1,9 @@
 package com.robot.commands;
 
-import javax.annotation.Nullable;
-
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
+
+import javax.annotation.Nullable;
 
 /**
  * 设置车辆位置命令

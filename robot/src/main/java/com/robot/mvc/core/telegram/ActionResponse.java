@@ -7,7 +7,7 @@ import com.robot.mvc.core.interfaces.IProtocol;
  * 工站动作响应对象
  * 一般用于等待响应对象回复，以确认操作。
  * 例如等待传感器数据回复
- *
+ * <p>
  * Created by laotang on 2020/1/12.
  */
 public abstract class ActionResponse implements IActionCommand {

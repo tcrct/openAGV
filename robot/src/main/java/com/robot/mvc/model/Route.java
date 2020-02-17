@@ -9,15 +9,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Route {
 
     private String key;
-    /**执行的控制器类对象*/
+    /**
+     * 执行的控制器类对象
+     */
     private Object serviceObj;
-    /**服务类对象*/
+    /**
+     * 服务类对象
+     */
     private Class<?> serviceClass;
-    /**对应的所有公用方法，不包括Object里的公用方法*/
+    /**
+     * 对应的所有公用方法，不包括Object里的公用方法
+     */
     private Map<String, Method> methodMap = new ConcurrentHashMap<>();
 
     public Route(Class<?> serviceClass, Map<String, Method> methodMap) {
-        this.key =  serviceClass.getName();
+        this.key = serviceClass.getName();
         this.serviceObj = ReflectUtil.newInstance(serviceClass);
         this.serviceClass = serviceClass;
         this.methodMap.putAll(methodMap);
@@ -50,7 +56,7 @@ public class Route {
         return "Route{" +
                 "key='" + key + '\'' +
                 ", class=" + serviceObj.getClass().getName() +
-                ", methods=" +methodMap.keySet() +
+                ", methods=" + methodMap.keySet() +
                 '}';
     }
 }

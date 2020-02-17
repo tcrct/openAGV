@@ -41,6 +41,7 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
      * 通讯渠道类型
      */
     private NetChannelType channelType;
+
     /**
      * 创建组件工厂
      *

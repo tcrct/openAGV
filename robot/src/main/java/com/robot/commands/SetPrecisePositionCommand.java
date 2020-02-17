@@ -7,11 +7,11 @@
  */
 package com.robot.commands;
 
-import javax.annotation.Nullable;
-
 import org.opentcs.data.model.Triple;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
+
+import javax.annotation.Nullable;
 
 /**
  * A command to set a vehicle's precise position.

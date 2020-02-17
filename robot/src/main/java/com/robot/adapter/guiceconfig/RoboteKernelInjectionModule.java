@@ -1,8 +1,8 @@
 package com.robot.adapter.guiceconfig;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.RobotCommAdapterFactory;
+import com.robot.adapter.exchange.AdapterComponentsFactory;
 import org.opentcs.customizations.kernel.KernelInjectionModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -12,7 +12,8 @@ import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
 /**
- *开启或关闭通讯适配器为单步模式
+ * 开启或关闭通讯适配器为单步模式
+ *
  * @author Martin Grzenia (Fraunhofer IML)
  */
 public class SetSingleStepModeEnabledCommand

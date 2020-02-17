@@ -5,7 +5,6 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.mvc.core.annnotations.Action;
 import com.robot.mvc.core.annnotations.Service;
-import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.mvc.utils.ToolsKit;
@@ -44,6 +43,7 @@ public class RouteHelper {
     }
 
     private static RouteHelper ROUTE_HELPER = null;
+
     public static RouteHelper duang() {
         try {
             lock.lock();
@@ -134,7 +134,7 @@ public class RouteHelper {
 
     private void printRouteKey() {
         List<String> keyList = new ArrayList<>(SERVICE_ROUTE_MAP.keySet());
-        if(keyList.isEmpty()) {
+        if (keyList.isEmpty()) {
             throw new NullPointerException("业务逻辑处理类不存在！");
         }
         Collections.sort(keyList);

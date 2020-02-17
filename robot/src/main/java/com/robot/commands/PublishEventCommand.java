@@ -7,14 +7,14 @@
  */
 package com.robot.commands;
 
-import static java.util.Objects.requireNonNull;
-
-import javax.annotation.Nonnull;
-
 import com.robot.adapter.RobotCommAdapter;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterEvent;
+
+import javax.annotation.Nonnull;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A command to publish {@link VehicleCommAdapterEvent}s.

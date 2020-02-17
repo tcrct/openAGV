@@ -7,13 +7,13 @@
  */
 package com.robot.commands;
 
-import static java.util.Objects.requireNonNull;
+import org.opentcs.drivers.vehicle.AdapterCommand;
+import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.opentcs.drivers.vehicle.AdapterCommand;
-import org.opentcs.drivers.vehicle.VehicleCommAdapter;
+import static java.util.Objects.requireNonNull;
 
 /**
  * 设置车辆属性
@@ -35,7 +35,7 @@ public class SetVehiclePropertyCommand
     /**
      * Creates a new instance.
      *
-     * @param key The property key to set.
+     * @param key   The property key to set.
      * @param value The property value to set.
      */
     public SetVehiclePropertyCommand(@Nonnull String key, @Nullable String value) {

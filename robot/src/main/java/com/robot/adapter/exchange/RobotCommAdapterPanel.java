@@ -20,7 +20,6 @@ import org.opentcs.drivers.vehicle.management.VehicleProcessModelTO;
 import org.opentcs.util.CallWrapper;
 import org.opentcs.util.Comparators;
 import org.opentcs.util.gui.StringListCellRenderer;
-
 import org.opentcs.virtualvehicle.inputcomponents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

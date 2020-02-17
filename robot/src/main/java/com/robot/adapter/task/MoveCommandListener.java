@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * 车辆移动指令监听器
@@ -23,9 +26,13 @@ public class MoveCommandListener implements ActionListener {
     private static final Logger LOG = LoggerFactory.getLogger(MoveCommandListener.class);
     /***/
     private Queue<MovementCommand> tempCommandQueue;
-    /**是否需要发送，true时为需要发送*/
+    /**
+     * 是否需要发送，true时为需要发送
+     */
     private boolean isNeetSend;
-    /**车辆适配器*/
+    /**
+     * 车辆适配器
+     */
     private RobotCommAdapter adapter;
 
     /**
@@ -102,6 +109,7 @@ public class MoveCommandListener implements ActionListener {
 
     /**
      * 取得移动命令队列引用
+     *
      * @param commandQueue 移动命令队列
      */
     public void quoteCommand(Queue<MovementCommand> commandQueue) {

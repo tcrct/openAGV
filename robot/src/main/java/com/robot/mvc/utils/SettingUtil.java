@@ -26,50 +26,50 @@ public class SettingUtil {
         return SETTING.getStr(key, group, defaultValue);
     }
 
-    public static int getInt(String key, int defaultValue){
+    public static int getInt(String key, int defaultValue) {
         return SETTING.getInt(key, defaultValue);
     }
 
-    public static int getInt(String key, String group, int defaultValue){
+    public static int getInt(String key, String group, int defaultValue) {
         return SETTING.getInt(key, group, defaultValue);
     }
 
 
-    public static boolean getBoolean(String key, boolean defaultValue){
+    public static boolean getBoolean(String key, boolean defaultValue) {
         return SETTING.getBool(key, defaultValue);
     }
 
-    public static boolean getBoolean(String key, String group, boolean defaultValue){
-        return SETTING.getBool(key,group, defaultValue);
+    public static boolean getBoolean(String key, String group, boolean defaultValue) {
+        return SETTING.getBool(key, group, defaultValue);
     }
 
-    public static String[] getStringArray(String key){
+    public static String[] getStringArray(String key) {
         return SETTING.getStrings(key);
     }
 
-    public static String[] getStringArray(String key, String group){
-        return SETTING.getStrings(key,group);
+    public static String[] getStringArray(String key, String group) {
+        return SETTING.getStrings(key, group);
     }
 
-    public static List<String> getStringList(String key){
+    public static List<String> getStringList(String key) {
         String[] strings = SETTING.getStrings(key);
-        if(ArrayUtil.isEmpty(strings)) {
+        if (ArrayUtil.isEmpty(strings)) {
             return new ArrayList<>();
         }
         List<String> list = new ArrayList<>(strings.length);
-        for(String str : strings) {
+        for (String str : strings) {
             list.add(str);
         }
         return list;
     }
 
-    public static Set<String> getStringsToSet(String key,String group) {
+    public static Set<String> getStringsToSet(String key, String group) {
         String[] stringArray = getStringArray(key, group);
         Set<String> set = new HashSet<>();
-        if(ArrayUtil.isEmpty(stringArray)) {
+        if (ArrayUtil.isEmpty(stringArray)) {
             return set;
         }
-        for(String str : stringArray) {
+        for (String str : stringArray) {
             set.add(str);
         }
         return set;

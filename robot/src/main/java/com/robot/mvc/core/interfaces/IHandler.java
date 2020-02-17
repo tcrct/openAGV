@@ -11,11 +11,11 @@ public interface IHandler {
     /**
      * 处理方法
      *
-     * @param target    协议指令
-     * @param request 请求对象
+     * @param target   协议指令
+     * @param request  请求对象
      * @param response 返回对象
-     * @Exception RobotException
      * @return 处理成功返回true
+     * @Exception RobotException
      */
     boolean doHandler(String target, IRequest request, IResponse response) throws RobotException;
 

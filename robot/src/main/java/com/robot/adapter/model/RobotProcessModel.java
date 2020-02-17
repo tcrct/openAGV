@@ -20,11 +20,17 @@ import static org.opentcs.util.Assertions.checkInRange;
  */
 public class RobotProcessModel extends VehicleProcessModel {
 
-    /** 连接车辆地址*/
+    /**
+     * 连接车辆地址
+     */
     private String vehicleHost = "127.0.0.1";
-    /** 端口*/
+    /**
+     * 端口
+     */
     private int vehiclePort = 60000;
-    /**车辆是否空闲，默认为空闲状态*/
+    /**
+     * 车辆是否空闲，默认为空闲状态
+     */
     private boolean vehicleIdle = true;
     /*** 车辆空闲时，是否关闭连接，true为关闭*/
     private boolean disconnectingOnVehicleIdle = true;
@@ -55,6 +61,7 @@ public class RobotProcessModel extends VehicleProcessModel {
 
     /*** 指示此通信适配器是否处于单步模式（true为单步模式，false为自动模式模式）。*/
     private boolean singleStepModeEnabled;
+
     /**
      * 构造函数
      *
@@ -77,7 +84,9 @@ public class RobotProcessModel extends VehicleProcessModel {
         return vehicleReference;
     }
 
-    /**车辆是否空闲*/
+    /**
+     * 车辆是否空闲
+     */
     public boolean isVehicleIdle() {
         return vehicleIdle;
     }
@@ -85,7 +94,7 @@ public class RobotProcessModel extends VehicleProcessModel {
     /**
      * 设置车辆是否空闲，即是否下在使用，如果没有使用，则状态为空闲
      *
-     * @param idle  为true时代表空闲
+     * @param idle 为true时代表空闲
      */
     public void setVehicleIdle(boolean idle) {
         boolean oldValue = this.vehicleIdle;
@@ -97,7 +106,7 @@ public class RobotProcessModel extends VehicleProcessModel {
     }
 
     /**
-     *  如果车辆空闲状态，是否关闭链接
+     * 如果车辆空闲状态，是否关闭链接
      *
      * @return true为关闭链接
      */
@@ -108,7 +117,7 @@ public class RobotProcessModel extends VehicleProcessModel {
     /**
      * 设置车辆空闲时，是否关闭链接
      *
-     * @param disconnectingOnVehicleIdle  true为关闭链接
+     * @param disconnectingOnVehicleIdle true为关闭链接
      */
     public void setDisconnectingOnVehicleIdle(boolean disconnectingOnVehicleIdle) {
         boolean oldValue = this.disconnectingOnVehicleIdle;
@@ -129,10 +138,10 @@ public class RobotProcessModel extends VehicleProcessModel {
     }
 
     /**
-     *  设置车辆连接超时时是否自动重新连接
+     * 设置车辆连接超时时是否自动重新连接
      *
      * @param reconnectingOnConnectionLoss true为自动重连，默认为true
-     * connection times out
+     *                                     connection times out
      */
     public void setReconnectingOnConnectionLoss(boolean reconnectingOnConnectionLoss) {
         boolean oldValue = this.reconnectingOnConnectionLoss;
@@ -192,6 +201,7 @@ public class RobotProcessModel extends VehicleProcessModel {
 
     /**
      * 返回车辆的链接地址
+     *
      * @return 车辆链接地址
      */
     @Nonnull
@@ -201,6 +211,7 @@ public class RobotProcessModel extends VehicleProcessModel {
 
     /**
      * TCP/UDP模式下，设置车辆链接地址
+     *
      * @param vehicleHost TCP/UDP模式时的链接地址
      */
     public synchronized void setVehicleHost(@Nonnull String vehicleHost) {
@@ -223,6 +234,7 @@ public class RobotProcessModel extends VehicleProcessModel {
 
     /**
      * TCP/UDP模式下，设置车辆端口
+     *
      * @param vehiclePort TCP/UDP模式时的端口
      */
     public synchronized void setVehiclePort(int vehiclePort) {

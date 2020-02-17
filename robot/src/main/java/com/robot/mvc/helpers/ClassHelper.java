@@ -22,6 +22,7 @@ public class ClassHelper {
     private final static Lock lock = new ReentrantLock();
 
     private static ClassHelper CLASS_HELPER = null;
+
     public static ClassHelper duang() {
         try {
             lock.lock();
@@ -63,8 +64,12 @@ public class ClassHelper {
             if (clazz.isAnnotationPresent(annotationEnum.getClazz())) {
                 String key = annotationEnum.getName();
                 List<Class<?>> tmpList = CLASS_MAP.get(key);
-                if(ToolsKit.isEmpty(tmpList)) {
-                    CLASS_MAP.put(key, new ArrayList<Class<?>>(){ { this.add(clazz);} });
+                if (ToolsKit.isEmpty(tmpList)) {
+                    CLASS_MAP.put(key, new ArrayList<Class<?>>() {
+                        {
+                            this.add(clazz);
+                        }
+                    });
                 } else {
                     tmpList.add(clazz);
                 }

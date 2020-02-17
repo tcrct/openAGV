@@ -1,8 +1,8 @@
 package com.robot.mvc.model;
 
+import com.robot.mvc.core.interfaces.IActionCallback;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.robot.mvc.core.interfaces.IActionCallback;
 
 /**
  * 重发对象

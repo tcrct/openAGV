@@ -1,8 +1,5 @@
 package com.robot.mvc.main;
 
-import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.ObjectUtil;
-import com.robot.RobotContext;
 import com.robot.config.Application;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
@@ -11,8 +8,6 @@ import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.BaseResponse;
-import com.robot.mvc.core.telegram.BusinessRequest;
-import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.handlers.TaskHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
@@ -23,7 +18,7 @@ import java.util.Objects;
 
 /**
  * 调度系统主入口
- *
+ * <p>
  * Created by laotang on 2020/1/12.
  */
 public class Main {
@@ -47,7 +42,7 @@ public class Main {
         IProtocol protocol = Objects.requireNonNull(request.getProtocol(), "response is null");
         String target = java.util.Objects.requireNonNull(protocol.getCmdKey(), "协议动作指令值不能为空，必须设置，该值用于反射调用方法");
         try {
-            if(doBeforeHandler(target, request, response)) {
+            if (doBeforeHandler(target, request, response)) {
                 TaskHandler.duang().doHandler(target, request, response);
             }
         } catch (Exception e) {
@@ -65,8 +60,8 @@ public class Main {
      * 执行TaskHandler前的前置处理器
      * 抛出异常中止执行，返回false，则丢弃该次请求
      *
-     * @param target 协议指令
-     * @param request   请求对象
+     * @param target   协议指令
+     * @param request  请求对象
      * @param response 返回对象
      */
     private boolean doBeforeHandler(String target, IRequest request, IResponse response) throws Exception {

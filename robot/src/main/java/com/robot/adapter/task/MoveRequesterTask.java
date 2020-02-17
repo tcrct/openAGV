@@ -21,11 +21,17 @@ public class MoveRequesterTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoveRequesterTask.class);
 
-    /**动作监听器*/
+    /**
+     * 动作监听器
+     */
     private final ActionListener actionListener;
-    /**执行移动命令的计时器*/
+    /**
+     * 执行移动命令的计时器
+     */
     private Timer moveRequestTimer;
-    /**执行时间间隔，毫秒作单位*/
+    /**
+     * 执行时间间隔，毫秒作单位
+     */
     private int requestInterval = 1000;
 
     /**
@@ -54,7 +60,8 @@ public class MoveRequesterTask {
     }
 
     /**
-     *停止车辆通讯适配器移动指令定时任务
+     * 停止车辆通讯适配器移动指令定时任务
+     *
      * @param vehicleName 车辆名称
      */
     public void disable(String vehicleName) {
@@ -80,7 +87,7 @@ public class MoveRequesterTask {
     /**
      * 设置任务队列的间隔时间
      *
-     * @param requestInterval  间隔时间值，毫秒作单位
+     * @param requestInterval 间隔时间值，毫秒作单位
      */
     public void setRequestInterval(int requestInterval) {
         this.requestInterval = requestInterval;

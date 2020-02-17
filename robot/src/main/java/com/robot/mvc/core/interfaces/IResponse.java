@@ -7,20 +7,41 @@ import com.robot.adapter.model.RobotStateModel;
  */
 public interface IResponse extends ITelegram {
 
-    /**响应对应的ID，Mongodb ObjectId格式*/
+    /**
+     * 响应对应的ID，Mongodb ObjectId格式
+     */
     String getId();
-    /**车辆或设备的唯一标识*/
+
+    /**
+     * 车辆或设备的唯一标识
+     */
     String getDeviceId();
-    /**操作命令*/
+
+    /**
+     * 操作命令
+     */
     String getCmdKey();
-    /**设置响应状态值*/
+
+    /**
+     * 设置响应状态值
+     */
     void setStatus(int status);
-    /**取响应状态值*/
+
+    /**
+     * 取响应状态值
+     */
     int getStatus();
-    /**写入响应对象*/
+
+    /**
+     * 写入响应对象
+     */
     void write(Object message);
-    /**取响应异常*/
+
+    /**
+     * 取响应异常
+     */
     Exception getException();
+
     /**
      * 取握手报文的CODE
      * 即生成请求下发后，握手应答报文的code
@@ -45,7 +66,9 @@ public interface IResponse extends ITelegram {
      */
     RobotStateModel getRobotStateModel();
 
-    /**比较请求与响应是否对应*/
+    /**
+     * 比较请求与响应是否对应
+     */
     default boolean isResponseTo(IRequest request) {
         return getId().equals(request.getId());
     }

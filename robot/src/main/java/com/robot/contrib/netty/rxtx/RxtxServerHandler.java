@@ -9,7 +9,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class RxtxServerHandler extends SimpleChannelInboundHandler<Object> {
 
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
 

@@ -1,80 +1,109 @@
 package com.robot.contrib.netty.tcp;
 
-import com.robot.adapter.RobotCommAdapter;
-import com.robot.contrib.netty.comm.IChannelManager;
-import com.robot.contrib.netty.udp.UdpServerManager;
-import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.contrib.netty.ConnectionEventListener;
+import com.robot.contrib.netty.comm.ClientEntry;
+import com.robot.contrib.netty.comm.ServerChannelManager;
+import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
+import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
+import io.netty.channel.ChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by laotang on 2020/1/25.
  */
-public class TcpServerManager implements IChannelManager {
+public class TcpServerManager extends ServerChannelManager {
 
-    private static RobotCommAdapter commAdapter;
+    private static final Logger LOG = LoggerFactory.getLogger(TcpServerManager.class);
+
+    private static TcpServerChannelManager tcpServerChannelManager;
     private static TcpServerManager tcpServerManager;
+    private static final Map<Object, ClientEntry<Object>> CLIENT_ENTRIES = new HashMap<>();
     private static Lock lock = new ReentrantLock();
+    private static int PORT = 9090;
+    private static int READ_TIMEOUT = 5000;
+    private static boolean LOGGING_INITIALLY = true;
 
-    public static TcpServerManager duang(RobotCommAdapter commAdapter) {
+
+    public static TcpServerManager duang() {
         synchronized (lock) {
             if (null == tcpServerManager) {
-                tcpServerManager = new TcpServerManager(commAdapter);
+                tcpServerManager = new TcpServerManager();
             }
             return tcpServerManager;
         }
     }
 
-    private TcpServerManager(RobotCommAdapter adapter) {
-        this.commAdapter = adapter;
+    /**
+     * 解码及编码器
+     */
+    private List<ChannelHandler> getChannelHandlers() {
+        return Arrays.asList(
+                new VehicleTelegramDecoder(),
+                new VehicleTelegramEncoder());
+    }
+
+    private TcpServerManager() {
+        tcpServerChannelManager = new TcpServerChannelManager(PORT, CLIENT_ENTRIES,
+                this::getChannelHandlers,
+                READ_TIMEOUT,
+                LOGGING_INITIALLY);
     }
 
     @Override
     public void initialize() {
-
-    }
-
-    @Override
-    public boolean isInitialized() {
-        return false;
-    }
-
-    @Override
-    public void terminate() {
-
-    }
-
-    @Override
-    public void connect(String host, int port) throws RobotException {
-        if (!isConnected()) {
-            tcpServerManager.connect(host, port);
+        if (!isInitialized()) {
+            tcpServerChannelManager.initialize();
         }
     }
 
     @Override
-    public void disconnect() {
-
+    public boolean isInitialized() {
+        return tcpServerChannelManager.isInitialized();
     }
 
     @Override
-    public boolean isConnected() {
-        return false;
+    public void terminate() {
+        tcpServerChannelManager.terminate();
     }
 
     @Override
-    public void setLoggingEnabled(boolean enable) {
-
+    public void register(String host, int port, ConnectionEventListener connectionEventListener) {
+        try {
+            if (!isConnected()) {
+                tcpServerChannelManager.register(host, port, connectionEventListener);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("注册[{}:{}]时发生异常: {}", host, port, e.getMessage());
+        }
     }
 
     @Override
-    public void scheduleConnect(@Nonnull String host, int port, long delay) {
-
+    public void disconnect(String key) {
+        tcpServerChannelManager.closeClientConnection(key);
     }
 
     @Override
-    public void send(Object telegram) {
-
+    public boolean isConnected(String key) {
+        return tcpServerChannelManager.isClientConnected(key);
     }
+
+    @Override
+    public void setLoggingEnabled(String key, boolean enable) {
+        tcpServerChannelManager.setLoggingEnabled(key, enable);
+    }
+
+    @Override
+    public void send(String key, Object telegram) {
+        tcpServerChannelManager.send(key, telegram);
+    }
+
 }

@@ -1,7 +1,7 @@
 package com.robot.contrib.netty.tcp;
 
-import com.robot.adapter.RobotCommAdapter;
-import com.robot.contrib.netty.comm.IChannelManager;
+import com.robot.contrib.netty.ConnectionEventListener;
+import com.robot.contrib.netty.comm.ClientChannelManager;
 import com.robot.mvc.core.exceptions.RobotException;
 
 import javax.annotation.Nonnull;
@@ -9,12 +9,12 @@ import javax.annotation.Nonnull;
 /**
  * Created by laotang on 2020/1/25.
  */
-public class TcpClientManager implements IChannelManager {
+public class TcpClientManager extends ClientChannelManager {
 
-    private static RobotCommAdapter commAdapter;
+    private static ConnectionEventListener connectionEventListener;
 
-    public TcpClientManager(RobotCommAdapter adapter) {
-        this.commAdapter = adapter;
+    public TcpClientManager(ConnectionEventListener connectionEventListener) {
+        this.connectionEventListener = connectionEventListener;
     }
 
     @Override

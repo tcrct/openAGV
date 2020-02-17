@@ -1,10 +1,10 @@
 package com.robot.contrib.netty.rxtx;
 
-import com.robot.adapter.RobotCommAdapter;
-import com.robot.contrib.netty.comm.IChannelManager;
+import com.robot.contrib.netty.ConnectionEventListener;
+import com.robot.contrib.netty.comm.ClientEntry;
+import com.robot.contrib.netty.comm.ServerChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
 import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
-import com.robot.contrib.netty.udp.UdpServerManager;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -15,40 +15,44 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by laotang on 2020/1/20.
  */
-public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> {
+public class RxtxServerManager extends ServerChannelManager<IRequest, IResponse> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RxtxServerManager.class);
 
-    private RobotCommAdapter commAdapter;
     private RxtxServerChannelManager channelManager;
     private static RxtxServerManager rxtxServerManager;
+    private static final Map<Object, ClientEntry<Object>> CLIENT_ENTRIES = new HashMap<>();
     private static Lock lock = new ReentrantLock();
 
-    public static RxtxServerManager duang(RobotCommAdapter commAdapter) {
+    public static RxtxServerManager duang(String serialport, int baudrate) {
         synchronized (lock) {
             if (null == rxtxServerManager) {
-                rxtxServerManager = new RxtxServerManager(commAdapter);
+                rxtxServerManager = new RxtxServerManager(serialport, baudrate);
             }
             return rxtxServerManager;
         }
     }
 
-    public RxtxServerManager(RobotCommAdapter adapter) {
-        this.commAdapter = adapter;
+    private RxtxServerManager(String serialport, int baudrate) {
+        channelManager = new RxtxServerChannelManager(serialport, baudrate,
+                CLIENT_ENTRIES,
+                this::getChannelHandlers,
+                5000,
+                true);
     }
 
     @Override
     public void initialize() {
-        channelManager = new RxtxServerChannelManager(this::getChannelHandlers,
-                10000,
-                true);
+        channelManager.initialize();
     }
 
     @Override
@@ -62,10 +66,10 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     }
 
     @Override
-    public void connect(String serialport, int baudrate) {
+    public void register(String serialport, int baudrate, ConnectionEventListener connectionEventListener) {
         try {
             if (!isConnected()) {
-                channelManager.connect(serialport, baudrate);
+                channelManager.register(serialport, baudrate, connectionEventListener);
             }
         } catch (Exception e) {
             throw new RobotException("串口链接时出现异常: " + e.getMessage(), e);
@@ -73,18 +77,18 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     }
 
     @Override
-    public void disconnect() {
-        channelManager.disconnect();
+    public void disconnect(String key) {
+        channelManager.disconnect(key);
     }
 
     @Override
-    public boolean isConnected() {
-        return channelManager.isConnected();
+    public boolean isConnected(String key) {
+        return channelManager.isConnected(key);
     }
 
     @Override
-    public void setLoggingEnabled(boolean enable) {
-        channelManager.setLoggingEnabled(enable);
+    public void setLoggingEnabled(String key, boolean enable) {
+        channelManager.setLoggingEnabled(key, enable);
     }
 
     @Override
@@ -99,7 +103,7 @@ public class RxtxServerManager  implements IChannelManager<IRequest, IResponse> 
     }
 
     @Override
-    public void send(IResponse telegram) {
+    public void send(String key, IResponse telegram) {
         if (ToolsKit.isEmpty(telegram) || ToolsKit.isEmpty(telegram.getRawContent())) {
             throw new RobotException("要发送的对象或内容不能为空");
         }

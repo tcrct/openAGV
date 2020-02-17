@@ -50,7 +50,7 @@ public class ToolsKit {
      *
      * @param obj
      *            待检查的对象
-     * @return 返回的布尔值,为空或等于0时返回true
+     * @return 返回的布尔值, 为空或等于0时返回true
      */
     public static boolean isEmpty(Object obj) {
         return checkObjectIsEmpty(obj, true);
@@ -61,7 +61,7 @@ public class ToolsKit {
      *
      * @param obj
      *            待检查的对象
-     * @return 返回的布尔值,不为空或不等于0时返回true
+     * @return 返回的布尔值, 不为空或不等于0时返回true
      */
     public static boolean isNotEmpty(Object obj) {
         return checkObjectIsEmpty(obj, false);
@@ -71,11 +71,9 @@ public class ToolsKit {
     private static boolean checkObjectIsEmpty(Object obj, boolean bool) {
         if (null == obj) {
             return bool;
-        }
-        else if (obj == "" || "".equals(obj) || "null".equalsIgnoreCase(String.valueOf(obj))) {
+        } else if (obj == "" || "".equals(obj) || "null".equalsIgnoreCase(String.valueOf(obj))) {
             return bool;
-        }
-        else if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
+        } else if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
             try {
                 Double.parseDouble(obj + "");
             } catch (Exception e) {
@@ -85,7 +83,7 @@ public class ToolsKit {
             if (((String) obj).length() <= 0) {
                 return bool;
             }
-            if ("null".equalsIgnoreCase(obj+"")) {
+            if ("null".equalsIgnoreCase(obj + "")) {
                 return bool;
             }
         } else if (obj instanceof Map) {
@@ -107,19 +105,19 @@ public class ToolsKit {
 
     /**
      * 构建过滤方法名集合，默认包含Object类里公共方法
-     * @param excludeMethodClass  如果有指定，则添加指定类下所有方法名
      *
+     * @param excludeMethodClass 如果有指定，则添加指定类下所有方法名
      * @return
      */
     public static Set<String> buildExcludedMethodName(Class<?>... excludeMethodClass) {
-        if(EXCLUDED_METHOD_NAME.isEmpty()) {
+        if (EXCLUDED_METHOD_NAME.isEmpty()) {
             Method[] objectMethods = Object.class.getDeclaredMethods();
             for (Method m : objectMethods) {
                 EXCLUDED_METHOD_NAME.add(m.getName());
             }
         }
         Set<String> tmpExcludeMethodName = null;
-        if(null != excludeMethodClass) {
+        if (null != excludeMethodClass) {
             tmpExcludeMethodName = new HashSet<>();
             for (Class excludeClass : excludeMethodClass) {
                 Method[] excludeMethods = excludeClass.getDeclaredMethods();
@@ -137,7 +135,8 @@ public class ToolsKit {
     /**
      * 是否正常公用的API方法
      * 正常方法是指访问权限是public的且不是抽像，静态，接口，Final的方法
-     * @param mod       Modifier的mod
+     *
+     * @param mod Modifier的mod
      * @return
      */
     public static boolean isPublicMethod(int mod) {

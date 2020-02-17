@@ -1,8 +1,6 @@
 package com.robot.mvc.core.interfaces;
 
 
-import com.robot.adapter.RobotCommAdapter;
-
 /**
  * 工站动作接口
  *
@@ -13,7 +11,6 @@ public interface IAction {
 
     /**
      * 动作名称
-     *
      * @return
      */
     String actionKey();
@@ -30,7 +27,7 @@ public interface IAction {
     String deviceId();
 
     /**
-     *执行操作
+     * 执行操作
      */
     void execute() throws Exception;
 

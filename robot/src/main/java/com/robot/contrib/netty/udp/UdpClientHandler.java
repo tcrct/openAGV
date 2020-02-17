@@ -3,6 +3,7 @@ package com.robot.contrib.netty.udp;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.robot.mvc.core.exceptions.Exceptions;
 import com.robot.mvc.main.DispatchFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,7 +16,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private final static Log logger = LogFactory.get();
 
-    public UdpClientHandler(){
+    public UdpClientHandler() {
     }
 
     @Override
@@ -23,7 +24,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         try {
             // 因为Netty对UDP进行了封装，所以接收到的是DatagramPacket对象。
             String telegramData = datagramPacket.content().toString(CharsetUtil.UTF_8);
-            if(StrUtil.isEmpty(telegramData)) {
+            if (StrUtil.isEmpty(telegramData)) {
                 logger.error("upd client接收到的报文内容不能为空");
                 return;
             }
@@ -36,8 +37,9 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
-        logger.error("UdpClientHandler exception: " + cause.getMessage(), cause);
+        logger.error("################# UdpClientHandler exceptionCaught  ################### ");
+        logger.error("UdpClientHandler exception: {}, {}", cause.getMessage(), cause);
     }
 }
