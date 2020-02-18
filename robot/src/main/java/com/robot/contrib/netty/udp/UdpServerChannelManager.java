@@ -3,6 +3,7 @@ package com.robot.contrib.netty.udp;
 import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerConnectionStateNotifier;
+import com.robot.mvc.core.exceptions.RobotException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -37,26 +38,31 @@ public class UdpServerChannelManager<I, O> {
     private Bootstrap bootstrap;
     private EventLoopGroup workerGroup;
     private ChannelFuture channelFuture;
-    private final Map<Object, ClientEntry<I>> clientEntries;
+    private final Map<String, ClientEntry> clientEntries;
     private Supplier<List<ChannelHandler>> channelSupplier;
     private int readTimeout;
     private final boolean loggingInitially;
-    private int port;
+    private String host = "0.0.0.0";
+    private int port = 7070;
 
     private boolean initialized;
     private static int BUFFER_SIZE = 64 * 1024;
     private static final String LOGGING_HANDLER_NAME = "ChannelLoggingHandler";
 
-    public UdpServerChannelManager(int port,
-                                   Map<Object, ClientEntry<I>> clientEntries,
+    public UdpServerChannelManager(
+            Map<String, ClientEntry> clientEntries,
                                    Supplier<List<ChannelHandler>> channelSupplier,
                                    int readTimeout,
                                    boolean loggingInitially) {
-        this.port = port;
         this.clientEntries = requireNonNull(clientEntries, "clientEntries");
         this.channelSupplier = requireNonNull(channelSupplier, "channelSupplier");
         this.readTimeout = readTimeout;
         this.loggingInitially = loggingInitially;
+    }
+
+    public void bind(String host, int port) {
+        this.host = host;
+        this.port = port;
     }
 
     public void initialize() {
@@ -74,7 +80,7 @@ public class UdpServerChannelManager<I, O> {
         this.bootstrap.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE);
         // 设置UDP写缓冲区为64k
         this.bootstrap.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE);
-        UdpServerHandler udpServerHandler = new UdpServerHandler();
+        UdpServerHandler udpServerHandler = new UdpServerHandler(clientEntries);
         this.bootstrap.handler(new ChannelInitializer<NioDatagramChannel>() {
             @Override
             protected void initChannel(NioDatagramChannel ch) throws Exception {
@@ -87,16 +93,23 @@ public class UdpServerChannelManager<I, O> {
                     ch.pipeline().addLast(new IdleStateHandler(readTimeout, 0, 0, TimeUnit.MILLISECONDS));
                 }
                 ch.pipeline().addLast(udpServerHandler);
-                ch.pipeline().addLast(new ServerConnectionStateNotifier<>(clientEntries));
+                ch.pipeline().addLast(new ServerConnectionStateNotifier(clientEntries));
             }
         });
         try {
             // 当没有host时，返回默认的0.0.0.0作为地址
-            channelFuture = bootstrap.bind(port).sync();
-            initialized = true;
-            LOG.warn("UdpServerChannelManager initialized is {}", isInitialized());
+            channelFuture = bootstrap.bind(host, port).sync();
+            channelFuture.addListener((ChannelFuture future) -> {
+                if (future.isSuccess()) {
+                    initialized = true;
+                    throw new RobotException("udp绑定[" + host + ":" + port + "]成功");
+                } else {
+                    throw new RobotException("udp绑定[" + host + ":" + port + "]不成功");
+                }
+            });
         } catch (Exception e) {
-
+            e.printStackTrace();
+            throw new RobotException("UdpServerChannelManager initialized is " + isInitialized() + ", error message:  " + e.getMessage());
         }
     }
 
@@ -117,18 +130,17 @@ public class UdpServerChannelManager<I, O> {
         initialized = false;
     }
 
-    public void register(String host, int port,
-                         ConnectionEventListener<I> connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         if (!initialized) {
             throw new IllegalArgumentException("没有初始化");
         }
-        ClientEntry clientEntry = new ClientEntry<I>(host, port, connectionEventListener);
         String key = clientEntry.getKey();
         if (clientEntries.containsKey(key)) {
             LOG.warn("该客户端[{}] 已经存在，不能重复注册", key);
             return;
         }
-        LOG.info("注册客户端[{}]成功！", key);
+        LOG.info("注册客户端[{}]成功, endPoint: {}:{}", key, clientEntry.getHost(), clientEntry.getPort());
+        clientEntry.setChannel(channelFuture.channel());
         clientEntries.put(key, clientEntry);
     }
 
@@ -137,22 +149,22 @@ public class UdpServerChannelManager<I, O> {
             throw new IllegalArgumentException("没有初始化");
         }
 
-        ClientEntry<I> client = clientEntries.remove(key);
+        ClientEntry client = clientEntries.remove(key);
         if (client != null) {
             client.disconnect();
         }
     }
 
-    public void reregister(String key,
-                           ConnectionEventListener<I> messageHandler) {
+    public void reregister(String key) {
         ClientEntry clientEntry = clientEntries.get(key);
         if (null == clientEntry) {
             throw new NullPointerException("根据[" + key + "]查找不到对应的ClientEntry对象");
         }
         String host = clientEntry.getHost();
         int port = clientEntry.getPort();
+        ConnectionEventListener connectionEventListener = clientEntry.getConnectionEventListener();
         unregister(key);
-        register(host, port, messageHandler);
+        register(new ClientEntry(key, host, port, connectionEventListener));
     }
 
     public void closeClientConnection(Object key) {
@@ -172,7 +184,7 @@ public class UdpServerChannelManager<I, O> {
             throw new IllegalArgumentException("没有初始化");
         }
 
-        ClientEntry<I> entry = clientEntries.get(key);
+        ClientEntry entry = clientEntries.get(key);
         if (entry == null) {
             new NullPointerException("No client registered for key: " + key);
         }
@@ -209,7 +221,7 @@ public class UdpServerChannelManager<I, O> {
             return;
         }
         ClientEntry clientEntry = clientEntries.get(key);
-        InetSocketAddress address = clientEntry.getSocketAddress();
+        InetSocketAddress address = new InetSocketAddress(clientEntry.getHost(), clientEntry.getPort());
         String telegramStr = telegram.toString();
         LOG.info("upd server send telegram[{}] to client[{}:{}]", telegramStr, address.getHostString(), address.getPort());
         clientEntry.getChannel().writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(telegramStr, CharsetUtil.UTF_8), address));

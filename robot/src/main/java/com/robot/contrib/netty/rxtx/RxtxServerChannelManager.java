@@ -41,21 +41,24 @@ public class RxtxServerChannelManager {
     private boolean initialized;
     private boolean connected;
     private Supplier<List<ChannelHandler>> channelSupplier;
-    private String serialport = "";
+    private String serialport = "COM3";
     private int baudrate = 38400;
-    private Map<Object, ClientEntry<Object>> clientEntries;
+    private Map<Object, ClientEntry> clientEntries;
 
-    public RxtxServerChannelManager(String serialport, int baudrate,
-                                    Map<Object, ClientEntry<Object>> clientEntries,
+    public RxtxServerChannelManager(
+            Map<Object, ClientEntry> clientEntries,
                                     Supplier<List<ChannelHandler>> channelSupplier,
                                     int readTimeout,
                                     boolean enableLogging) {
-        this.serialport = serialport;
-        this.baudrate = baudrate;
         this.channelSupplier = channelSupplier;
         this.readTimeout = readTimeout;
         this.enableLogging = enableLogging;
         this.clientEntries = clientEntries;
+    }
+
+    public void bind(String serialport, int baudrate) {
+        this.serialport = serialport;
+        this.baudrate = baudrate;
     }
 
     public void initialize() {
@@ -115,14 +118,15 @@ public class RxtxServerChannelManager {
         }
     }
 
-    public void register(String serialport, int baudrate, ConnectionEventListener connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         if (!isInitialized()) {
             throw new RuntimeException("指定的串口初始化不成功");
         }
         if (baudrate == 0) {
             throw new IllegalArgumentException("串口波特率[" + baudrate + "]没有设置");
         }
-        connectionEventListener.onConnect();
+        LOG.info("注册客户端[{}]成功!", clientEntry.getKey());
+        clientEntry.getConnectionEventListener().onConnect();
     }
 
     public void disconnect(String key) {

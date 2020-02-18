@@ -36,7 +36,7 @@ public class ServerConnectionStateNotifier<I>
     /**
      * A map of all client entries.
      */
-    private final Map<Object, ClientEntry<I>> clientEntries;
+    private final Map<Object, ClientEntry> clientEntries;
     /**
      * The key of this notifier's connection.
      */
@@ -51,7 +51,7 @@ public class ServerConnectionStateNotifier<I>
      *
      * @param clientEntries A map of all client entries.
      */
-    public ServerConnectionStateNotifier(Map<Object, ClientEntry<I>> clientEntries) {
+    public ServerConnectionStateNotifier(Map<Object, ClientEntry> clientEntries) {
         this.clientEntries = requireNonNull(clientEntries, "clientEntries");
     }
 
@@ -59,7 +59,7 @@ public class ServerConnectionStateNotifier<I>
     public void channelInactive(ChannelHandlerContext ctx) {
         if (connectionEventListener != null) {
             LOG.debug("Disconnecting channel for key: '{}'.", key);
-            ClientEntry<I> entry = clientEntries.get(key);
+            ClientEntry entry = clientEntries.get(key);
             if (entry != null) {
                 entry.setChannel(null);
             }
@@ -78,7 +78,7 @@ public class ServerConnectionStateNotifier<I>
             }
         } else if (evt instanceof ConnectionAssociatedEvent) {
             key = ((ConnectionAssociatedEvent) evt).getKey();
-            LOG.debug("Connection associated to key: '{}'", key);
+            LOG.info("Connection associated to key: '{}'", key);
             connectionEventListener = clientEntries.get(key).getConnectionEventListener();
             connectionEventListener.onConnect();
         }

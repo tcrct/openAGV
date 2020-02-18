@@ -53,14 +53,19 @@ public class TcpServerChannelManager<I, O> {
      * Bootstraps the channel.
      */
     private ServerBootstrap bootstrap;
+
+    /**
+     * The host to listen on.
+     */
+    private String host = "0.0.0.0";
     /**
      * The port to listen on.
      */
-    private final int port;
+    private int port = 7070;
     /**
      * A pool of clients that may connect to this manager.
      */
-    private final Map<Object, ClientEntry<I>> clientEntries;
+    private final Map<Object, ClientEntry> clientEntries;
     /**
      * A supplier for lists of {@link ChannelHandler} instances to be added to the pipeline of each
      * new connection.
@@ -86,7 +91,6 @@ public class TcpServerChannelManager<I, O> {
     /**
      * Creates a new instance.
      *
-     * @param port             The port on which to listen for incoming connections.
      * @param clientEntries    Entries for clients accepting connections via this channel manager.
      * @param channelSupplier  A supplier for lists of {@link ChannelHandler} instances that should be
      *                         added to the pipeline of each new connection.
@@ -94,16 +98,20 @@ public class TcpServerChannelManager<I, O> {
      *                         data was received over it. May be zero to disable.
      * @param loggingInitially Whether to turn on logging by default for new connections.
      */
-    public TcpServerChannelManager(int port,
-                                   Map<Object, ClientEntry<I>> clientEntries,
+    public TcpServerChannelManager(
+            Map<Object, ClientEntry> clientEntries,
                                    Supplier<List<ChannelHandler>> channelSupplier,
                                    int readTimeout,
                                    boolean loggingInitially) {
-        this.port = port;
         this.clientEntries = requireNonNull(clientEntries, "clientEntries");
         this.channelSupplier = requireNonNull(channelSupplier, "channelSupplier");
         this.readTimeout = readTimeout;
         this.loggingInitially = loggingInitially;
+    }
+
+    public void bind(String host, int port) {
+        this.host = host;
+        this.port = port;
     }
 
     public void initialize() {
@@ -135,9 +143,14 @@ public class TcpServerChannelManager<I, O> {
             }
 
         });
-        serverChannelFuture = bootstrap.bind(port);
-        initialized = true;
-        LOG.warn("TcpServerChannelManager initialized is {}", isInitialized());
+        try {
+            serverChannelFuture = bootstrap.bind(host, port).sync();
+            initialized = true;
+            LOG.warn("TcpServerChannelManager initialized is {}", isInitialized());
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.warn("TcpServerChannelManager initialized is {}, error message:  {}", isInitialized(), e.getMessage());
+        }
     }
 
     /**
@@ -152,7 +165,7 @@ public class TcpServerChannelManager<I, O> {
 
         serverChannelFuture.channel().close();
         serverChannelFuture = null;
-        for (ClientEntry<I> clientEntry : clientEntries.values()) {
+        for (ClientEntry clientEntry : clientEntries.values()) {
             clientEntry.disconnect();
         }
         clientEntries.clear();
@@ -166,20 +179,19 @@ public class TcpServerChannelManager<I, O> {
         return initialized;
     }
 
-    public void register(String host, int port,
-                         ConnectionEventListener<I> connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         if (!initialized) {
             throw new IllegalArgumentException("Not initialized.");
         }
 
-        ClientEntry clientEntry = new ClientEntry<I>(host, port, connectionEventListener);
         String key = clientEntry.getKey();
         if (clientEntries.containsKey(key)) {
             LOG.warn("A handler for '{}' is already registered.", key);
             return;
         }
 
-        LOG.info("Registering handler for client '{}'", key);
+        LOG.info("注册客户端[{}]成功, endPoint: {}:{}", key, clientEntry.getHost(), clientEntry.getPort());
+        clientEntry.setChannel(serverChannelFuture.channel());
         clientEntries.put(key, clientEntry);
     }
 
@@ -188,22 +200,22 @@ public class TcpServerChannelManager<I, O> {
             throw new IllegalArgumentException("Not initialized.");
         }
 
-        ClientEntry<I> client = clientEntries.remove(key);
+        ClientEntry client = clientEntries.remove(key);
         if (client != null) {
             client.disconnect();
         }
     }
 
-    public void reregister(String key,
-                           ConnectionEventListener<I> messageHandler) {
+    public void reregister(String key) {
         ClientEntry clientEntry = clientEntries.get(key);
         if (null == clientEntry) {
             throw new NullPointerException("clientEntries根据[" + key + "]查找不到对应的ClientEntry对象");
         }
         String host = clientEntry.getHost();
         int port = clientEntry.getPort();
+        ConnectionEventListener<I> connectionEventListener = clientEntry.getConnectionEventListener();
         unregister(key);
-        register(host, port, messageHandler);
+        register(new ClientEntry(key, host, port, connectionEventListener));
     }
 
     public void closeClientConnection(Object key) {
@@ -226,9 +238,9 @@ public class TcpServerChannelManager<I, O> {
      */
     public boolean isClientConnected(Object key) {
         return serverChannelFuture != null
-                && clientEntries.containsKey(key)
-                && clientEntries.get(key).getChannel() != null
-                && clientEntries.get(key).getChannel().isActive();
+                && clientEntries.containsKey(key);
+//                && clientEntries.get(key).getChannel() != null
+//                && clientEntries.get(key).getChannel().isActive();
     }
 
     /**
@@ -262,7 +274,7 @@ public class TcpServerChannelManager<I, O> {
             throw new IllegalArgumentException("Not initialized.");
         }
 
-        ClientEntry<I> entry = clientEntries.get(key);
+        ClientEntry entry = clientEntries.get(key);
         if (entry == null) {
             new NullPointerException("No client registered for key: " + key);
         }

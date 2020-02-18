@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.tcp;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
@@ -25,9 +24,8 @@ public class TcpServerManager extends ServerChannelManager {
 
     private static TcpServerChannelManager tcpServerChannelManager;
     private static TcpServerManager tcpServerManager;
-    private static final Map<Object, ClientEntry<Object>> CLIENT_ENTRIES = new HashMap<>();
+    private static final Map<Object, ClientEntry> CLIENT_ENTRIES = new HashMap<>();
     private static Lock lock = new ReentrantLock();
-    private static int PORT = 9090;
     private static int READ_TIMEOUT = 5000;
     private static boolean LOGGING_INITIALLY = true;
 
@@ -51,10 +49,15 @@ public class TcpServerManager extends ServerChannelManager {
     }
 
     private TcpServerManager() {
-        tcpServerChannelManager = new TcpServerChannelManager(PORT, CLIENT_ENTRIES,
+        tcpServerChannelManager = new TcpServerChannelManager(CLIENT_ENTRIES,
                 this::getChannelHandlers,
                 READ_TIMEOUT,
                 LOGGING_INITIALLY);
+    }
+
+    @Override
+    public void bind(String host, int port) {
+        tcpServerChannelManager.bind(host, port);
     }
 
     @Override
@@ -75,14 +78,14 @@ public class TcpServerManager extends ServerChannelManager {
     }
 
     @Override
-    public void register(String host, int port, ConnectionEventListener connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         try {
             if (!isConnected()) {
-                tcpServerChannelManager.register(host, port, connectionEventListener);
+                tcpServerChannelManager.register(clientEntry);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOG.error("注册[{}:{}]时发生异常: {}", host, port, e.getMessage());
+            LOG.error("注册[{}]时发生异常: {}", clientEntry.getKey(), e.getMessage());
         }
     }
 

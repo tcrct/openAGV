@@ -201,4 +201,9 @@ public class BaseResponse implements IResponse {
     public void setRawContent(String raw) {
         rawContent = raw;
     }
+
+    @Override
+    public String toString() {
+        return rawContent;
+    }
 }

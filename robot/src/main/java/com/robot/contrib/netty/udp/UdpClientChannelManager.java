@@ -138,7 +138,7 @@ public class UdpClientChannelManager<O, I> {
                 this.initialized = true;
                 this.host = host;
                 this.port = port;
-                connectionEventListener.onConnect();
+//                connectionEventListener.onConnect();
                 LOG.warn("UdpClientChannelManager链接[{}:{}]成功", host, port);
             } else {
                 LOG.warn("UdpClientChannelManager链接失败, 如果有开启重连，则尝试重连");

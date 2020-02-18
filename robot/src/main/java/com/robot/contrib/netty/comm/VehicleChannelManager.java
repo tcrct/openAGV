@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.comm;
 
-import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.rxtx.RxtxServerManager;
 import com.robot.contrib.netty.tcp.TcpClientManager;
@@ -19,7 +18,7 @@ public class VehicleChannelManager {
     /**
      * 取通讯网络管理器
      *
-     * @param adapter
+     * @param connectionEventListener 车辆通讯链接监听器
      * @return
      */
     public static IChannelManager getChannelManager(ConnectionEventListener connectionEventListener) {
@@ -37,7 +36,6 @@ public class VehicleChannelManager {
 
     /***
      * 以服务器方式运行的管理器
-     * @param adapter 车辆通讯适配器
      * @param channelType  网络渠道类型
      * @return
      */
@@ -47,7 +45,7 @@ public class VehicleChannelManager {
         } else if (NetChannelType.UDP.equals(channelType)) {
             return UdpServerManager.duang();
         } else if (NetChannelType.RXTX.equals(channelType)) {
-            return RxtxServerManager.duang(RobotUtil.getServerHost(), RobotUtil.getServerPort());
+            return RxtxServerManager.duang();
         }
         return null;
     }
@@ -55,7 +53,7 @@ public class VehicleChannelManager {
     /**
      * 以客户端方式运行的管理器
      *
-     * @param adapter     车辆通讯适配器
+     * @param connectionEventListener     车辆通讯链接监听器
      * @param channelType 网络渠道类型
      * @return
      */
@@ -65,7 +63,7 @@ public class VehicleChannelManager {
         } else if (NetChannelType.UDP.equals(channelType)) {
             return new UdpClientManager(connectionEventListener);
         } else if (NetChannelType.RXTX.equals(channelType)) {
-            return RxtxServerManager.duang(RobotUtil.getServerHost(), RobotUtil.getServerPort());
+            return RxtxServerManager.duang();
         }
         return null;
     }

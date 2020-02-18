@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.comm;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.mvc.core.exceptions.RobotException;
 
 import javax.annotation.Nonnull;
@@ -13,6 +12,14 @@ import javax.annotation.Nonnull;
  * @author Laotang
  */
 public interface IChannelManager<I, O> {
+
+    /**
+     * 服务器端绑定地址
+     *
+     * @param host 地址
+     * @param port 端口
+     */
+    void bind(String host, int port);
 
     /**
      * 初始化
@@ -34,13 +41,11 @@ public interface IChannelManager<I, O> {
     /*************************************************服务器端**************************************************/
 
     /**
-     * 将客房端注册到服务器端
+     * 将客户端注册到服务器端
      *
-     * @param host                    客户端host
-     * @param port                    客户端port
-     * @param connectionEventListener 连接事件监听器
+     * @param clientEntry 客户端对象
      */
-    void register(String host, int port, ConnectionEventListener connectionEventListener);
+    void register(ClientEntry clientEntry);
 
     /**
      * 断开连接

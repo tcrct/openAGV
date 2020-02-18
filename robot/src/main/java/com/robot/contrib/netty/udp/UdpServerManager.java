@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.udp;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.*;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -25,8 +24,7 @@ public class UdpServerManager extends ServerChannelManager<IRequest, IResponse> 
     private UdpServerChannelManager udpServerChannelManager;
     private static UdpServerManager udpServerManager;
     private static Lock lock = new ReentrantLock();
-    private static final Map<Object, ClientEntry<Object>> CLIENT_ENTRIES = new HashMap<>();
-    private static int PORT = 9090;
+    private static final Map<Object, ClientEntry> CLIENT_ENTRIES = new HashMap<>();
     private static int READ_TIMEOUT = 5000;
     private static boolean LOGGING_INITIALLY = true;
 
@@ -40,8 +38,7 @@ public class UdpServerManager extends ServerChannelManager<IRequest, IResponse> 
     }
 
     private UdpServerManager() {
-        udpServerChannelManager = new UdpServerChannelManager(PORT,
-                CLIENT_ENTRIES,
+        udpServerChannelManager = new UdpServerChannelManager(CLIENT_ENTRIES,
                 this::getChannelHandlers,
                 READ_TIMEOUT,
                 LOGGING_INITIALLY);
@@ -53,9 +50,12 @@ public class UdpServerManager extends ServerChannelManager<IRequest, IResponse> 
     private List<ChannelHandler> getChannelHandlers() {
         return Arrays.asList(
                 new VehicleTelegramDecoder(),
-                new VehicleTelegramEncoder(),
-                // 设置通讯通道到客户端对象
-                new ConnectionAssociator(CLIENT_ENTRIES));
+                new VehicleTelegramEncoder());
+    }
+
+    @Override
+    public void bind(String host, int port) {
+        udpServerChannelManager.bind(host, port);
     }
 
     @Override
@@ -76,13 +76,13 @@ public class UdpServerManager extends ServerChannelManager<IRequest, IResponse> 
     }
 
     @Override
-    public void register(String host, int port, ConnectionEventListener connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         try {
-            if (!isConnected(ClientEntry.createClientEntryKey(host, port))) {
-                udpServerChannelManager.register(host, port, connectionEventListener);
+            if (!isConnected(clientEntry.getKey())) {
+                udpServerChannelManager.register(clientEntry);
             }
         } catch (Exception e) {
-            LOG.error("注册[{}:{}]时发生异常: {}", host, port, e.getMessage());
+            LOG.error("注册[{}]时发生异常: {}", clientEntry.getKey(), e.getMessage());
             e.printStackTrace();
         }
     }

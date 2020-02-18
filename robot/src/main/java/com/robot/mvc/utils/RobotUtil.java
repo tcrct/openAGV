@@ -10,9 +10,7 @@ import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.RunType;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
-import com.robot.mvc.core.interfaces.IAction;
-import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.core.interfaces.IRequest;
+import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -29,6 +27,15 @@ import java.util.*;
 public class RobotUtil {
 
     private static final Log LOG = LogFactory.get();
+
+    /**
+     * 协议解码器
+     */
+    private static IProtocolMatcher protocolMatcher;
+    /**
+     * 重复发送对象
+     */
+    private static IRepeatSend repeatSend;
 
     /**
      * 是否开发模式
@@ -130,7 +137,7 @@ public class RobotUtil {
      * @return
      */
     public static String getRunType() {
-        return SettingUtil.getString("run.type", "client").toUpperCase();
+        return SettingUtil.getString("run.type", "server").toUpperCase();
     }
 
     /***
@@ -140,9 +147,9 @@ public class RobotUtil {
     public static String getServerHost() {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            return SettingUtil.getString("host", "net", "0.0.0.0");
+            return SettingUtil.getString("server.host", "0.0.0.0");
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
-            return SettingUtil.getString("name", "serialport", "COM3");
+            return SettingUtil.getString("rxtx.name", "COM3");
         }
         return "";
     }
@@ -154,9 +161,9 @@ public class RobotUtil {
     public static Integer getServerPort() {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            return SettingUtil.getInt("port", "net", 9090);
+            return SettingUtil.getInt("server.port", 7070);
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
-            return SettingUtil.getInt("baudrate", "serialport", 38400);
+            return SettingUtil.getInt("rxtx.baudrate", 38400);
         }
         return 0;
     }
@@ -166,14 +173,10 @@ public class RobotUtil {
      * @param vehicleName 车辆名称
      * @return
      */
-    public static String getHost(String vehicleName) {
+    public static String getVehicleHost(String vehicleName) {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            if (RunType.SERVER.name().equalsIgnoreCase(getRunType())) {
-                return getServerHost();
-            } else {
-                return RobotContext.getAdapter(vehicleName).getProcessModel().getVehicleHost();
-            }
+            return RobotContext.getAdapter(vehicleName).getProcessModel().getVehicleHost();
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
             return SettingUtil.getString("name", "rxtx", "COM3");
         }
@@ -185,14 +188,10 @@ public class RobotUtil {
      * @param vehicleName 车辆名称
      * @return
      */
-    public static Integer getPort(String vehicleName) {
+    public static Integer getVehiclePort(String vehicleName) {
         if (NetChannelType.TCP.equals(getNetChannelType()) ||
                 NetChannelType.UDP.equals(getNetChannelType())) {
-            if (RunType.SERVER.name().equalsIgnoreCase(getRunType())) {
-                return getServerPort();
-            } else {
-                return RobotContext.getAdapter(vehicleName).getProcessModel().getVehiclePort();
-            }
+            return RobotContext.getAdapter(vehicleName).getProcessModel().getVehiclePort();
         } else if (NetChannelType.RXTX.equals(getNetChannelType())) {
             return SettingUtil.getInt("baudrate", "rxtx", 38400);
         }
@@ -391,14 +390,14 @@ public class RobotUtil {
      * 是否以客户端的方式运行
      */
     public static boolean isClientRunType() {
-        return RunType.CLIENT.name().toUpperCase().equals(getRunType());
+        return RunType.CLIENT.name().equalsIgnoreCase(getRunType());
     }
 
     /**
      * 是否以服务器端的方式运行
      */
     public static boolean isServerRunType() {
-        return RunType.SERVER.name().toLowerCase().equals(getRunType());
+        return RunType.SERVER.name().equalsIgnoreCase(getRunType());
     }
 
     private static final Map<String, String> CLIENT_ENTRY_KEY_MAP = new HashMap<>();
@@ -417,5 +416,64 @@ public class RobotUtil {
             clientEntryKey = CLIENT_ENTRY_KEY_MAP.get(protocol.getDeviceId());
         }
         return clientEntryKey;
+    }
+
+
+    /**
+     * 将接收到的报文转换为IProtocol对象列表集合
+     *
+     * @param telegramData
+     * @return
+     */
+    public static List<IProtocol> toProtocolList(String telegramData) {
+        if (null == protocolMatcher || null == repeatSend) {
+            initComponents();
+        }
+        return protocolMatcher.encode(telegramData);
+    }
+
+    /**
+     * 初始化协议解析对象
+     */
+    private static void initComponents() {
+
+        IComponents agvComponents = RobotContext.getRobotComponents();
+        if (ToolsKit.isEmpty(agvComponents)) {
+            throw new RobotException("OpenAGV组件对象不能为空,请先实现IComponents接口，并在Duang.java里设置setComponents方法");
+        }
+
+        protocolMatcher = agvComponents.getProtocolMatcher();
+        if (ToolsKit.isEmpty(protocolMatcher)) {
+            throw new RobotException("协议解码器不能为空，请先实现IComponents接口里的getProtocolDecode方法");
+        }
+
+        repeatSend = agvComponents.getRepeatSend();
+        if (ToolsKit.isEmpty(repeatSend)) {
+            throw new RobotException("重复发送不能为空，请先实现IComponents接口里的getRepeatSend方法");
+        }
+    }
+
+    /**
+     * 取报文解析组件
+     *
+     * @return
+     */
+    public static IProtocolMatcher getProtocolMatcher() {
+        if (null == protocolMatcher) {
+            initComponents();
+        }
+        return protocolMatcher;
+    }
+
+    /**
+     * 取重发组件
+     *
+     * @return
+     */
+    public static IRepeatSend getRepeatSend() {
+        if (null == repeatSend) {
+            initComponents();
+        }
+        return repeatSend;
     }
 }

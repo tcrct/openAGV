@@ -30,24 +30,30 @@ public class RxtxServerManager extends ServerChannelManager<IRequest, IResponse>
 
     private RxtxServerChannelManager channelManager;
     private static RxtxServerManager rxtxServerManager;
-    private static final Map<Object, ClientEntry<Object>> CLIENT_ENTRIES = new HashMap<>();
+    private static final Map<Object, ClientEntry> CLIENT_ENTRIES = new HashMap<>();
     private static Lock lock = new ReentrantLock();
 
-    public static RxtxServerManager duang(String serialport, int baudrate) {
+    public static RxtxServerManager duang() {
         synchronized (lock) {
             if (null == rxtxServerManager) {
-                rxtxServerManager = new RxtxServerManager(serialport, baudrate);
+                rxtxServerManager = new RxtxServerManager();
             }
             return rxtxServerManager;
         }
     }
 
-    private RxtxServerManager(String serialport, int baudrate) {
-        channelManager = new RxtxServerChannelManager(serialport, baudrate,
+    private RxtxServerManager() {
+        channelManager = new RxtxServerChannelManager(
                 CLIENT_ENTRIES,
                 this::getChannelHandlers,
                 5000,
                 true);
+    }
+
+
+    @Override
+    public void bind(String serialport, int baudrate) {
+        channelManager.bind(serialport, baudrate);
     }
 
     @Override
@@ -66,10 +72,10 @@ public class RxtxServerManager extends ServerChannelManager<IRequest, IResponse>
     }
 
     @Override
-    public void register(String serialport, int baudrate, ConnectionEventListener connectionEventListener) {
+    public void register(ClientEntry clientEntry) {
         try {
-            if (!isConnected()) {
-                channelManager.register(serialport, baudrate, connectionEventListener);
+            if (!isConnected(clientEntry.getKey())) {
+                channelManager.register(clientEntry);
             }
         } catch (Exception e) {
             throw new RobotException("串口链接时出现异常: " + e.getMessage(), e);

@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.comm;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.mvc.core.exceptions.RobotException;
 
 /**
@@ -14,7 +13,12 @@ public abstract class ClientChannelManager<I, O> implements IChannelManager<I, O
 
 
     @Override
-    public void register(String host, int port, ConnectionEventListener connectionEventListener) {
+    public void bind(String host, int port) {
+        throw new RobotException("客户端不需要实现该方法");
+    }
+
+    @Override
+    public void register(ClientEntry clientEntry) {
         throw new RobotException("客户端不需要实现该方法");
     }
 

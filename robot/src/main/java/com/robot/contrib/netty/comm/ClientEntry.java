@@ -12,12 +12,11 @@ import static java.util.Objects.requireNonNull;
 /**
  * 客户端对象
  *
- * @param <I> 此实体的消息处理程序的类型。
  * @author Laotang
  * @date 2020-02-17
  * @since 1.0
  */
-public class ClientEntry<I> {
+public class ClientEntry {
 
     /**
      * 客户端host
@@ -37,17 +36,12 @@ public class ClientEntry<I> {
     /**
      * 要向其发送有关连接的事件的处理程序
      */
-    private ConnectionEventListener<I> connectionEventListener;
+    private ConnectionEventListener connectionEventListener;
 
     /**
      * 管理当前通讯的通道, netty channel
      */
     private Channel channel;
-
-    /**
-     * netty socket address
-     */
-    private InetSocketAddress socketAddress;
 
     /**
      * 构造方法
@@ -56,13 +50,12 @@ public class ClientEntry<I> {
      * @param port                    客户端port
      * @param connectionEventListener 处理发送链接事件的监听器
      */
-    public ClientEntry(@Nonnull String host,
+    public ClientEntry(@Nonnull String key, @Nonnull String host,
                        @Nonnull Integer port,
-                       @Nonnull ConnectionEventListener<I> connectionEventListener) {
+                       @Nonnull ConnectionEventListener connectionEventListener) {
+        this.key = requireNonNull(key, "key");
         this.host = requireNonNull(host, "host");
         this.port = requireNonNull(port, "host");
-        this.key = createClientEntryKey(host, port);
-        this.socketAddress = InetSocketAddress.createUnresolved(host, port);
         this.connectionEventListener = requireNonNull(connectionEventListener);
     }
 
@@ -72,7 +65,7 @@ public class ClientEntry<I> {
     }
 
     @Nonnull
-    public ConnectionEventListener<I> getConnectionEventListener() {
+    public ConnectionEventListener getConnectionEventListener() {
         return connectionEventListener;
     }
 
@@ -95,11 +88,6 @@ public class ClientEntry<I> {
         }
         channel.disconnect();
         channel = null;
-    }
-
-    @Nullable
-    public InetSocketAddress getSocketAddress() {
-        return socketAddress;
     }
 
     @Nullable

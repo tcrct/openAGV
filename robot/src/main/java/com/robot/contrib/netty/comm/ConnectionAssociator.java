@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Martin Grzenia (Fraunhofer IML)
  */
+@Deprecated
 public class ConnectionAssociator
         extends ChannelInboundHandlerAdapter {
 
@@ -32,13 +33,13 @@ public class ConnectionAssociator
     /**
      * A pool of clients that may connect to a TcpServerChannelManager.
      */
-    private final Map<Object, ClientEntry<Object>> clientEntries;
+    private final Map<Object, ClientEntry> clientEntries;
     /**
      * The associated client.
      */
-    private ClientEntry<Object> client;
+    private ClientEntry client;
 
-    public ConnectionAssociator(Map<Object, ClientEntry<Object>> clientEntries) {
+    public ConnectionAssociator(Map<Object, ClientEntry> clientEntries) {
         this.clientEntries = requireNonNull(clientEntries, "clientEntries");
     }
 
