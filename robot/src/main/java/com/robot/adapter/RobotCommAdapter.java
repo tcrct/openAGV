@@ -14,7 +14,7 @@ import com.robot.adapter.task.MoveRequesterTask;
 import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.ClientEntry;
-import com.robot.contrib.netty.comm.IChannelManager;
+import com.robot.contrib.netty.comm.IServiceChannelManager;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.VehicleChannelManager;
 import com.robot.mvc.core.exceptions.RobotException;
@@ -22,9 +22,8 @@ import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.ITelegramSender;
-import com.robot.mvc.utils.RobotUtil;
-import com.robot.mvc.utils.SettingUtil;
-import com.robot.mvc.utils.ToolsKit;
+import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
@@ -98,7 +97,7 @@ public class RobotCommAdapter
     /**
      * 车辆网络连接管理器
      */
-    private IChannelManager<IRequest, IResponse> vehicleChannelManager;
+    private IServiceChannelManager<IRequest, IResponse> vehicleChannelManager;
     /**
      * 运行方式，以服务器方式运行还是客户端方式链接车辆
      */
@@ -592,7 +591,7 @@ public class RobotCommAdapter
     @Override
     public void onConnect() {
         getProcessModel().setCommAdapterConnected(true);
-        LOG.info("车辆[{}]连接成功", getName());
+        LOG.info("netty回调事件: 车辆[{}]连接成功", getName());
     }
 
     /***/

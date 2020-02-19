@@ -4,7 +4,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.robot.adapter.enumes.Attributes;
 import com.robot.adapter.model.RobotVehicleModelTO;
 import com.robot.commands.*;
-import com.robot.mvc.utils.SettingUtil;
+import com.robot.utils.SettingUtil;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.customizations.ServiceCallWrapper;
 import org.opentcs.data.TCSObjectReference;

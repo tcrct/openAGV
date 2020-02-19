@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * @param <O>返回对象
  * @author Laotang
  */
-public abstract class ServerChannelManager<I, O> implements IChannelManager<I, O> {
+public abstract class ServerChannelManager<I, O> implements IServiceChannelManager<I, O> {
 
 
     @Override

@@ -1,4 +1,4 @@
-package com.robot.mvc.utils;
+package com.robot.utils;
 
 public class CrcUtil {
 

@@ -11,8 +11,8 @@ import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.BaseResponse;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.model.Route;
-import com.robot.mvc.utils.RobotUtil;
-import com.robot.mvc.utils.ToolsKit;
+import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

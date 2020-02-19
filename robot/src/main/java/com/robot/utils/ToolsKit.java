@@ -1,4 +1,4 @@
-package com.robot.mvc.utils;
+package com.robot.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;

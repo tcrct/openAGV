@@ -9,7 +9,7 @@ import com.robot.mvc.core.exceptions.RobotException;
  * @param <O>返回对象
  * @author Laotang
  */
-public abstract class ClientChannelManager<I, O> implements IChannelManager<I, O> {
+public abstract class ClientChannelManager<I, O> implements IServiceChannelManager<I, O> {
 
 
     @Override

@@ -1,6 +1,6 @@
 package com.robot.adapter.exchange;
 
-import com.robot.mvc.utils.SettingUtil;
+import com.robot.utils.SettingUtil;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 
 /**

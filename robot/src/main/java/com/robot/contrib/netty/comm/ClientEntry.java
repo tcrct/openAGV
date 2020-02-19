@@ -5,8 +5,6 @@ import io.netty.channel.Channel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.net.InetSocketAddress;
-
 import static java.util.Objects.requireNonNull;
 
 /**

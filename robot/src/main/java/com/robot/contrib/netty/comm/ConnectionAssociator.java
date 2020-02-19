@@ -3,8 +3,8 @@
  */
 package com.robot.contrib.netty.comm;
 
-import com.robot.mvc.utils.RobotUtil;
-import com.robot.mvc.utils.ToolsKit;
+import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;

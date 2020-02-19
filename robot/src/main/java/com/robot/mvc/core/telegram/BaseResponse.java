@@ -7,7 +7,7 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.robot.mvc.utils.ToolsKit;
+import com.robot.utils.ToolsKit;
 
 /**
  * 响应对象基类

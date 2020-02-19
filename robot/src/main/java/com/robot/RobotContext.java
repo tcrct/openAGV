@@ -5,7 +5,7 @@ import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.utils.RobotUtil;
+import com.robot.utils.RobotUtil;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.slf4j.Logger;

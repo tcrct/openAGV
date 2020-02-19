@@ -3,7 +3,7 @@ package com.robot.mvc.core.telegram;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
-import com.robot.mvc.utils.RobotUtil;
+import com.robot.utils.RobotUtil;
 import org.opentcs.drivers.vehicle.MovementCommand;
 
 import java.util.Queue;

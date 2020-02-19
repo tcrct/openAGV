@@ -7,7 +7,7 @@ import com.robot.contrib.netty.tcp.TcpServerManager;
 import com.robot.contrib.netty.udp.UdpClientManager;
 import com.robot.contrib.netty.udp.UdpServerManager;
 import com.robot.mvc.core.exceptions.RobotException;
-import com.robot.mvc.utils.RobotUtil;
+import com.robot.utils.RobotUtil;
 
 /**
  * 车辆网络管理器
@@ -21,7 +21,7 @@ public class VehicleChannelManager {
      * @param connectionEventListener 车辆通讯链接监听器
      * @return
      */
-    public static IChannelManager getChannelManager(ConnectionEventListener connectionEventListener) {
+    public static IServiceChannelManager getChannelManager(ConnectionEventListener connectionEventListener) {
         // 如果是以服务器方式启动，则在初始化时完成
         String runType = RobotUtil.getRunType();
         NetChannelType channelType = RobotUtil.getNetChannelType();
@@ -39,7 +39,7 @@ public class VehicleChannelManager {
      * @param channelType  网络渠道类型
      * @return
      */
-    private static IChannelManager getServerChannelManager(NetChannelType channelType) {
+    private static IServiceChannelManager getServerChannelManager(NetChannelType channelType) {
         if (NetChannelType.TCP.equals(channelType)) {
             return TcpServerManager.duang();
         } else if (NetChannelType.UDP.equals(channelType)) {
@@ -57,7 +57,7 @@ public class VehicleChannelManager {
      * @param channelType 网络渠道类型
      * @return
      */
-    private static IChannelManager getClientChannelManager(ConnectionEventListener connectionEventListener, NetChannelType channelType) {
+    private static IServiceChannelManager getClientChannelManager(ConnectionEventListener connectionEventListener, NetChannelType channelType) {
         if (NetChannelType.TCP.equals(channelType)) {
             return new TcpClientManager(connectionEventListener);
         } else if (NetChannelType.UDP.equals(channelType)) {

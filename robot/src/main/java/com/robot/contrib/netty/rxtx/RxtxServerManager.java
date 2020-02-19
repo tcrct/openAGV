@@ -1,6 +1,5 @@
 package com.robot.contrib.netty.rxtx;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerChannelManager;
 import com.robot.contrib.netty.comm.VehicleTelegramDecoder;
@@ -8,7 +7,7 @@ import com.robot.contrib.netty.comm.VehicleTelegramEncoder;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
-import com.robot.mvc.utils.ToolsKit;
+import com.robot.utils.ToolsKit;
 import io.netty.channel.ChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

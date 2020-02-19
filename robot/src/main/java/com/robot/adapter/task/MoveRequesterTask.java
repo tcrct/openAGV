@@ -1,7 +1,7 @@
 package com.robot.adapter.task;
 
 import com.google.inject.assistedinject.Assisted;
-import com.robot.mvc.utils.SettingUtil;
+import com.robot.utils.SettingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

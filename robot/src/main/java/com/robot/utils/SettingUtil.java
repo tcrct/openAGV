@@ -1,4 +1,4 @@
-package com.robot.mvc.utils;
+package com.robot.utils;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.setting.Setting;
