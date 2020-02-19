@@ -62,7 +62,7 @@ public class DispatchFactory {
     /**
      * 系统接收到车辆或工作站发起的业务协议字符串
      *
-     * @param telegramObj 协议内容对象
+     * @param protocol 协议内容对象
      */
     private static void onIncomingTelegram(IProtocol protocol) {
         String message = RobotUtil.getProtocolMatcher().decode(protocol);
@@ -92,7 +92,7 @@ public class DispatchFactory {
                 } catch (RobotException re) {
                     //TODO 抛出异常，说明提交的卡号与队列中的第1位元素不一致，可作立即停车处理
                     LOG.info(re.getMessage(), re);
-                    RobotContext.getRobotComponents().stopVehicle(protocol);
+                    RobotContext.getRobotComponents().getVehicleStatus().stopVehicle(protocol);
                 }
             }
         } catch (Exception e) {

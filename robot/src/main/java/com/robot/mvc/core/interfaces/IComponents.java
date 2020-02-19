@@ -25,5 +25,5 @@ public interface IComponents {
      *
      * @param protocol 协议对象
      */
-    void stopVehicle(IProtocol protocol);
+    IVehicleStatus getVehicleStatus();
 }

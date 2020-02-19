@@ -146,9 +146,9 @@ public class RobotCommAdapter
             moveRequesterTask.enable(getName());
             initVehiclePosition(getName());
             super.enable();
-            LOG.info("成功{}车辆[{}]通讯适配器", RobotUtil.isClientRunType() ? "链接" : "注册", getName());
+            LOG.info("成功注册车辆[{}]通讯适配器", getName());
         } catch (Exception e) {
-            LOG.info("{}车辆[{}]通讯适配器失败: {}", RobotUtil.isClientRunType() ? "链接" : "注册", getName(), e.getMessage(), e);
+            LOG.info("注册车辆[{}]通讯适配器失败: {}", getName(), e.getMessage(), e);
         }
     }
 
@@ -156,39 +156,13 @@ public class RobotCommAdapter
 
     }
 
-    public synchronized void initVehiclePosition(String newPos) {
-
-        getProcessModel().setVehicleIdle(true);
-        getProcessModel().setVehicleState(Vehicle.State.IDLE);
-
-        //  开启以下代码，会导致页面卡死，原因不明
-//        VehicleService vehicleService = RobotContext.getKernelServicePortal().getVehicleService();
-//        vehicleService.updateVehicleIntegrationLevel(RobotUtil.getVehicle(getName()).getReference(), Vehicle.IntegrationLevel.TO_BE_UTILIZED);
-        //或者
-//        HttpRequest.put("http://127.0.0.1:55200/v1/vehicles/" + getName() + "/integrationLevel?newValue=TO_BE_UTILIZED").executeAsync().body();
-        if ("A006".equals(newPos)) {
-            getProcessModel().setVehiclePosition("705");
-        }
-        if ("A010".equals(newPos)) {
-            getProcessModel().setVehiclePosition("1");
-        }
-        if ("A009".equals(newPos)) {
-            getProcessModel().setVehiclePosition("237");
-        }
-        if ("A033".equals(newPos)) {
-            getProcessModel().setVehiclePosition("49");
-        }
-        if ("A001".equals(newPos)) {
-            getProcessModel().setVehiclePosition("218");
-        }
-        if ("A002".equals(newPos)) {
-            getProcessModel().setVehiclePosition("231");
-        }
-
-        // 顶升AGV
-        if ("A030".equals(newPos)) {
-            getProcessModel().setVehiclePosition("1");
-        }
+    /**
+     * 初始车辆位置
+     *
+     * @param name 车辆名称
+     */
+    public synchronized void initVehiclePosition(String name) {
+        RobotContext.getRobotComponents().getVehicleStatus().initVehiclePosition(name);
     }
 
     /**
