@@ -170,6 +170,7 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
         }
         if (isConnection) {
             try {
+                unregister(key);
                 clientEntries.get(key).getChannel().disconnect();
                 clientEntries.get(key).setChannel(null);
                 LOG.warn("关闭客户端[{}]成功", key);

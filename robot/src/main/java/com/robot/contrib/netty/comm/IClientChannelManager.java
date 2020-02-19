@@ -5,7 +5,7 @@ import com.robot.mvc.core.exceptions.RobotException;
 import javax.annotation.Nonnull;
 
 /**
- * 网络渠道管理器接口
+ * 客户端网络渠道管理器接口
  *
  * @param <O>发送泛型对象
  * @author Laotang

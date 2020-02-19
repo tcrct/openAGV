@@ -12,7 +12,9 @@ import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.helpers.RouteHelper;
+import com.robot.mvc.main.DispatchFactory;
 import com.robot.mvc.model.Route;
+import io.netty.channel.Channel;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
@@ -475,5 +477,36 @@ public class RobotUtil {
             initComponents();
         }
         return repeatSend;
+    }
+
+    /**
+     * 将接收到的报文转至调度工厂
+     *
+     * @param channel       netty channel
+     * @param clientEntries 客户端实体对象集合
+     * @param telegramData  接收到的报文消息
+     */
+    public static void channelReadToDispatchFactory(Channel channel, Map<String, ClientEntry> clientEntries, String telegramData) {
+        // 设置通讯通道到客户端对象
+        List<IProtocol> protocolList = RobotUtil.toProtocolList(telegramData);
+        if (ToolsKit.isEmpty(protocolList)) {
+            LOG.warn("将接收到的报文[{}]转换为List<IProtocol>时，List对象为空！", telegramData);
+            return;
+        }
+        for (IProtocol protocol : protocolList) {
+            String key = protocol.getDeviceId();
+            if (ToolsKit.isEmpty(key)) {
+                LOG.warn("车辆/设备标识符不能为空");
+                continue;
+            }
+            ClientEntry client = clientEntries.get(key);
+            if (ToolsKit.isEmpty(client)) {
+                LOG.warn("根据车辆/设备标识符[{}]查找不到对应的ClientEntry对象，退出本次访问，请检查！");
+                continue;
+            }
+            client.setChannel(channel);
+            LOG.info("netty channel id {}", client.getChannel().id().asLongText());
+            DispatchFactory.onIncomingTelegram(protocol);
+        }
     }
 }

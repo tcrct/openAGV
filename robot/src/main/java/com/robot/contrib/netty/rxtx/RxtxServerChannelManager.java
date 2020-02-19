@@ -4,7 +4,6 @@ import com.robot.contrib.netty.comm.AbstractServerChannelManager;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerConnectionStateNotifier;
 import com.robot.contrib.netty.tcp.TcpServerChannelManager;
-import com.robot.utils.ToolsKit;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -49,7 +48,7 @@ public class RxtxServerChannelManager extends AbstractServerChannelManager {
             LOG.warn("已经初始化，请勿重复初始化");
             return;
         }
-        RxtxServerHandler rxtxHandler = new RxtxServerHandler();
+        RxtxServerHandler rxtxHandler = new RxtxServerHandler(clientEntries);
         this.bootstrap = new Bootstrap();
         OioEventLoopGroup workerGroup = new OioEventLoopGroup();
         this.bootstrap.group(workerGroup)
@@ -67,12 +66,11 @@ public class RxtxServerChannelManager extends AbstractServerChannelManager {
                         for (ChannelHandler handler : channelSupplier.get()) {
                             ch.pipeline().addLast(handler);
                         }
-//                            ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(AP_MSG_MAX_LENGTH, 6, 1, 0, 0, true));
                         ch.pipeline().addLast(rxtxHandler);
                         ch.pipeline().addLast(new ServerConnectionStateNotifier(clientEntries));
                     }
                 });
-//        RxtxChannel rxtxChannel = new RxtxChannel();
+        // RxtxChannel rxtxChannel = new RxtxChannel();
         bootstrap.option(RxtxChannelOption.BAUD_RATE, port);
         try {
             serverChannelFuture = bootstrap.connect(new RxtxDeviceAddress(host)).sync();

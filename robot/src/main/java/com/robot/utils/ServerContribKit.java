@@ -12,29 +12,23 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Netty网络处理工具
+ * 服务器网络处理工具
  *
  * @author Laotang
  * @date 2020/2/19.
  * @since 1.0
  */
-public class NettyContribKit {
+public class ServerContribKit {
 
-    private static NettyContribKit CONTRIB_KIT;
+    private static ServerContribKit CONTRIB_KIT;
     private static final Lock lock = new ReentrantLock();
     private IServiceChannelManager serviceChannelManager;
     private static final Map<String, ClientEntry> CLIENT_ENTRIES = new HashMap<>();
     private static int READ_TIMEOUT = 5000;
     private static boolean LOGGING_INITIALLY = true;
-    private static final String HOST = "0.0.0.0";
-    private static int PORT = 7070;
 
-    private NettyContribKit(String host, int port) {
-        getChannelManager(host, port);
-    }
-
-    public static NettyContribKit duang() {
-        return duang(HOST, PORT);
+    private ServerContribKit(String host, int port) {
+        init(host, port);
     }
 
     /**
@@ -44,9 +38,11 @@ public class NettyContribKit {
      * @param port
      * @return
      */
-    public static NettyContribKit duang(String host, int port) {
+    public static ServerContribKit duang(String host, int port) {
         synchronized (lock) {
-            CONTRIB_KIT = new NettyContribKit(host, port);
+            if (null == CONTRIB_KIT) {
+                CONTRIB_KIT = new ServerContribKit(host, port);
+            }
         }
         return CONTRIB_KIT;
     }
@@ -58,7 +54,10 @@ public class NettyContribKit {
      * @param port 端口
      * @return
      */
-    private void getChannelManager(String host, int port) {
+    private void init(String host, int port) {
+        if (null != serviceChannelManager) {
+            throw new IllegalArgumentException("已经进行初始化操作，无需要重复初始化");
+        }
         NetChannelType channelType = RobotUtil.getNetChannelType();
         if (NetChannelType.TCP.equals(channelType)) {
             serviceChannelManager = new TcpServerChannelManager(host, port,
@@ -84,6 +83,7 @@ public class NettyContribKit {
         if (null != serviceChannelManager && !serviceChannelManager.isInitialized()) {
             serviceChannelManager.initialize();
         }
+
     }
 
     /**
@@ -91,8 +91,8 @@ public class NettyContribKit {
      */
     private List<ChannelHandler> getChannelHandlers() {
         return Arrays.asList(
-                new VehicleTelegramDecoder(),
-                new VehicleTelegramEncoder());
+                new TelegramDecoder(),
+                new TelegramEncoder());
     }
 
 

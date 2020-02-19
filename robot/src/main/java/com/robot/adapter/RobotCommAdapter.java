@@ -13,15 +13,11 @@ import com.robot.adapter.task.MoveCommandListener;
 import com.robot.adapter.task.MoveRequesterTask;
 import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.ConnectionEventListener;
-import com.robot.contrib.netty.comm.ClientEntry;
-import com.robot.contrib.netty.comm.IServiceChannelManager;
-import com.robot.contrib.netty.comm.NetChannelType;
-import com.robot.contrib.netty.comm.VehicleChannelManager;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
-import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.ITelegramSender;
+import com.robot.utils.ServerContribKit;
 import com.robot.utils.RobotUtil;
 import com.robot.utils.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -93,23 +89,10 @@ public class RobotCommAdapter
      * 移动命令队列
      */
     private Queue<MovementCommand> movementCommandQueue;
-
     /**
-     * 车辆网络连接管理器
+     *  网络工具
      */
-    private IServiceChannelManager<IRequest, IResponse> vehicleChannelManager;
-    /**
-     * 运行方式，以服务器方式运行还是客户端方式链接车辆
-     */
-    private String runType;
-    /**
-     * 车辆host
-     */
-    private String host;
-    /**
-     * 车辆port
-     */
-    private int port;
+    private ServerContribKit contribKit;
 
     @Inject
     public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
@@ -142,14 +125,9 @@ public class RobotCommAdapter
             return;
         }
         super.initialize();
-        runType = RobotUtil.getRunType();
-        String host = getProcessModel().getVehicleHost();
-        int port = getProcessModel().getVehiclePort();
-        RobotUtil.setClientEntryKey(getName(), host, port);
-        if (RobotUtil.isServerRunType()) {
-            initVehicleChannelManager();
-        }
-        LOG.info("车辆[{}]完成Robot适配器初始化完成，系统运行类型为[{}]", getName(), runType.toLowerCase());
+        // 初始化车辆渠道管理器
+        contribKit = ServerContribKit.duang(RobotUtil.getServerHost(), RobotUtil.getServerPort());
+        LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
     }
 
     /**
@@ -166,10 +144,6 @@ public class RobotCommAdapter
             moveCommandListener = new MoveCommandListener(this);
             moveRequesterTask = new MoveRequesterTask(moveCommandListener);
             moveRequesterTask.enable(getName());
-            if (RobotUtil.isClientRunType()) {
-                initVehicleChannelManager();
-            }
-            //**********************************************************//
             initVehiclePosition(getName());
             super.enable();
             LOG.info("成功{}车辆[{}]通讯适配器", RobotUtil.isClientRunType() ? "链接" : "注册", getName());
@@ -214,19 +188,6 @@ public class RobotCommAdapter
         // 顶升AGV
         if ("A030".equals(newPos)) {
             getProcessModel().setVehiclePosition("1");
-        }
-    }
-
-    // 初始化车辆渠道管理器
-    private void initVehicleChannelManager() {
-        if (null == vehicleChannelManager) {
-            vehicleChannelManager = VehicleChannelManager.getChannelManager(this);
-            if (RobotUtil.isServerRunType() || NetChannelType.RXTX.equals(RobotUtil.getNetChannelType())) {
-                vehicleChannelManager.bind(RobotUtil.getServerHost(), RobotUtil.getServerPort());
-            }
-            if (!vehicleChannelManager.isInitialized()) {
-                vehicleChannelManager.initialize();
-            }
         }
     }
 
@@ -459,7 +420,8 @@ public class RobotCommAdapter
      */
     @Override
     protected void connectVehicle() {
-        if (null == vehicleChannelManager) {
+
+        if (null == contribKit) {
             LOG.warn("车辆[{}]通讯渠道管理器不存在", getName());
             return;
         }
@@ -467,13 +429,8 @@ public class RobotCommAdapter
         String host = RobotUtil.getVehicleHost(getName());
         int port = RobotUtil.getVehiclePort(getName());
         try {
-            if (RobotUtil.isClientRunType()) {
-                vehicleChannelManager.connect(host, port);
-                LOG.info("连接车辆[{}]成功: [{}]", getName(), (host + ":" + port));
-            } else if (RobotUtil.isServerRunType()) {
-                vehicleChannelManager.register(new ClientEntry(getName(), host, port, this));
-                LOG.info("注册车辆[{}]成功: [{}]", getName(), (host + ":" + port));
-            }
+            contribKit.register(getName(), host, port, this);
+            LOG.info("注册车辆[{}]成功: [{}]", getName(), (host + ":" + port));
         } catch (RobotException e) {
             LOG.error("连接或注册车辆[{}]时发生异常: {}", getName(), e.getMessage());
             throw e;
@@ -485,17 +442,12 @@ public class RobotCommAdapter
      */
     @Override
     protected void disconnectVehicle() {
-        if (null == vehicleChannelManager) {
+        if (null == contribKit) {
             LOG.warn("车辆[{}]通讯渠道管理器不存在.", getName());
             return;
         }
         try {
-            if (RobotUtil.isClientRunType()) {
-                vehicleChannelManager.disconnect();
-                vehicleChannelManager = null;
-            } else if (RobotUtil.isServerRunType()) {
-                vehicleChannelManager.disconnect(getName());
-            }
+            contribKit.closeConnection(getName());
             // 清除与该车辆相关的参数
             getSentQueue().clear();
             getCommandQueue().clear();
@@ -516,12 +468,8 @@ public class RobotCommAdapter
      */
     @Override
     protected boolean isVehicleConnected() {
-        if (null != vehicleChannelManager) {
-            if (RobotUtil.isClientRunType()) {
-                return vehicleChannelManager.isConnected();
-            } else if (RobotUtil.isServerRunType()) {
-                return vehicleChannelManager.isConnected(getName());
-            }
+        if (null != contribKit) {
+            return contribKit.isConnected(getName());
         }
         return false;
     }
@@ -602,9 +550,10 @@ public class RobotCommAdapter
         }
         getProcessModel().setCommAdapterConnected(false);
         if (isEnabled() &&
-                getProcessModel().isReconnectingOnConnectionLoss() &&
-                RobotUtil.isClientRunType()) {
-            vehicleChannelManager.scheduleConnect(host, port, getProcessModel().getReconnectDelay());
+                getProcessModel().isReconnectingOnConnectionLoss()) {
+            if (contribKit.isConnected(getName())) {
+                contribKit.closeConnection(getName());
+            }
         }
     }
 
@@ -617,7 +566,9 @@ public class RobotCommAdapter
         if (isEnabled() &&
                 getProcessModel().isReconnectingOnConnectionLoss() &&
                 RobotUtil.isClientRunType()) {
-            vehicleChannelManager.scheduleConnect(host, port, getProcessModel().getReconnectDelay());
+            if (contribKit.isConnected(getName())) {
+                contribKit.closeConnection(getName());
+            }
         }
     }
 
@@ -643,13 +594,13 @@ public class RobotCommAdapter
      */
     @Override
     public void sendTelegram(IResponse response) {
-        if (null == vehicleChannelManager) {
-            throw new RobotException("vehicleChannelManager is null");
+        if (null == contribKit) {
+            throw new RobotException("contribKit is null");
         }
-        if (RobotUtil.isServerRunType()) {
-            vehicleChannelManager.send(getName(), response);
-        } else if (RobotUtil.isClientRunType()) {
-            vehicleChannelManager.send(response);
+        try {
+            contribKit.send(getName(), response.getRawContent());
+        } catch (Exception e) {
+            LOG.error("发送报文消息到[{}]时异常: {}", getName(), e.getMessage(), e);
         }
     }
 }
