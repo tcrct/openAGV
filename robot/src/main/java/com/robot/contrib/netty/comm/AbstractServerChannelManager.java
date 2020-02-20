@@ -2,18 +2,16 @@ package com.robot.contrib.netty.comm;
 
 import com.robot.contrib.netty.ConnectionEventListener;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -30,6 +28,9 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractServerChannelManager.class);
 
+    // tcp用
+    protected ServerBootstrap serverBootstrap;
+    // udp or rxtx用
     protected Bootstrap bootstrap;
     protected ChannelFuture serverChannelFuture;
     protected Map<String, ClientEntry> clientEntries;
@@ -94,7 +95,12 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
         }
         serverChannelFuture.channel().close();
         serverChannelFuture = null;
-        bootstrap.config().group().shutdownGracefully();
+        if (null != bootstrap) {
+            bootstrap.config().group().shutdownGracefully();
+        }
+        if (null != serverBootstrap) {
+            serverBootstrap.config().group().shutdownGracefully();
+        }
         initialized = false;
     }
 
@@ -113,8 +119,26 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
             LOG.error("该客户端[{}]已经存在，不能重复注册", key);
             return;
         }
+
+        /**
+         *
+         */
+        String host = clientEntry.getHost();
+        if (null != serverBootstrap) {
+            ClientEntry subClientEntry = clientEntries.get(host);
+            if (null != subClientEntry) {
+                Channel channel = subClientEntry.getChannel();
+                if (null != channel) {
+                    clientEntry.setChannel(channel);
+                    LOG.info("Map[clientEntries]里已经存在Host[{}]的Channel, 将id为{}的Channel设置到ClientEntry里", host, channel.id());
+                    clientEntries.remove(host);
+                    LOG.info("再移除Map[clientEntries]里以{}为主键的对象，以注册key[{}]的为准！", host, key);
+                }
+            }
+        }
+
         LOG.warn("注册客户端[{}]成功, EndPoint: [{}:{}]", key, clientEntry.getHost(), clientEntry.getPort());
-        clientEntry.setChannel(serverChannelFuture.channel());
+//        clientEntry.setChannel(serverChannelFuture.channel());
         clientEntries.put(key, clientEntry);
     }
 
@@ -240,6 +264,7 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
             LOG.warn("发送失败, [{}]没有链接成功。发送内容：{}", key, message);
             return;
         }
+
         ClientEntry clientEntry = clientEntries.get(key);
         if (null == clientEntry) {
             throw new NullPointerException("根据[" + key + "]查找不到对应的ClientEntry对象，可能没有注册成功，请检查！");

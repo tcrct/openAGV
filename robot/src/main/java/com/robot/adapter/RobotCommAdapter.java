@@ -26,6 +26,7 @@ import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.util.ExplainedBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -241,6 +243,11 @@ public class RobotCommAdapter
          * 目前默认是1秒执行一次，理论上来说，时间是足够的
          */
         moveCommandListener.quoteCommand(tempCommandQueue);
+    }
+
+    @Override
+    protected List<VehicleCommAdapterPanel> createAdapterPanels() {
+        return new ArrayList<>();
     }
 
 
@@ -513,7 +520,7 @@ public class RobotCommAdapter
     @Override
     public void onConnect() {
         getProcessModel().setCommAdapterConnected(true);
-        LOG.info("netty回调事件: 车辆[{}]连接成功", getName());
+        LOG.debug("netty回调事件: 车辆[{}]连接成功", getName());
     }
 
     /***/
@@ -552,7 +559,7 @@ public class RobotCommAdapter
     @Override
     public void onIdle() {
         getProcessModel().setVehicleIdle(true);
-        LOG.info("车辆[{}]空闲", getName());
+        LOG.debug("netty回调事件，车辆[{}]空闲", getName());
         // 如果支持重连则的车辆空闲时断开连接
         if (isEnabled() && getProcessModel().isDisconnectingOnVehicleIdle()) {
             LOG.debug("车辆[{}]开启了空闲时断开连接", getName());

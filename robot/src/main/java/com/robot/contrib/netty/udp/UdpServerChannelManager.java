@@ -1,10 +1,10 @@
 package com.robot.contrib.netty.udp;
 
-import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.AbstractServerChannelManager;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerConnectionStateNotifier;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -124,6 +124,6 @@ public class UdpServerChannelManager extends AbstractServerChannelManager {
         ClientEntry clientEntry = clientEntries.get(key);
         InetSocketAddress address = new InetSocketAddress(clientEntry.getHost(), clientEntry.getPort());
         super.send(key, new DatagramPacket(Unpooled.copiedBuffer(message, CharsetUtil.UTF_8), address));
-        LOG.info("send to client[{}:{}], message: {}", message, clientEntry.getHost(), clientEntry.getPort());
+        LOG.info("send to client[{}:{}], message: {}", clientEntry.getHost(), clientEntry.getPort(), message);
     }
 }

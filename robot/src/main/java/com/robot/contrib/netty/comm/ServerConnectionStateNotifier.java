@@ -78,9 +78,11 @@ public class ServerConnectionStateNotifier<I>
             }
         } else if (evt instanceof ConnectionAssociatedEvent) {
             key = ((ConnectionAssociatedEvent) evt).getKey();
-            LOG.info("Connection associated to key: '{}'", key);
+            LOG.debug("Connection associated to key: '{}'", key);
             connectionEventListener = clientEntries.get(key).getConnectionEventListener();
-            connectionEventListener.onConnect();
+            if (null != connectionEventListener) {
+                connectionEventListener.onConnect();
+            }
         }
         super.userEventTriggered(ctx, evt);
     }

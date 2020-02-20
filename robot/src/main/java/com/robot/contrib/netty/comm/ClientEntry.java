@@ -44,17 +44,19 @@ public class ClientEntry {
     /**
      * 构造方法
      *
+     *@param key                    客户端标识符
      * @param host                    客户端host
      * @param port                    客户端port
      * @param connectionEventListener 处理发送链接事件的监听器
      */
-    public ClientEntry(@Nonnull String key, @Nonnull String host,
-                       @Nonnull Integer port,
-                       @Nonnull ConnectionEventListener connectionEventListener) {
+    public ClientEntry(String key,
+                       @Nonnull String host,
+                       Integer port,
+                       ConnectionEventListener connectionEventListener) {
         this.key = requireNonNull(key, "key");
         this.host = requireNonNull(host, "host");
-        this.port = requireNonNull(port, "host");
-        this.connectionEventListener = requireNonNull(connectionEventListener);
+        this.port = port;
+        this.connectionEventListener = connectionEventListener;
     }
 
     @Nonnull

@@ -11,6 +11,7 @@ import com.robot.contrib.netty.comm.AbstractServerChannelManager;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerConnectionStateNotifier;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -27,10 +28,11 @@ import java.util.function.Supplier;
 
 
 /**
- *TCP渠道管理器
+ * TCP渠道管理器
  *
  * @author Laotang
  * @date 2020-02-19
+ * @blame Android Team
  * @since 1.0
  */
 public class TcpServerChannelManager extends AbstractServerChannelManager {
@@ -55,26 +57,22 @@ public class TcpServerChannelManager extends AbstractServerChannelManager {
         super(host, port, clientEntries, channelSupplier, readTimeout, loggingInitially);
     }
 
-    public void bind(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
+    @Override
     public void initialize() {
         if (initialized) {
             LOG.warn("已经初始化，请勿重复初始化");
             return;
         }
 
-        bootstrap = new Bootstrap();
+        serverBootstrap = new ServerBootstrap();
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
-        bootstrap.group(workerGroup);
-        bootstrap.channel(NioServerSocketChannel.class);
-        bootstrap.option(ChannelOption.SO_BACKLOG, 1);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.option(ChannelOption.TCP_NODELAY, true);
-        TcpServerHandler tcpServerHandler = new TcpServerHandler(clientEntries);
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+        serverBootstrap.group(workerGroup, workerGroup);
+        serverBootstrap.channel(NioServerSocketChannel.class);
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, 1);
+        serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+        serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+//        TcpServerHandler tcpServerHandler = new TcpServerHandler(clientEntries);
+        serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
                 if (loggingInitially) {
@@ -87,13 +85,13 @@ public class TcpServerChannelManager extends AbstractServerChannelManager {
                 for (ChannelHandler handler : channelSupplier.get()) {
                     ch.pipeline().addLast(handler);
                 }
-                ch.pipeline().addLast(tcpServerHandler);
+                ch.pipeline().addLast(new TcpServerHandler(clientEntries));
                 ch.pipeline().addLast(new ServerConnectionStateNotifier(clientEntries));
             }
 
         });
         try {
-            serverChannelFuture = bootstrap.bind(host, port).sync();
+            serverChannelFuture = serverBootstrap.bind(host, port).sync();
             serverChannelFuture.addListener((ChannelFuture future) -> {
                 if (future.isSuccess()) {
                     initialized = true;
@@ -117,7 +115,7 @@ public class TcpServerChannelManager extends AbstractServerChannelManager {
     @Override
     public void send(String key, String message) throws Exception {
         super.send(key, (Object) message);
-        LOG.info("send to client[{}], message: {}", message, key);
+        LOG.info("send to client[{}], message: {}", key, message);
     }
 
 }
