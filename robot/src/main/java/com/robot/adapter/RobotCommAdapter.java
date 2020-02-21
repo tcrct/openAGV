@@ -24,9 +24,12 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
-import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
-import org.opentcs.drivers.vehicle.MovementCommand;
-import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
+import org.opentcs.data.order.Route;
+import org.opentcs.drivers.vehicle.*;
+import org.opentcs.kernel.services.StandardDispatcherService;
+import org.opentcs.kernel.services.StandardTransportOrderService;
+import org.opentcs.kernel.services.StandardVehicleService;
+import org.opentcs.strategies.basic.routing.DefaultRouter;
 import org.opentcs.util.ExplainedBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +37,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -96,25 +96,61 @@ public class RobotCommAdapter
      */
     private ServerContribKit contribKit;
 
+    private StandardVehicleService vehicleService;
+    private StandardTransportOrderService transportOrderService;
+    private StandardDispatcherService dispatcherService;
+    private DefaultRouter router;
+    private VehicleControllerPool vehicleControllerPool;
+
     @Inject
     public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
                             TCSObjectService tcsObjectService,
                             RobotConfiguration configuration,
+                            StandardVehicleService vehicleService,
+                            StandardTransportOrderService transportOrderService,
+                            StandardDispatcherService dispatcherService,
+                            DefaultRouter router,
+                            VehicleControllerPool vehicleControllerPool,
                             @Assisted Vehicle vehicle,
                             @KernelExecutor ExecutorService kernelExecutor) {
+
         super(new RobotProcessModel(vehicle),
                 configuration.commandQueueCapacity(),
                 configuration.sentQueueCapacity(),
                 configuration.rechargeOperation());
+
         this.tcsObjectService = requireNonNull(tcsObjectService, "tcsObjectService");
         this.vehicle = requireNonNull(vehicle, "vehicle");
         this.configuration = requireNonNull(configuration, "configuration");
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
         this.kernelExecutor = requireNonNull(kernelExecutor, "kernelExecutor");
+
+        this.vehicleService = vehicleService;
+        this.transportOrderService = transportOrderService;
+        this.dispatcherService = dispatcherService;
+        this.router = router;
+        this.vehicleControllerPool = vehicleControllerPool;
+
         /**移动命令队列*/
         this.tempCommandQueue = new LinkedBlockingQueue<>();
         this.movementCommandQueue = new LinkedBlockingQueue<>();
         RobotContext.setTCSObjectService(tcsObjectService);
+    }
+
+    public StandardVehicleService getVehicleService() {
+        return vehicleService;
+    }
+
+    public StandardTransportOrderService getTransportOrderService() {
+        return transportOrderService;
+    }
+
+    public DefaultRouter getRouter() {
+        return router;
+    }
+
+    public VehicleControllerPool getVehicleControllerPool() {
+        return vehicleControllerPool;
     }
 
     /**

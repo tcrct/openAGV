@@ -15,11 +15,13 @@ import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.main.DispatchFactory;
 import com.robot.mvc.model.Route;
 import io.netty.channel.Channel;
+import org.opentcs.components.kernel.Router;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.strategies.basic.routing.DefaultRouter;
 
 import java.util.*;
 
@@ -508,5 +510,24 @@ public class RobotUtil {
             LOG.info("netty channel id {}", client.getChannel().id().asLongText());
             DispatchFactory.onIncomingTelegram(protocol);
         }
+    }
+
+    /**
+     *取车辆由起始点到结束点，所经过的途径。
+     * 不受交通管制限制
+     *
+     * @param vehicleName 车辆名称
+     * @param startPointName 起始点
+     * @param endPointName 结束点
+     * @return
+     */
+    public List<org.opentcs.data.order.Route.Step> getRoute(String vehicleName, String startPointName, String endPointName) {
+        DefaultRouter router = RobotContext.getAdapter(vehicleName).getRouter();
+        // 先更新路由table,取出路由，如果不调用该方法，会抛出空指针异常
+        router.initialize();//router.updateRoutingTables();
+        Optional<org.opentcs.data.order.Route> optionalRoute = router.getRoute(RobotUtil.getVehicle(vehicleName),
+                RobotUtil.getPoint(startPointName),
+                RobotUtil.getPoint(endPointName));
+        return optionalRoute.isPresent() ? optionalRoute.get().getSteps() : null;
     }
 }

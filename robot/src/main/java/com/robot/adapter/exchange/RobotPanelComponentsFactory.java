@@ -5,6 +5,8 @@ import org.opentcs.components.kernel.services.VehicleService;
 
 /**
  * 面板组件工厂
+ *
+ * @author Laotang
  */
 public interface RobotPanelComponentsFactory {
 
