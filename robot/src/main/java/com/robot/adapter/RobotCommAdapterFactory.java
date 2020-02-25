@@ -1,8 +1,10 @@
 package com.robot.adapter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.robot.RobotContext;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.exchange.RobotAdapterDescription;
+import com.robot.adapter.model.DeviceAddress;
 import com.robot.adapter.model.RobotProcessModel;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
@@ -17,6 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.util.Objects.requireNonNull;
 import static org.opentcs.util.Assertions.checkInRange;
 
@@ -29,6 +34,7 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
 
     private static final String VEHICLE_HOST = "host";
     private static final String VEHICLE_PORT = "port";
+    private static final String  DEVICE_ADDRESS = "deviceAddress";
     /**
      * 适配器组件工厂
      */
@@ -132,12 +138,32 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
             if (NetChannelType.TCP.equals(channelType) || NetChannelType.UDP.equals(channelType)) {
                 processModel.setVehicleHost(vehicle.getProperty(VEHICLE_HOST));
                 processModel.setVehiclePort(Integer.parseInt(vehicle.getProperty(VEHICLE_PORT)));
+                processModel.setDeviceAddress(getDeviceAddressList(vehicle.getProperty(DEVICE_ADDRESS)));
             }
             // 加入到缓存集合
             RobotContext.getAdapterMap().put(processModel.getName(), adapter);
             return adapter;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 取设备地址，写在车辆属性表中
+     * @param addressJson
+     * @return
+     */
+    private List<DeviceAddress> getDeviceAddressList(String addressJson) {
+        if (ToolsKit.isEmpty(addressJson)) {
+            return new ArrayList<>();
+        }
+        TypeReference typeReference = new TypeReference<List<DeviceAddress>>(){};
+        try {
+            List<DeviceAddress> deviceAddressList =  ToolsKit.jsonParseArray(addressJson, typeReference);
+            return  (ToolsKit.isEmpty(deviceAddressList)) ? new ArrayList<>() : deviceAddressList;
+        } catch (Exception e) {
+            LOG.error(e.getMessage() ,e);
             return null;
         }
     }

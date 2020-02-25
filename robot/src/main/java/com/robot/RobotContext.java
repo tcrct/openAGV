@@ -47,6 +47,8 @@ public class RobotContext {
         return ADAPTER_MAP.get(key);
     }
 
+
+
     /**
      * 设置OpenAGV需要使用的第三方组件实例接口
      *

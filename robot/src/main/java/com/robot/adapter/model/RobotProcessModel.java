@@ -10,6 +10,9 @@ import org.opentcs.virtualvehicle.VelocityController;
 
 import javax.annotation.Nonnull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.util.Objects.requireNonNull;
 import static org.opentcs.util.Assertions.checkInRange;
 
@@ -62,6 +65,7 @@ public class RobotProcessModel extends VehicleProcessModel {
     /*** 指示此通信适配器是否处于单步模式（true为单步模式，false为自动模式模式）。*/
     private boolean singleStepModeEnabled;
 
+    private List<DeviceAddress> deviceAddressList = new ArrayList<>();
     /**
      * 构造函数
      *
@@ -245,6 +249,16 @@ public class RobotProcessModel extends VehicleProcessModel {
                 oldValue,
                 vehiclePort);
     }
+
+    public synchronized void setDeviceAddress(List<DeviceAddress> deviceAddressList) {
+        if (null != deviceAddressList) {
+            this.deviceAddressList.addAll(deviceAddressList);
+        }
+    }
+    public synchronized List<DeviceAddress> getDeviceAddress() {
+        return deviceAddressList;
+    }
+
 
     /**
      * 工站最大操作时长

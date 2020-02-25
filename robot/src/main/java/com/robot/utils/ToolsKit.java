@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.robot.adapter.model.DeviceAddress;
 import com.robot.mvc.core.exceptions.RobotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,5 +176,32 @@ public class ToolsKit {
         } catch (Exception e) {
             throw new RobotException(e.getMessage(), e);
         }
+    }
+
+    public static void main(String[] args) {
+        List<Map<String,Object>> list = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        map.put("host","192.168.8.1");
+        map.put("port", 2221);
+        map.put("name","B003");
+        list.add(map);
+
+        map = new HashMap<>();
+        map.put("host","192.168.8.2");
+        map.put("port",2222);
+        map.put("name","B002");
+        list.add(map);
+
+        Map<String, List<Map<String, Object>>> aaMap = new HashMap<>();
+        aaMap.put("DeviceAddress", list);
+        String json = toJsonString(list);
+        System.out.println(json);
+        TypeReference typeReference = new TypeReference<List<DeviceAddress>>(){};
+        List<DeviceAddress>  deviceAddressList = jsonParseArray(json, typeReference);
+//        List<DeviceAddress>  deviceAddressList1 = jsonParseArray(json, new TypeReference<List<DeviceAddress>>(){});
+        for (DeviceAddress deviceAddress : deviceAddressList) {
+            System.out.println(deviceAddress.getName());
+        }
+
     }
 }

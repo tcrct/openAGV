@@ -6,13 +6,12 @@ import com.robot.RobotContext;
 import com.robot.adapter.enumes.LoadAction;
 import com.robot.adapter.enumes.LoadState;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
-import com.robot.adapter.model.RobotProcessModel;
-import com.robot.adapter.model.RobotStateModel;
-import com.robot.adapter.model.RobotVehicleModelTO;
+import com.robot.adapter.model.*;
 import com.robot.adapter.task.MoveCommandListener;
 import com.robot.adapter.task.MoveRequesterTask;
 import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.ConnectionEventListener;
+import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IResponse;
@@ -443,13 +442,26 @@ public class RobotCommAdapter
             return;
         }
         // 根据车辆设置的host与port，连接车辆
-        String host = RobotUtil.getVehicleHost(getName());
-        int port = RobotUtil.getVehiclePort(getName());
+        String name = getName();
+        String host = RobotUtil.getVehicleHost(name);
+        int port = RobotUtil.getVehiclePort(name);
         try {
-            contribKit.register(getName(), host, port, this);
-            LOG.info("注册车辆[{}]成功: [{}]", getName(), (host + ":" + port));
+            contribKit.register(name, host, port, this);
+            LOG.info("注册车辆[{}]成功: [{}]", name, (host + ":" + port));
+            List<DeviceAddress> deviceAddressList = getProcessModel().getDeviceAddress();
+            if (NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) && ToolsKit.isNotEmpty(deviceAddressList)) {
+                for(Iterator<DeviceAddress> iterator = deviceAddressList.iterator(); iterator.hasNext();) {
+                    DeviceAddress deviceAddress = iterator.next();
+                    name = deviceAddress.getName();
+                    host = deviceAddress.getHost();
+                    port = deviceAddress.getPort();
+                    contribKit.register(name, host, port, this);
+                    LOG.info("注册设备[{}]成功: [{}]", name, (host + ":" + port));
+                }
+            }
+
         } catch (RobotException e) {
-            LOG.error("连接或注册车辆[{}]时发生异常: {}", getName(), e.getMessage());
+            LOG.error("连接或注册车辆或设备[{}]时发生异常: {}", name, e.getMessage());
             throw e;
         }
     }
