@@ -470,7 +470,7 @@ public class RobotUtil {
                 continue;
             }
             client.setChannel(channel);
-            LOG.info("netty channel id {}", client.getChannel().id().asLongText());
+//            LOG.info("netty channel id {}", client.getChannel().id().asLongText());
             DispatchFactory.onIncomingTelegram(protocol);
         }
     }

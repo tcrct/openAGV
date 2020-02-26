@@ -138,7 +138,11 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
         }
 
         LOG.warn("注册客户端[{}]成功, EndPoint: [{}:{}]", key, clientEntry.getHost(), clientEntry.getPort());
-//        clientEntry.setChannel(serverChannelFuture.channel());
+        // 如果不是TCP模式时
+        if (null == serverBootstrap) {
+            clientEntry.getConnectionEventListener().onConnect();
+            clientEntry.setChannel(serverChannelFuture.channel());
+        }
         clientEntries.put(key, clientEntry);
     }
 
@@ -243,10 +247,11 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
      */
     @Override
     public boolean isConnected(String key) {
-        return serverChannelFuture != null
+        return null !=serverBootstrap ?
+                (serverChannelFuture != null
                 && clientEntries.containsKey(key)
                 && clientEntries.get(key).getChannel() != null
-                && clientEntries.get(key).getChannel().isActive();
+                && clientEntries.get(key).getChannel().isActive()) : (serverChannelFuture != null && clientEntries.containsKey(key));
     }
 
     /**

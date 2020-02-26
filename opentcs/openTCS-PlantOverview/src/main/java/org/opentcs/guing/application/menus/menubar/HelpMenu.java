@@ -15,7 +15,7 @@ import javax.swing.JMenuItem;
 import org.opentcs.guing.application.OperationMode;
 import org.opentcs.guing.application.action.ViewActionMap;
 import org.opentcs.guing.application.action.app.AboutAction;
-import org.opentcs.guing.application.action.app.ShowRoomAction;
+import org.opentcs.guing.application.action.app.RunMapProjectAction;
 import org.opentcs.guing.util.I18nPlantOverview;
 import org.opentcs.guing.util.ResourceBundleUtil;
 
@@ -49,7 +49,7 @@ public class HelpMenu
     this.setMnemonic('?');
 
     menuItemAbout = add(actionMap.get(AboutAction.ID));
-    menuItemShowRoom = add(actionMap.get(ShowRoomAction.ID));
+    menuItemShowRoom = add(actionMap.get(RunMapProjectAction.ID));
 
     add(menuItemAbout);
     add(menuItemShowRoom);

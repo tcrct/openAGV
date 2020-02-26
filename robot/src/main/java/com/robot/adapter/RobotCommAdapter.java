@@ -16,15 +16,17 @@ import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.ITelegramSender;
-import com.robot.utils.ServerContribKit;
 import com.robot.utils.RobotUtil;
+import com.robot.utils.ServerContribKit;
 import com.robot.utils.ToolsKit;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
-import org.opentcs.data.order.Route;
-import org.opentcs.drivers.vehicle.*;
+import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
+import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
+import org.opentcs.drivers.vehicle.VehicleControllerPool;
 import org.opentcs.kernel.services.StandardDispatcherService;
 import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.opentcs.kernel.services.StandardVehicleService;
@@ -94,6 +96,11 @@ public class RobotCommAdapter
      *  网络工具
      */
     private ServerContribKit contribKit;
+    /**
+     * 正在执行的工站动作名称集合，工站动作名称必须唯一
+     * 如果Set里存在该动作名称，则代表动作正在执行，执行完成后，需要remove该动作名称
+     */
+    private static final Set<String> executeLocationActionNameSet = new HashSet<>();
 
     private StandardVehicleService vehicleService;
     private StandardTransportOrderService transportOrderService;
@@ -361,6 +368,11 @@ public class RobotCommAdapter
             LOG.error("车辆[{}]通讯适配器没开启，请先开启！", adapterName);
             return;
         }
+        // 需要判断是否已经执行自定义指令，如果正在执行，则退出。
+        if (executeLocationActionNameSet.contains(operation)) {
+            LOG.error("车辆[{}]已经执行自定义指令集合[{}]操作，不能重复执行，请检查！", adapterName, operation);
+            return;
+        }
         LOG.info("车辆[{}]开始执行自定义指令集合[{}]操作", adapterName, operation);
         try {
             //设置为执行状态
@@ -374,6 +386,8 @@ public class RobotCommAdapter
                     try {
                         IAction action = RobotUtil.getLocationAction(operation);
                         if (ToolsKit.isNotEmpty(action)) {
+                            // 添加到执行动作集合，标识该动作已经执行，执行完成后，需要移除
+                            executeLocationActionNameSet.add(operation);
                             // 调用BaseActions里execute方法
                             action.execute();
                         } else {
@@ -391,8 +405,13 @@ public class RobotCommAdapter
 
     /***
      * BaseActios执行指令集完成后，调用该方法，执行下一个订单
+     * @param vehicleId 车辆ID
+     * @param operation 工站自定义动作名称
      */
-    public void executeNextMoveCmd() {
+    public void executeNextMoveCmd(String vehicleId, String operation) {
+        if (!getName().equals(vehicleId)) {
+            throw new RobotException("工站提交过来的车辆ID["+vehicleId+"]与适配器["+getName()+"]不匹配，请检查！");
+        }
         LOG.info("检查车辆[{}]是否有下一个移动订单，如有则继续执行！", getName());
         RobotProcessModel processModel = getProcessModel();
         //车辆设置为空闲状态，执行下一个移动指令
@@ -401,6 +420,11 @@ public class RobotCommAdapter
         getProcessModel().setSingleStepModeEnabled(false);
         // 移除移动命令
         MovementCommand cmd = getSentQueue().poll();
+        // 则executeLocationActionNameSet里的动作指令移除，允许再次执行
+        if(!executeLocationActionNameSet.contains(operation)) {
+            throw new RobotException("工站动作名称["+operation+"]不存在于车辆适配器["+getName()+"]，请检查！");
+        }
+        executeLocationActionNameSet.remove(operation);
         // 如果不为空且是最终移动命令，则执行下一个订单
         if (null != cmd && cmd.isFinalMovement()) {
             processModel.commandExecuted(cmd);
@@ -448,6 +472,8 @@ public class RobotCommAdapter
         try {
             contribKit.register(name, host, port, this);
             LOG.info("注册车辆[{}]成功: [{}]", name, (host + ":" + port));
+
+            //如果是TCP，则根据在控制地图里，对车辆属性表输入的json数据进行设备注册
             List<DeviceAddress> deviceAddressList = getProcessModel().getDeviceAddress();
             if (NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) && ToolsKit.isNotEmpty(deviceAddressList)) {
                 for(Iterator<DeviceAddress> iterator = deviceAddressList.iterator(); iterator.hasNext();) {
@@ -458,7 +484,16 @@ public class RobotCommAdapter
                     contribKit.register(name, host, port, this);
                     LOG.info("注册设备[{}]成功: [{}]", name, (host + ":" + port));
                 }
+            } // 如果UDP或RXTX的话，就根据
+            else {
+                EntryName entryName = RobotUtil.getEntryName(getName());
+                for (Iterator<String> iterator = entryName.getDeviceNameList().iterator(); iterator.hasNext(); ) {
+                    String deviceName = iterator.next();
+                    contribKit.register(deviceName, host, port, this);
+                    LOG.info("注册设备[{}]成功: [{}]", deviceName, (host + ":" + port));
+                }
             }
+
 
         } catch (RobotException e) {
             LOG.error("连接或注册车辆或设备[{}]时发生异常: {}", name, e.getMessage());
@@ -568,7 +603,7 @@ public class RobotCommAdapter
     @Override
     public void onConnect() {
         getProcessModel().setCommAdapterConnected(true);
-        LOG.debug("netty回调事件: 车辆[{}]连接成功", getName());
+        LOG.info("netty回调事件: 车辆[{}]连接成功", getName());
     }
 
     /***/

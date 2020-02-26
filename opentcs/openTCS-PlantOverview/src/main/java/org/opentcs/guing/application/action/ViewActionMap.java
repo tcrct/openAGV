@@ -18,7 +18,7 @@ import org.opentcs.guing.application.action.actions.CreateLocationTypeAction;
 import org.opentcs.guing.application.action.actions.CreateTransportOrderAction;
 import org.opentcs.guing.application.action.actions.CreateVehicleAction;
 import org.opentcs.guing.application.action.app.AboutAction;
-import org.opentcs.guing.application.action.app.ShowRoomAction;
+import org.opentcs.guing.application.action.app.RunMapProjectAction;
 import org.opentcs.guing.application.action.edit.ClearSelectionAction;
 import org.opentcs.guing.application.action.edit.CopyAction;
 import org.opentcs.guing.application.action.edit.CutAction;
@@ -82,7 +82,7 @@ public class ViewActionMap
                        SwitchToOperatingAction operatingingAction,
                        ModelPropertiesAction modelPropertiesAction,
                        LoadModelFromKernelAction loadModelFromKernelAction,
-                       ShowRoomAction showRoomAction) {
+                       RunMapProjectAction runMapProjectAction) {
     requireNonNull(view, "view");
     requireNonNull(undoRedoManager, "undoRedoManager");
     requireNonNull(actionFactory, "actionFactory");
@@ -148,7 +148,7 @@ public class ViewActionMap
 
     // --- Menu Help ---
     put(AboutAction.ID, aboutAction);
-    put(ShowRoomAction.ID, showRoomAction);
+    put(RunMapProjectAction.ID, runMapProjectAction);
   }
 
 }

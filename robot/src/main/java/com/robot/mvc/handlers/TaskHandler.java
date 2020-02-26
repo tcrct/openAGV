@@ -91,10 +91,10 @@ public class TaskHandler {
         if (RobotUtil.isMoveRequest(request)) {
             throw new RobotException("移动请求必须要实现协议指令对应的[" + RobotUtil.getMoveProtocolKey() + "]方法！");
         }
-
+        String rawContent = request.getRawContent();
         if (response.isResponseTo(request)) {
             LOG.info("{}Service没有实现{}方法，直接返回请求对象协议内容字符串", deviceId, methodName);
-            response.write(request.getRawContent());
+            response.write(rawContent);
             response.setStatus(HttpStatus.HTTP_OK);
             if (request.isNeedAdapterOperation()) {
                 response.setNeedAdapterOperation(true);
@@ -102,7 +102,6 @@ public class TaskHandler {
             if (request.isNeedSend()) {
                 response.setNeedSend(true);
             }
-            return response;
         }
         return null;
     }

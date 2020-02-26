@@ -24,17 +24,17 @@ import static java.util.Objects.requireNonNull;
 import static org.opentcs.guing.util.I18nPlantOverview.MENU_PATH;
 
 /**
- * 展厅功能
+ * 动行地图所有项目
  *
  * @author Laotang
  */
-public class ShowRoomAction
+public class RunMapProjectAction
     extends AbstractAction {
 
   /**
    * This action's ID.
    */
-  public final static String ID = "application.showroom";
+  public final static String ID = "robot.runAll.project";
 
   private static final ResourceBundleUtil BUNDLE = ResourceBundleUtil.getBundle(MENU_PATH);
   /**
@@ -50,29 +50,33 @@ public class ShowRoomAction
    */
   private final Component dialogParent;
   /***
-   * 展厅类路径
+   * 动作地图所有项目的类
    */
-  private static final String SERVICE_CLASS_NAME = "com.robot.service.ShowRoomService";
+  private static Class runMapProjectClazz;
+  /***
+   * 动作地图所有项目的对象
+   */
+  private static Object runMapProject;
 
   /**
    * Creates a new instance.
    *
-   * @param appState Stores the application's current state.
-   * @param portalProvider Provides access to a portal.
-   * @param dialogParent The parent component for dialogs shown by this action.
+   * @param appState 存储应用程序的当前状态
+   * @param portalProvider 提供对门户的访问
+   * @param dialogParent 此操作显示的对话框的父组件
    */
   @Inject
-  public ShowRoomAction(ApplicationState appState,
-                        SharedKernelServicePortalProvider portalProvider,
-                        @ApplicationFrame Component dialogParent) {
+  public RunMapProjectAction(ApplicationState appState,
+                             SharedKernelServicePortalProvider portalProvider,
+                             @ApplicationFrame Component dialogParent) {
     this.appState = requireNonNull(appState, "appState");
     this.portalProvider = requireNonNull(portalProvider, "portalProvider");
     this.dialogParent = requireNonNull(dialogParent, "dialogParent");
 
-    putValue(NAME, "ShowRoom");
-    putValue(MNEMONIC_KEY, Integer.valueOf('A'));
+    putValue(NAME, "RunMapProject");
+    putValue(MNEMONIC_KEY, Integer.valueOf('R'));
 
-    ImageIcon icon = ImageDirectory.getImageIcon("/menu/help-contents.png");
+    ImageIcon icon = ImageDirectory.getImageIcon("/menu/cog-go.png");
     putValue(SMALL_ICON, icon);
     putValue(LARGE_ICON_KEY, icon);
   }
@@ -82,27 +86,26 @@ public class ShowRoomAction
   public void actionPerformed(ActionEvent evt) {
     int dialogResult
             = JOptionPane.showConfirmDialog(dialogParent,
-            "<html><p>运行展厅所有示例</p></html>",
-            BUNDLE.getString("aboutAction.optionPane_applicationInformation.title"),
+            "<html><p>是否一键运行地图显示的所有项目？</p></html>",
+            "Warning",
             JOptionPane.OK_CANCEL_OPTION,
             JOptionPane.WARNING_MESSAGE);
 
     if (dialogResult != JOptionPane.OK_OPTION) {
       return;
     } else  {
-      System.out.println("showroom is start");
       try {
-        Class clazz = Class.forName(SERVICE_CLASS_NAME);
-//        Injector injector = Guice.createInjector(new Module() {
-//          @Override
-//          public void configure(Binder binder) {
-//            binder.bind(clazz).in(Scopes.SINGLETON);
-//          }
-//        });
-//        Object object = injector.getInstance(clazz);
-        Object object = clazz.newInstance();
-        Method method = clazz.getMethod("runAll");
-        method.invoke(object);
+        String classPath = System.getProperty(ID);
+        if (null == classPath || classPath.length() == 0) {
+          System.out.println("请先在系统中设置System.setProperty(\""+ID+"\", \"类全路径\")，并且必须要有runAll()方法");
+          return;
+        }
+        if (null == runMapProject) {
+          runMapProjectClazz = Class.forName(classPath);
+          runMapProject = runMapProjectClazz.newInstance();
+        }
+        Method method = runMapProjectClazz.getMethod("runAll");
+        method.invoke(runMapProject);
       } catch (Exception e) {
 
       }
