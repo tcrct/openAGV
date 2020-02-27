@@ -2,11 +2,9 @@ package com.robot.utils;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.adapter.enumes.OperatingState;
-import com.robot.adapter.model.DeviceAddress;
 import com.robot.adapter.model.EntryName;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.NetChannelType;
@@ -17,7 +15,6 @@ import com.robot.mvc.core.interfaces.*;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.main.DispatchFactory;
 import com.robot.mvc.model.Route;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.channel.Channel;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.data.model.Location;
@@ -26,7 +23,6 @@ import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.strategies.basic.routing.DefaultRouter;
 
-import java.net.SocketAddress;
 import java.util.*;
 
 /**
@@ -318,13 +314,7 @@ public class RobotUtil {
         if (ToolsKit.isEmpty(actionRouteMap)) {
             throw new RobotException("没找到动作指令路由集合，请确保在动作指令类添加@Action注解");
         }
-        Map<String, Set<String>> vehicleMap = new HashMap<>();
-        Map<String, Set<String>> deviceMap = new HashMap<>();
-        Map<String, Set<String>> actionMap = new HashMap<>();
-        Set<String> deviceSet = new HashSet<>();
-        Set<String> actionSet = new HashSet<>();
-        Set<String> keySet = new HashSet<>();
-        for (Iterator<Map.Entry<String, Route>> iterator = RouteHelper.getActionRouteMap().entrySet().iterator(); iterator.hasNext(); ) {
+        for (Iterator<Map.Entry<String, Route>> iterator = actionRouteMap.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<String, Route> entry = iterator.next();
             Route route = entry.getValue();
             Object obj = route.getServiceObj();
@@ -338,6 +328,25 @@ public class RobotUtil {
             put2Set(deviceName, vehicleName, deviceName, actionName);
             put2Set(vehicleName, vehicleName, deviceName, actionName);
             put2Set(actionName, vehicleName, deviceName, actionName);
+        }
+
+        entryName = ENTRYNAME_MAP.get(key);
+        // 如果没有则用车辆协议生成
+        if (ToolsKit.isEmpty(entryName)) {
+            Map<String, Route> serviceRouteMap = RouteHelper.getServiceRouteMap();
+            if (ToolsKit.isEmpty(serviceRouteMap)) {
+                throw new RobotException("没找到车辆协议指令路由集合，请确保在车辆协议类添加@Service注解");
+            }
+            for (Iterator<Map.Entry<String, Route>> iterator = serviceRouteMap.entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, Route> entry = iterator.next();
+                String vehicleName  = entry.getKey();
+                Route route = entry.getValue();
+                Object obj = route.getServiceObj();
+                if (!(obj instanceof IService)) {
+                    continue;
+                }
+                put2Set(vehicleName, vehicleName, null, null);
+            }
         }
         return ENTRYNAME_MAP.get(key);
     }

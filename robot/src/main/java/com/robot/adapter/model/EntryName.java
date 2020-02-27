@@ -1,6 +1,7 @@
 package com.robot.adapter.model;
 
 import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
 
 import java.util.*;
 
@@ -65,12 +66,21 @@ public class EntryName implements java.io.Serializable {
     }
 
     public void setVehicleName2Set(String vehicleName) {
+        if (ToolsKit.isEmpty(vehicleName)) {
+            return;
+        }
         vehicleNameSet.add(vehicleName);
     }
     public void setDeviceName2Set(String deviceName) {
+        if (ToolsKit.isEmpty(deviceName)) {
+            return;
+        }
         deviceNameSet.add(deviceName);
     }
     public void setActionName2Set(String actionName) {
+        if (ToolsKit.isEmpty(actionName)) {
+            return;
+        }
         actionNameSet.add(actionName);
     }
 }
