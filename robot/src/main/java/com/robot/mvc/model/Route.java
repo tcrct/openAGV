@@ -22,10 +22,10 @@ public class Route {
      */
     private Map<String, Method> methodMap = new ConcurrentHashMap<>();
 
-    public Route(Class<?> serviceClass, Map<String, Method> methodMap) {
-        this.key = serviceClass.getName();
-        this.serviceObj = ReflectUtil.newInstance(serviceClass);
-        this.serviceClass = serviceClass;
+    public Route(Class<?> clazz, Map<String, Method> methodMap) {
+        this.key = clazz.getName();
+        this.serviceObj = ReflectUtil.newInstance(clazz);
+        this.serviceClass = clazz;
         this.methodMap.putAll(methodMap);
     }
 

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -24,7 +25,7 @@ public class ToolsKit {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToolsKit.class);
     private static final Set<String> EXCLUDED_METHOD_NAME = new HashSet<>();
-
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
@@ -175,6 +176,15 @@ public class ToolsKit {
             return objectMapper.writeValueAsString(obj);
         } catch (Exception e) {
             throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+    public static String getCurrentDateString() {
+        try {
+            return SDF.format(new Date());
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+            return "";
         }
     }
 

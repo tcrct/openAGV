@@ -52,7 +52,12 @@ public class RobotUtil {
 
 
     public static String getVehicleId(String key) {
-        return RobotUtil.getEntryName(key).getVehicleNameList().get(0);
+        try {
+            return RobotUtil.getEntryName(key).getVehicleNameList().get(0);
+        } catch (Exception e) {
+            LOG.error("可能没有该车辆[{}]对应的业务逻辑服务类，请检查！", key);
+            return key;
+        }
     }
 
     /**

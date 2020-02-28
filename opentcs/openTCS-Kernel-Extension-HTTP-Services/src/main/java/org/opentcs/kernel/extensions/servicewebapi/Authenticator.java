@@ -8,12 +8,14 @@
 package org.opentcs.kernel.extensions.servicewebapi;
 
 import com.google.common.base.Strings;
-import java.util.Objects;
-import static java.util.Objects.requireNonNull;
-import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
+
+import javax.inject.Inject;
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Authenticates incoming requests.
@@ -30,7 +32,13 @@ public class Authenticator {
    * Defines the required access rules.
    */
   private final ServiceWebApiConfiguration configuration;
+  /**
+   * access key
+   */
+  private static String authAccessKey;
 
+  // TODO 访问验证码设置，需要在app.setting里设置该key值
+  public static final String ID = "robot.webapi.accessKey";
   /**
    * Creates a new instance.
    *
@@ -39,6 +47,14 @@ public class Authenticator {
   @Inject
   public Authenticator(ServiceWebApiConfiguration configuration) {
     this.configuration = requireNonNull(configuration, "configuration");
+    init();
+  }
+
+  private void init() {
+    if (null == configuration) {
+      return;
+    }
+    authAccessKey = System.getProperty(ID, configuration.accessKey());
   }
 
   /**
@@ -54,15 +70,15 @@ public class Authenticator {
     String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
     LOG.debug("Provided access key in header is '{}', required value is '{}'",
               requestAccessKey,
-              configuration.accessKey());
+            authAccessKey);
 
     // Any empty access key indicates authentication is not required.
-    if (Strings.isNullOrEmpty(configuration.accessKey())) {
+    if (Strings.isNullOrEmpty(authAccessKey)) {
       LOG.debug("No access key, authentication not required.");
       return true;
     }
 
-    return Objects.equals(requestAccessKey, configuration.accessKey());
+    return Objects.equals(requestAccessKey, authAccessKey);
   }
 
 }

@@ -5,6 +5,7 @@ import cn.hutool.core.util.ReflectUtil;
 import com.duangframework.db.annotation.DbClient;
 import com.duangframework.db.mongodb.MongoDao;
 import com.google.inject.Inject;
+import com.robot.mvc.core.annnotations.Controller;
 import com.robot.mvc.core.annnotations.Import;
 import com.robot.mvc.core.annnotations.Service;
 import com.robot.mvc.core.exceptions.RobotException;
@@ -73,8 +74,8 @@ public class IocHelper {
                 if (fieldTypeClass.equals(clazz)) {
                     throw new RobotException(clazz.getSimpleName() + " can't not already import " + fieldTypeClass.getSimpleName());
                 }
-
-                if (!MongoDao.class.equals(field.getType()) && fieldTypeClass.isAnnotationPresent(Service.class)) {
+                if (!MongoDao.class.equals(field.getType()) &&
+                        (fieldTypeClass.isAnnotationPresent(Controller.class) || fieldTypeClass.isAnnotationPresent(Service.class)) ) {
                     Object iocServiceObj = Optional.ofNullable(BeanHandler.duang().getBean(fieldTypeClass)).orElseThrow(NullPointerException::new);
                     field.setAccessible(true);
                     field.set(serviceObj, iocServiceObj);

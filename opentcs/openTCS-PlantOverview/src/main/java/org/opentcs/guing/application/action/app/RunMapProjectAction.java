@@ -1,11 +1,3 @@
-/*
- * openTCS copyright information:
- * Copyright (c) 2013 Fraunhofer IML
- *
- * This program is free software and subject to the MIT license. (For details,
- * see the licensing information (LICENSE.txt) you should have received with
- * this copy of the software.)
- */
 package org.opentcs.guing.application.action.app;
 
 import org.opentcs.access.SharedKernelServicePortalProvider;
@@ -24,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 import static org.opentcs.guing.util.I18nPlantOverview.MENU_PATH;
 
 /**
- * 动行地图所有项目
+ * 一键运行地图显示的所有项目
  *
  * @author Laotang
  */
@@ -33,6 +25,7 @@ public class RunMapProjectAction
 
   /**
    * This action's ID.
+   * 与app.setting配置文件中的key一致
    */
   public final static String ID = "robot.runAll.project";
 
@@ -81,7 +74,7 @@ public class RunMapProjectAction
     putValue(LARGE_ICON_KEY, icon);
   }
 
-  //TODO 展厅鼠标动作触发器
+  //TODO 一键运行地图显示的所有项目
   @Override
   public void actionPerformed(ActionEvent evt) {
     int dialogResult

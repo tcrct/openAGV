@@ -7,7 +7,7 @@ import com.robot.mvc.core.interfaces.IException;
  */
 public class RobotException extends RuntimeException {
 
-    private int code;
+    private int code = 1;
 
     public RobotException(String errMessage) {
         super(errMessage);
@@ -19,7 +19,16 @@ public class RobotException extends RuntimeException {
 
     public RobotException(IException enums) {
         super(enums.getMessage());
-        save(enums.getCode(), enums.getMessage());
+        code = enums.getCode();
+        save(code, enums.getMessage());
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 
     private void save(int code, String message) {

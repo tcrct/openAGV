@@ -4,10 +4,13 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.mvc.core.annnotations.Action;
+import com.robot.mvc.core.annnotations.Controller;
 import com.robot.mvc.core.annnotations.Service;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.utils.ToolsKit;
+import org.opentcs.kernel.extensions.servicewebapi.console.ControllerFactory;
+import org.opentcs.kernel.extensions.servicewebapi.console.IController;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -33,6 +36,14 @@ public class RouteHelper {
      * Action类Map集合，key为动作指令集标识符
      */
     private static Map<String, Route> ACTION_ROUTE_MAP = new HashMap<>();
+    /**
+     * Controller类Map集合，key为Controller文件名去除Controller部份
+     */
+    private static Map<String, Route> CONTROLLER_ROUTE_MAP = new HashMap<>();
+
+    public static Map<String, Route> getControllerRouteMap() {
+        return CONTROLLER_ROUTE_MAP;
+    }
 
     public static Map<String, Route> getServiceRouteMap() {
         return SERVICE_ROUTE_MAP;
@@ -57,24 +68,25 @@ public class RouteHelper {
     }
 
     private RouteHelper() {
+        routeController();
         routeService();
         routeAction();
     }
 
-    private void routeService() {
-        if (SERVICE_ROUTE_MAP.isEmpty()) {
+    private void routeController() {
+        if (CONTROLLER_ROUTE_MAP.isEmpty()) {
             if (null == excludedMethodName) {
                 excludedMethodName = ToolsKit.buildExcludedMethodName();
             }
-            List<Class<?>> serviceClassList = ClassHelper.duang().getServiceClassList();
-            if (ToolsKit.isEmpty(serviceClassList)) {
-                LOG.info("业务逻辑处理类为空,退出routeService方法");
+            List<Class<?>> controllerClassList = ClassHelper.duang().getControllerClassList();
+            if (ToolsKit.isEmpty(controllerClassList)) {
+                LOG.info("Controller类为空,退出routeController方法");
                 return;
             }
-            for (Class<?> serviceClass : serviceClassList) {
-                Method[] methodArray = serviceClass.getMethods();
+            for (Class<?> controllerClass : controllerClassList) {
+                Method[] controllerMethodArray = controllerClass.getMethods();
                 List<Method> methodList = new ArrayList<>();
-                for (Method method : methodArray) {
+                for (Method method : controllerMethodArray) {
                     if (!ToolsKit.isPublicMethod(method.getModifiers()) ||
                             excludedMethodName.contains(method.getName())) {
                         continue;
@@ -82,25 +94,67 @@ public class RouteHelper {
                     methodList.add(method);
                 }
                 if (ToolsKit.isNotEmpty(methodList)) {
-                    Service serviceAnnoy = serviceClass.getAnnotation(Service.class);
-                    String key = serviceAnnoy.value();
+                    Controller controllerAnnoy = controllerClass.getAnnotation(Controller.class);
+                    String key = controllerAnnoy.value();
                     if (ToolsKit.isEmpty(key)) {
-                        int endIndex = serviceClass.getSimpleName().toLowerCase().indexOf("service");
+                        int endIndex = controllerClass.getSimpleName().toLowerCase().indexOf("controller");
                         if (endIndex > -1) {
-                            key = serviceClass.getSimpleName().substring(0, endIndex);
+                            key = controllerClass.getSimpleName().substring(0, endIndex);
                         }
                     }
                     Map<String, Method> methodMap = new HashMap<>();
                     for (Method method : methodList) {
                         methodMap.put(method.getName().toLowerCase(), method);
                     }
-                    Route route = new Route(serviceClass, methodMap);
-                    SERVICE_ROUTE_MAP.put(key, route);
+                    Route route = new Route(controllerClass, methodMap);
+                    key = key.toLowerCase();
+                    CONTROLLER_ROUTE_MAP.put(key, route);
                     BeanHandler.duang().setBean(route.getServiceObj());
+                    ControllerFactory.setController(key, (IController) route.getServiceObj());
                 }
             }
-            printRouteKey();
         }
+    }
+
+    private void routeService() {
+        SERVICE_ROUTE_MAP.clear();
+        if (null == excludedMethodName) {
+            excludedMethodName = ToolsKit.buildExcludedMethodName();
+        }
+        List<Class<?>> serviceClassList = ClassHelper.duang().getServiceClassList();
+        if (ToolsKit.isEmpty(serviceClassList)) {
+            LOG.info("业务逻辑处理类为空,退出routeService方法");
+            return;
+        }
+        for (Class<?> serviceClass : serviceClassList) {
+            Method[] serviceMethodArray = serviceClass.getMethods();
+            List<Method> methodList = new ArrayList<>();
+            for (Method method : serviceMethodArray) {
+                if (!ToolsKit.isPublicMethod(method.getModifiers()) ||
+                        excludedMethodName.contains(method.getName())) {
+                    continue;
+                }
+                methodList.add(method);
+            }
+            if (ToolsKit.isNotEmpty(methodList)) {
+                Service serviceAnnoy = serviceClass.getAnnotation(Service.class);
+                String key = serviceAnnoy.value();
+                if (ToolsKit.isEmpty(key)) {
+                    int endIndex = serviceClass.getSimpleName().toLowerCase().indexOf("service");
+                    if (endIndex > -1) {
+                        key = serviceClass.getSimpleName().substring(0, endIndex);
+                    }
+                }
+                Map<String, Method> methodMap = new HashMap<>();
+                for (Method method : methodList) {
+                    methodMap.put(method.getName().toLowerCase(), method);
+                }
+                Route route = new Route(serviceClass, methodMap);
+                SERVICE_ROUTE_MAP.put(key, route);
+                BeanHandler.duang().setBean(route.getServiceObj());
+            }
+        }
+        printRouteKey();
     }
 
     private void routeAction() {
@@ -129,10 +183,27 @@ public class RouteHelper {
 
 
     public static Map<String, Route> getRoutes() {
-        return SERVICE_ROUTE_MAP;
+        Map<String,Route> routeMap = new HashMap<>();
+        routeMap.putAll(CONTROLLER_ROUTE_MAP);
+        routeMap.putAll(SERVICE_ROUTE_MAP);
+        return routeMap;
     }
 
     private void printRouteKey() {
+
+        if (!CONTROLLER_ROUTE_MAP.isEmpty()) {
+            LOG.warn("**************** Controller Mapping ****************");
+            List<String> keyList = new ArrayList<>(CONTROLLER_ROUTE_MAP.keySet());
+            Collections.sort(keyList);
+            for (String key : keyList) {
+                Route route = CONTROLLER_ROUTE_MAP.get(key);
+                for(Iterator<String> iterator = route.getMethodMap().keySet().iterator(); iterator.hasNext();) {
+                    String methodName = iterator.next();
+                    LOG.info(String.format("controller mapping: /%s/%s, route: %s", key, methodName, route.getServiceClass().getName()));
+                }
+            }
+        }
+
         List<String> keyList = new ArrayList<>(SERVICE_ROUTE_MAP.keySet());
         if (keyList.isEmpty()) {
             throw new NullPointerException("业务逻辑处理类不存在！");
@@ -148,7 +219,8 @@ public class RouteHelper {
     private void printActionKey() {
         List<String> keyList = new ArrayList<>(ACTION_ROUTE_MAP.keySet());
         if (keyList.isEmpty()) {
-            throw new NullPointerException("业务逻辑处理类不存在！");
+            LOG.info("工站动作处理类不存在！");
+            return;
         }
         Collections.sort(keyList);
         LOG.warn("**************** Action Mapping ****************");
