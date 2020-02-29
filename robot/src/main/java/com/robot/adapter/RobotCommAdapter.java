@@ -9,6 +9,7 @@ import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.model.*;
 import com.robot.adapter.task.MoveCommandListener;
 import com.robot.adapter.task.MoveRequesterTask;
+import com.robot.commands.SetVehiclePausedCommand;
 import com.robot.config.RobotConfiguration;
 import com.robot.contrib.netty.ConnectionEventListener;
 import com.robot.contrib.netty.comm.NetChannelType;
@@ -27,6 +28,7 @@ import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.VehicleControllerPool;
+import org.opentcs.drivers.vehicle.messages.SetSpeedMultiplier;
 import org.opentcs.kernel.services.StandardDispatcherService;
 import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.opentcs.kernel.services.StandardVehicleService;
@@ -277,6 +279,7 @@ public class RobotCommAdapter
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         cmd = requireNonNull(cmd, "MovementCommand is null");
+        LOG.info("######{}发送移动指令: {}", getName(), cmd.getStep().getPath());
         // 添加到队列
         tempCommandQueue.add(cmd);
         /**
@@ -297,8 +300,14 @@ public class RobotCommAdapter
      * 进程消息
      */
     @Override
-    public void processMessage(@Nullable Object message) {
-        LOG.info("processMessage: {}", message);
+    public void processMessage(@Nullable Object object) {
+        LOG.info("processMessage: {}",object);
+        if (object instanceof SetSpeedMultiplier) {
+            SetSpeedMultiplier speedMultiplier = (SetSpeedMultiplier)object;
+            if (null != speedMultiplier && speedMultiplier.getMultiplier() == 0) {
+                vehicleService.sendCommAdapterCommand(vehicle.getReference(), new SetVehiclePausedCommand(true));
+            }
+        }
     }
 
     /**
@@ -487,10 +496,14 @@ public class RobotCommAdapter
             } // 如果UDP或RXTX的话，就根据
             else {
                 EntryName entryName = RobotUtil.getEntryName(getName());
-                for (Iterator<String> iterator = entryName.getDeviceNameList().iterator(); iterator.hasNext(); ) {
-                    String deviceName = iterator.next();
-                    contribKit.register(deviceName, host, port, this);
-                    LOG.info("注册设备[{}]成功: [{}]", deviceName, (host + ":" + port));
+                try {
+                    for (Iterator<String> iterator = entryName.getDeviceNameList().iterator(); iterator.hasNext(); ) {
+                        String deviceName = iterator.next();
+                        contribKit.register(deviceName, host, port, this);
+                        LOG.info("注册设备[{}]成功: [{}]", deviceName, (host + ":" + port));
+                    }
+                } catch (Exception e) {
+                    throw new RobotException("注册设备[{}]失败，请注意是否添加了车辆Service类！");
                 }
             }
 

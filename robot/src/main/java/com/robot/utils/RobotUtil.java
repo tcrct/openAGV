@@ -1,5 +1,6 @@
 package com.robot.utils;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.RobotContext;
@@ -17,10 +18,13 @@ import com.robot.mvc.main.DispatchFactory;
 import com.robot.mvc.model.Route;
 import io.netty.channel.Channel;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.VehicleService;
+import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.strategies.basic.routing.DefaultRouter;
 
 import java.util.*;
@@ -50,6 +54,14 @@ public class RobotUtil {
         return SettingUtil.getBoolean("dev.mode", false);
     }
 
+
+    /**
+     * 取所有车辆
+     * @return
+     */
+    public static List<String> getAllVehicleName() {
+        return new ArrayList<>(RobotContext.getAdapterMap().keySet());
+    }
 
     public static String getVehicleId(String key) {
         try {
@@ -506,5 +518,24 @@ public class RobotUtil {
                 RobotUtil.getPoint(startPointName),
                 RobotUtil.getPoint(endPointName));
         return optionalRoute.isPresent() ? optionalRoute.get().getSteps() : null;
+    }
+
+    /**
+     * 发送命令
+     * @param command 命令
+     */
+    public static void sendCommAdapterCommand(String vehicleName, AdapterCommand command) {
+        try {
+            TCSObjectReference<Vehicle> vehicleRef = getVehicle(vehicleName).getReference();
+            VehicleService vehicleService = getAdapter(vehicleName).getVehicleService();
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    vehicleService.sendCommAdapterCommand(vehicleRef, command);
+                }
+            });
+        } catch (Exception ex) {
+            LOG.warn("发送命令[{}]到适配器[{}]时出错：{}", command, vehicleName, ex);
+        }
     }
 }

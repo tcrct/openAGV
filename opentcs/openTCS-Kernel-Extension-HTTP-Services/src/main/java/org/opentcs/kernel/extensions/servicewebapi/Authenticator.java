@@ -54,7 +54,6 @@ public class Authenticator {
     if (null == configuration) {
       return;
     }
-    authAccessKey = System.getProperty(ID, configuration.accessKey());
   }
 
   /**
@@ -66,6 +65,10 @@ public class Authenticator {
    */
   public boolean isAuthenticated(Request request) {
     requireNonNull(request, "request");
+
+    if (Strings.isNullOrEmpty(authAccessKey)) {
+      authAccessKey = System.getProperty(ID, configuration.accessKey());
+    }
 
     String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
     LOG.debug("Provided access key in header is '{}', required value is '{}'",
