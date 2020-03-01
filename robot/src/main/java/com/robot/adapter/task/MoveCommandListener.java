@@ -83,7 +83,7 @@ public class MoveCommandListener implements ActionListener {
 //        adapter.getMovementCommandQueue().addAll(commandList);
         adapter.getMovementCommandQueue().addAll(tempCommandQueue);
         // 去重，在概述工厂里，对车辆进行立即停车操作后，再重新生成新的移动订单时，队列里的移动指令会出现重复
-        // TODO... 如果找到立即停车触发事件，可以执行adapter.getMovementCommandQueue().clear()后
+        // TODO... 如果找到立即停车触发事件(WithdrawAction)，可以执行adapter.getMovementCommandQueue().clear()后
         Map<String, MovementCommand> commandMap = new LinkedHashMap<>();
         Queue<MovementCommand> movementCommandQueue = adapter.getMovementCommandQueue();
         for (MovementCommand command : movementCommandQueue) {
