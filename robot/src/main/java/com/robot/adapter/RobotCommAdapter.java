@@ -161,6 +161,10 @@ public class RobotCommAdapter
         return vehicleControllerPool;
     }
 
+    public StandardDispatcherService getDispatcherService() {
+        return dispatcherService;
+    }
+
     /**
      * 初始化适配器
      */

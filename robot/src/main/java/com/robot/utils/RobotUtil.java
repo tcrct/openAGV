@@ -510,7 +510,7 @@ public class RobotUtil {
      * @param endPointName 结束点
      * @return
      */
-    public List<org.opentcs.data.order.Route.Step> getRoute(String vehicleName, String startPointName, String endPointName) {
+    public static List<org.opentcs.data.order.Route.Step> getRoute(String vehicleName, String startPointName, String endPointName) {
         DefaultRouter router = RobotContext.getAdapter(vehicleName).getRouter();
         // 先更新路由table,取出路由，如果不调用该方法，会抛出空指针异常
         router.initialize();//router.updateRoutingTables();
