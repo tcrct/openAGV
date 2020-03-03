@@ -545,19 +545,20 @@ public class RobotUtil {
      * @return 如果该点在有车辆，则返回Vehicle对象，否则返回null
      */
     public static Vehicle getVehicleByPoint(String pointName) {
-        List<String> vehicleNameList = getAllVehicleName();
-        if (ToolsKit.isEmpty(vehicleNameList)) {
-            LOG.error("没有找到车辆，车辆列表为空！");
-            return null;
-        }
-        for (String vehicleName : vehicleNameList) {
-            String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
-            if (vehiclePosition.equals(pointName)) {
-                LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
-                return RobotUtil.getVehicle(vehicleName);
-            }
-        }
-        return null;
+//        List<String> vehicleNameList = getAllVehicleName();
+//        if (ToolsKit.isEmpty(vehicleNameList)) {
+//            LOG.error("没有找到车辆，车辆列表为空！");
+//            return null;
+//        }
+//        for (String vehicleName : vehicleNameList) {
+//            String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
+//            if (vehiclePosition.equals(pointName)) {
+//                LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
+//                return RobotUtil.getVehicle(vehicleName);
+//            }
+//        }
+        String vehicleName = getPoint(pointName).getOccupyingVehicle().getName();
+        return ToolsKit.isEmpty(vehicleName) ? null : RobotUtil.getVehicle(vehicleName);
     }
 
     /**
