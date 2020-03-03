@@ -538,4 +538,63 @@ public class RobotUtil {
             LOG.warn("发送命令[{}]到适配器[{}]时出错：{}", command, vehicleName, ex);
         }
     }
+
+    /**
+     * 根据点名称取在该点上的车辆对象
+     * @param pointName 点名称
+     * @return 如果该点在有车辆，则返回Vehicle对象，否则返回null
+     */
+    public static Vehicle getVehicleByPoint(String pointName) {
+        List<String> vehicleNameList = getAllVehicleName();
+        if (ToolsKit.isEmpty(vehicleNameList)) {
+            LOG.error("没有找到车辆，车辆列表为空！");
+            return null;
+        }
+        for (String vehicleName : vehicleNameList) {
+            String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
+            if (vehiclePosition.equals(pointName)) {
+                LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
+                return RobotUtil.getVehicle(vehicleName);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据点取与该点关联的工站对象
+     * @param point 点
+     * @return 不存在则返回null
+     */
+    public static Set<TCSObjectReference<Location>> getLocationsByPoint(Point point) {
+        Set<Location.Link> links = point.getAttachedLinks();
+        if (ToolsKit.isEmpty(links)) {
+            return null;
+        }
+        Set<TCSObjectReference<Location>> locationSet = new HashSet<>();
+        for (Location.Link link : links) {
+            locationSet.add(link.getLocation());
+        }
+        return locationSet;
+    }
+
+    /**
+     * 根据工站名称取与该工站关联的点对象
+     * @param locationName 工作站名称
+     * @return
+     */
+    public static Set<TCSObjectReference<Point>> getPointByLocationName(String locationName){
+        Location location = RobotUtil.getLocation(locationName);
+        if (ToolsKit.isEmpty(location)) {
+            return null;
+        }
+        Set<Location.Link> links = location.getAttachedLinks();
+        if (ToolsKit.isEmpty(links)) {
+            return null;
+        }
+        Set<TCSObjectReference<Point>> pointSet = new HashSet<>();
+        for (Location.Link link : links) {
+            pointSet.add(link.getPoint());
+        }
+        return pointSet;
+    }
 }

@@ -7,11 +7,6 @@
  */
 package org.opentcs.strategies.basic.scheduling;
 
-import static java.util.Objects.requireNonNull;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nonnull;
 import org.opentcs.components.kernel.Scheduler;
 import org.opentcs.components.kernel.Scheduler.Client;
 import org.opentcs.components.kernel.services.InternalPlantModelService;
@@ -19,6 +14,13 @@ import org.opentcs.customizations.kernel.GlobalSyncObject;
 import org.opentcs.data.model.TCSResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Handles regular resource allocations.
@@ -139,6 +141,7 @@ class AllocatorTask
    * @return <code>true</code> if, and only if, the given resources were allocated.
    */
   private boolean tryAllocate(AllocatorCommand.Allocate command) {
+//    return true;
     Scheduler.Client client = command.getClient();
     Set<TCSResource<?>> resources = command.getResources();
 
@@ -175,7 +178,7 @@ class AllocatorTask
   /**
    * Unallocates the given set of resources.
    *
-   * @param command Describes the allocated resources.
+   * @param resources Describes the allocated resources.
    */
   private void undoAllocate(Client client, Set<TCSResource<?>> resources) {
     synchronized (globalSyncObject) {

@@ -7,17 +7,19 @@
  */
 package org.opentcs.strategies.basic.scheduling;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import static java.util.Objects.requireNonNull;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
 import org.opentcs.components.kernel.Scheduler;
 import org.opentcs.data.model.TCSResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
