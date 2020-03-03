@@ -141,6 +141,7 @@ class AllocatorTask
    * @return <code>true</code> if, and only if, the given resources were allocated.
    */
   private boolean tryAllocate(AllocatorCommand.Allocate command) {
+    // TODO 直接返回true ,可以绕开死锁的情况。同是需要注解ReservationPool里的127-135行代码(free)
 //    return true;
     Scheduler.Client client = command.getClient();
     Set<TCSResource<?>> resources = command.getResources();

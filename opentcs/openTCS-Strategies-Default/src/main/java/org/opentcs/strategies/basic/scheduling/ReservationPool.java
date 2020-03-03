@@ -124,6 +124,7 @@ public class ReservationPool {
   }
 
   public void free(Scheduler.Client client, Set<TCSResource<?>> resources) {
+    // TODO 以下代码全注释掉的话 ,可以绕开死锁的情况。同是需要将AllocatorTask里的tryAllocate方法直接返回true
     requireNonNull(client, "client");
     requireNonNull(resources, "resources");
 
