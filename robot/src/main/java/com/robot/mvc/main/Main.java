@@ -71,8 +71,10 @@ public class Main {
         }
 
         ReqType reqType = request.getReqType();
-        // 如果是ActionRequest, MoveRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
-        if (ReqType.MOVE.equals(reqType) || ReqType.ACTION.equals(reqType)) {
+        // 如果是ActionRequest, MoveRequest, FinishRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
+        if (ReqType.MOVE.equals(reqType) ||
+                ReqType.ACTION.equals(reqType) ||
+                ReqType.FINISH.equals(reqType)) {
             return true;
         }
         // 不是业务处理请求则抛出异常

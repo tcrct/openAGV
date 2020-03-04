@@ -59,11 +59,13 @@ public class TaskHandler {
             }
             Object resultObj = ReflectUtil.invoke(route.getServiceObj(), method, request, response);
             // 如果是同一个请求响应单元并且rawContent值为空，则写入响应对象
-            if (response.isResponseTo(request) && ToolsKit.isEmpty(response.getRawContent())) {
+            if (response.isResponseTo(request) &&
+                    ToolsKit.isEmpty(response.getRawContent())  &&
+                    ToolsKit.isNotEmpty(resultObj)) {
                 response.write(resultObj);
             }
-            // 如果没有设置响应内容，则抛出异常
-            if (ToolsKit.isEmpty(response.getRawContent())) {
+            // 如果响应对象不为空，但没有设置响应内容，则抛出异常
+            if (ToolsKit.isNotEmpty(resultObj) && ToolsKit.isEmpty(response.getRawContent())) {
                 throw new RobotException(ExceptionEnums.RESPONSE_RAW_NULL);
             }
         } catch (Exception e) {

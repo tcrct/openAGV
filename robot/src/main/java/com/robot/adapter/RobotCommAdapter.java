@@ -338,6 +338,9 @@ public class RobotCommAdapter
      */
     private void checkOrderFinished(RobotStateModel stateModel) {
         MovementCommand cmd = getSentQueue().peek();
+        if (null == cmd) {
+            return;
+        }
         String operation = cmd.getOperation();
         // 不是NOP，是最后一条指令并且自定义动作组合里包含该动作名称
         if (null != cmd &&
@@ -356,6 +359,7 @@ public class RobotCommAdapter
                     // 取消单步执行状态
                     getProcessModel().setSingleStepModeEnabled(false);
                 }
+                noticeOrderFinished();
                 getProcessModel().commandExecuted(curCommand);
             }
         }
@@ -440,6 +444,7 @@ public class RobotCommAdapter
         executeLocationActionNameSet.remove(operation);
         // 如果不为空且是最终移动命令，则执行下一个订单
         if (null != cmd && cmd.isFinalMovement()) {
+            noticeOrderFinished();
             processModel.commandExecuted(cmd);
         }
     }
@@ -466,6 +471,12 @@ public class RobotCommAdapter
                 .setVehiclePaused(getProcessModel().isVehiclePaused());
     }
 
+    /**
+     * 通知业务处理模板，订单已经完成
+     */
+    private void noticeOrderFinished(){
+        moveCommandListener.noticeOrderFinished();
+    }
 
     /***************************************BasicVehicleCommAdapter 抽象方法************************************************/
     /**

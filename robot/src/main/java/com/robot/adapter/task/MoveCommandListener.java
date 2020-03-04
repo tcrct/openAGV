@@ -1,6 +1,8 @@
 package com.robot.adapter.task;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.robot.adapter.RobotCommAdapter;
+import com.robot.mvc.core.telegram.FinishRequest;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;
 import org.opentcs.drivers.vehicle.MovementCommand;
@@ -116,5 +118,18 @@ public class MoveCommandListener implements ActionListener {
         this.tempCommandQueue = commandQueue;
         // 接收到新的队列引用后，将变量设置为 true，说明需要发送，等待定时器执行发送
         isNeetSend = true;
+    }
+
+    /**
+     * 订单完成发送请求到业务逻辑处理模块，以扩展完成后的处理方式
+     */
+    public void noticeOrderFinished() {
+        ThreadUtil.execute(new Runnable() {
+            @Override
+            public void run() {
+                ThreadUtil.safeSleep(200);
+                DispatchFactory.dispatch(new FinishRequest(adapter));
+            }
+        });
     }
 }

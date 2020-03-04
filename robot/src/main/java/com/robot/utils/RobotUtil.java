@@ -305,6 +305,15 @@ public class RobotUtil {
         return ReqType.BUSINESS.equals(request.getReqType());
     }
 
+    /**
+     * 是否订单完成请求
+     *
+     * @param request 请求对象
+     * @return
+     */
+    public static boolean isFinishRequest (IRequest request) {
+        return ReqType.FINISH.equals(request.getReqType());
+    }
 
     private static Map<String, EntryName> ENTRYNAME_MAP = new HashMap<>();
     /**
@@ -545,20 +554,21 @@ public class RobotUtil {
      * @return 如果该点在有车辆，则返回Vehicle对象，否则返回null
      */
     public static Vehicle getVehicleByPoint(String pointName) {
-//        List<String> vehicleNameList = getAllVehicleName();
-//        if (ToolsKit.isEmpty(vehicleNameList)) {
-//            LOG.error("没有找到车辆，车辆列表为空！");
-//            return null;
-//        }
-//        for (String vehicleName : vehicleNameList) {
-//            String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
-//            if (vehiclePosition.equals(pointName)) {
-//                LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
-//                return RobotUtil.getVehicle(vehicleName);
-//            }
-//        }
-        String vehicleName = getPoint(pointName).getOccupyingVehicle().getName();
-        return ToolsKit.isEmpty(vehicleName) ? null : RobotUtil.getVehicle(vehicleName);
+        List<String> vehicleNameList = getAllVehicleName();
+        if (ToolsKit.isEmpty(vehicleNameList)) {
+            LOG.error("没有找到车辆，车辆列表为空！");
+            return null;
+        }
+        for (String vehicleName : vehicleNameList) {
+            String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
+            if (vehiclePosition.equals(pointName)) {
+                LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
+                return RobotUtil.getVehicle(vehicleName);
+            }
+        }
+        return null;
+//        String vehicleName = getPoint(pointName).getOccupyingVehicle().getName();
+//        return ToolsKit.isEmpty(vehwg j icleName) ? null : RobotUtil.getVehicle(vehicleName);
     }
 
     /**
@@ -576,6 +586,15 @@ public class RobotUtil {
             locationSet.add(link.getLocation());
         }
         return locationSet;
+    }
+
+    public static Location getLocationByPointName(String pointName) {
+        Set<TCSObjectReference<Location>> set = getLocationsByPoint(RobotUtil.getPoint(pointName));
+        String locationName = "";
+        for (TCSObjectReference<Location> locationReference : set) {
+            locationName = locationReference.getName();
+        }
+        return RobotUtil.getLocation(locationName);
     }
 
     /**

@@ -18,6 +18,11 @@ public enum ReqType {
     /**
      * 业务请求，为默认请求
      */
-    BUSINESS;
+    BUSINESS,
+
+    /**
+     * 完成请求，用于回调通知到Service
+     */
+    FINISH;
 
 }

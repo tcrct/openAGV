@@ -5,11 +5,10 @@ import cn.hutool.http.HttpStatus;
 import com.robot.RobotContext;
 import com.robot.adapter.model.RobotStateModel;
 import com.robot.mvc.core.exceptions.RobotException;
-import com.robot.mvc.core.interfaces.*;
-import com.robot.mvc.core.telegram.ActionRequest;
-import com.robot.mvc.core.telegram.BaseResponse;
-import com.robot.mvc.core.telegram.BusinessRequest;
-import com.robot.mvc.core.telegram.MoveRequest;
+import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.interfaces.IRequest;
+import com.robot.mvc.core.interfaces.IResponse;
+import com.robot.mvc.core.telegram.*;
 import com.robot.utils.RobotUtil;
 import com.robot.utils.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -121,6 +120,16 @@ public class DispatchFactory {
         return dispatchHandler(request, new BaseResponse(request));
     }
 
+    /**
+     * 分发处理接收到的订单完成请求
+     * 调度系统发起的请求
+     *
+     * @param request FinishRequest
+     */
+    public static IResponse dispatch(FinishRequest request) {
+        return dispatchHandler(request, new BaseResponse(request));
+    }
+
     private static IResponse dispatchHandler(IRequest request, IResponse response) {
         try {
             FutureTask<IResponse> futureTask = (FutureTask<IResponse>) ThreadUtil.execAsync(new RequestTask(request, response));
@@ -130,8 +139,8 @@ public class DispatchFactory {
                 response = futureTask.get(REQUEST_TIME_OUT, TimeUnit.MILLISECONDS);
             }
             if (response.getStatus() == HttpStatus.HTTP_OK) {
-                // 不是业务请求的都需要添加到重发队列
-                if (!RobotUtil.isBusinessRequest(request)) {
+                // 不是业务请求且不是完成请求的都需要添加到重发队列
+                if (!RobotUtil.isBusinessRequest(request) && !RobotUtil.isFinishRequest(request)) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     RobotUtil.getRepeatSend().add(response);
                 }
