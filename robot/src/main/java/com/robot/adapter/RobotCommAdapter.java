@@ -24,6 +24,7 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
+import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
@@ -283,7 +284,7 @@ public class RobotCommAdapter
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         cmd = requireNonNull(cmd, "MovementCommand is null");
-        LOG.info("######{}发送移动指令: {}", getName(), cmd.getStep().getPath());
+//        LOG.info("######{}发送移动指令: {}", getName(), cmd.getStep().getPath());
         // 添加到队列
         tempCommandQueue.add(cmd);
         /**
@@ -359,7 +360,6 @@ public class RobotCommAdapter
                     // 取消单步执行状态
                     getProcessModel().setSingleStepModeEnabled(false);
                 }
-                noticeOrderFinished();
                 getProcessModel().commandExecuted(curCommand);
             }
         }
@@ -444,7 +444,6 @@ public class RobotCommAdapter
         executeLocationActionNameSet.remove(operation);
         // 如果不为空且是最终移动命令，则执行下一个订单
         if (null != cmd && cmd.isFinalMovement()) {
-            noticeOrderFinished();
             processModel.commandExecuted(cmd);
         }
     }
@@ -474,8 +473,10 @@ public class RobotCommAdapter
     /**
      * 通知业务处理模板，订单已经完成
      */
-    private void noticeOrderFinished(){
-        moveCommandListener.noticeOrderFinished();
+    public void noticeOrderFinished() {
+        if (getCommandQueue().isEmpty() && getSentQueue().isEmpty()) {
+            moveCommandListener.noticeOrderFinished();
+        }
     }
 
     /***************************************BasicVehicleCommAdapter 抽象方法************************************************/

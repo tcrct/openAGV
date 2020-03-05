@@ -5,16 +5,14 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.telegram.FinishRequest;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;
+import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * 车辆移动指令监听器
@@ -54,7 +52,6 @@ public class MoveCommandListener implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-
         // 如果不需要发送则直接退出
         if (!isNeetSend) {
             LOG.debug("{}车辆没有需要发送的移动指令，退出定时发送方法！", adapter.getName());
