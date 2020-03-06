@@ -73,15 +73,35 @@ public class RobotUtil {
     }
 
     /**
+     * 车辆与移动协议指令关系
+     */
+    private static final Map<String, String> DEVICE_MOVEKEY_MAP = new HashMap<>();
+    public static Map<String, String> getDeviceMovekeyMap() {
+        return DEVICE_MOVEKEY_MAP;
+    }
+
+    /**
      * 下发路径指令关键字
      * 取移动协议指令关键字，用于生成移动请求时，设置cmdKey值
      *
      * @return 关键字
      */
-    public static String getMoveProtocolKey() {
-        String moveCmdKey = SettingUtil.getString("move.request.cmd");
+    public static String getMoveProtocolKey(String deviceId) {
+        String moveCmdKey = DEVICE_MOVEKEY_MAP.get(deviceId);
+        if (ToolsKit.isEmpty(moveCmdKey)) {
+            List<String> qrCodeDeviceList = SettingUtil.getStringList("qrcode.vehicle");
+            if (null != qrCodeDeviceList || !qrCodeDeviceList.isEmpty()) {
+                if (qrCodeDeviceList.contains(deviceId)) {
+                    moveCmdKey = SettingUtil.getString("move.request.qrcode.cmd");
+                }
+            } else {
+                moveCmdKey = SettingUtil.getString("move.request.cmd");
+            }
+        }
         if (ToolsKit.isEmpty(moveCmdKey)) {
             throw new RobotException("下发路径指令关键字不能为空，请先在配置文件中设置[move.request.cmd]值。");
+        } else {
+            DEVICE_MOVEKEY_MAP.put(deviceId, moveCmdKey);
         }
         return moveCmdKey;
     }

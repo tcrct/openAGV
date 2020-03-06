@@ -91,7 +91,7 @@ public class TaskHandler {
      */
     private IResponse emptyRouteOrMehtod(String deviceId, String methodName, IRequest request, BaseResponse response) {
         if (RobotUtil.isMoveRequest(request)) {
-            throw new RobotException("移动请求必须要实现协议指令对应的[" + RobotUtil.getMoveProtocolKey() + "]方法！");
+            throw new RobotException("移动请求必须要实现协议指令对应的[" + RobotUtil.getMoveProtocolKey(deviceId) + "]方法！");
         }
         String rawContent = request.getRawContent();
         if (response.isResponseTo(request)) {

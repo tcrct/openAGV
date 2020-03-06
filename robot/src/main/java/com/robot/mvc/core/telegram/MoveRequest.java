@@ -32,7 +32,7 @@ public class MoveRequest extends BaseRequest {
      */
     public MoveRequest(RobotCommAdapter adapter, Queue<MovementCommand> commandList) {
         super(ReqType.MOVE, null);
-        super.protocol = new MoveProtocol(adapter.getName(), RobotUtil.getMoveProtocolKey());
+        super.protocol = new MoveProtocol(adapter.getName(), RobotUtil.getMoveProtocolKey(adapter.getName()));
         super.adapter = adapter;
         this.movementCommandQueue = commandList;
         super.setNeedSend(true);
