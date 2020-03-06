@@ -5,6 +5,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.RobotContext;
 import com.robot.adapter.RobotCommAdapter;
+import com.robot.adapter.constants.AdapterConstants;
 import com.robot.adapter.enumes.OperatingState;
 import com.robot.adapter.model.EntryName;
 import com.robot.contrib.netty.comm.ClientEntry;
@@ -17,16 +18,25 @@ import com.robot.mvc.helpers.RouteHelper;
 import com.robot.mvc.main.DispatchFactory;
 import com.robot.mvc.model.Route;
 import io.netty.channel.Channel;
+import org.opentcs.access.to.order.DestinationCreationTO;
+import org.opentcs.access.to.order.TransportOrderCreationTO;
+import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.TransportOrderService;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.AdapterCommand;
+import org.opentcs.guing.plugins.panels.loadgenerator.DriveOrderStructure;
+import org.opentcs.guing.plugins.panels.loadgenerator.TransportOrderData;
+import org.opentcs.guing.plugins.panels.loadgenerator.batchcreator.ExplicitOrderBatchGenerator;
 import org.opentcs.strategies.basic.routing.DefaultRouter;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -90,18 +100,17 @@ public class RobotUtil {
         String moveCmdKey = DEVICE_MOVEKEY_MAP.get(deviceId);
         if (ToolsKit.isEmpty(moveCmdKey)) {
             List<String> qrCodeDeviceList = SettingUtil.getStringList("qrcode.vehicle");
-            if (null != qrCodeDeviceList || !qrCodeDeviceList.isEmpty()) {
-                if (qrCodeDeviceList.contains(deviceId)) {
-                    moveCmdKey = SettingUtil.getString("move.request.qrcode.cmd");
-                }
+            if (ToolsKit.isNotEmpty(qrCodeDeviceList) && qrCodeDeviceList.contains(deviceId)) {
+                moveCmdKey = SettingUtil.getString("move.request.qrcode.cmd");
             } else {
                 moveCmdKey = SettingUtil.getString("move.request.cmd");
             }
+            if (ToolsKit.isNotEmpty(moveCmdKey)) {
+                DEVICE_MOVEKEY_MAP.put(deviceId, moveCmdKey);
+            }
         }
         if (ToolsKit.isEmpty(moveCmdKey)) {
-            throw new RobotException("下发路径指令关键字不能为空，请先在配置文件中设置[move.request.cmd]值。");
-        } else {
-            DEVICE_MOVEKEY_MAP.put(deviceId, moveCmdKey);
+            throw new RobotException("下发路径指令关键字不能为空，请先在配置文件中设置[move.request.cmd]or[move.request.qrcode.cmd]值。");
         }
         return moveCmdKey;
     }
@@ -636,5 +645,81 @@ public class RobotUtil {
             pointSet.add(link.getPoint());
         }
         return pointSet;
+    }
+
+    /**
+     * @param vehicleName
+     * @param deptObj
+     */
+    public static void createTransportOrder(String vehicleName, Object deptObj) {
+        if (ToolsKit.isEmpty(vehicleName)) {
+            throw new RobotException("创建移动订单时，车辆名称不能为空");
+        }
+        if (null == deptObj) {
+            throw new RobotException("创建移动订单时，目标位置点或目标工站不能为空");
+        }
+        if (deptObj instanceof Point) {
+            createTransportOrder(vehicleName, (Point) deptObj);
+        } else if (deptObj instanceof Location) {
+            createTransportOrder(vehicleName, (Location) deptObj);
+        } else {
+            throw new RobotException("创建移动订单时，[deptObj]只能是Point或Location对象");
+        }
+    }
+
+    /**
+     * 根据车辆名称及目标点位置创建移动订单
+     *
+     * @param vehicleName 车辆名称
+     * @param deptPoint   目标点位置
+     */
+    private static void createTransportOrder(String vehicleName, Point deptPoint) {
+        if (ToolsKit.isEmpty(vehicleName)) {
+            throw new RobotException("创建移动订单时，车辆名称不能为空");
+        }
+        if (null == deptPoint) {
+            throw new RobotException("创建移动订单时，目标位置点名称不能为空");
+        }
+        RobotCommAdapter adapter = RobotUtil.getAdapter(vehicleName);
+        if (null == adapter) {
+            throw new RobotException("创建移动订单时，adapter不能为空");
+        }
+        adapter.getTransportOrderService().createTransportOrder(
+                new TransportOrderCreationTO("Move-",
+                        Collections.singletonList(new DestinationCreationTO(deptPoint.getName(), DriveOrder.Destination.OP_MOVE)))
+                        .withIncompleteName(true)
+                        .withDeadline(Instant.now())
+                        .withIntendedVehicleName(vehicleName)
+        );
+        adapter.getDispatcherService().dispatch();
+    }
+
+    /**
+     * 根据车辆名称及目标工站创建移动订单
+     *
+     * @param vehicleName  车辆名称
+     * @param deptLocation 目标工站
+     */
+    private static void createTransportOrder(String vehicleName, Location deptLocation) {
+        if (ToolsKit.isEmpty(vehicleName)) {
+            throw new RobotException("创建移动订单时，车辆名称不能为空");
+        }
+        if (null == deptLocation) {
+            throw new RobotException("创建移动订单时，目标工站不能为空");
+        }
+        RobotCommAdapter adapter = RobotUtil.getAdapter(vehicleName);
+        if (null == adapter) {
+            throw new RobotException("创建移动订单时，adapter不能为空");
+        }
+        TransportOrderData transportOrderData = new TransportOrderData();
+        transportOrderData.setDeadline(TransportOrderData.Deadline.PLUS_HALF_HOUR); // 30分钟
+        transportOrderData.setIntendedVehicle(RobotUtil.getVehicle(vehicleName).getReference());
+        transportOrderData.addDriveOrder(new DriveOrderStructure(deptLocation.getReference(), AdapterConstants.OP_NOP));
+        //创建移动订单
+        ExplicitOrderBatchGenerator generator = new ExplicitOrderBatchGenerator(
+                adapter.getTransportOrderService(),
+                adapter.getDispatcherService(),
+                Collections.singletonList(transportOrderData));
+        generator.createOrderBatch();
     }
 }
