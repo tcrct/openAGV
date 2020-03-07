@@ -53,13 +53,15 @@ public class DuangClassLoader extends ClassLoader {
     }
 
     private void init() {
-        String packagePath = getBasePackagePath(SettingUtil.getString("package.name"));
+        String packagePath = SettingUtil.getString("package.name");
+//        String packagePath = getBasePackagePath(SettingUtil.getString("package.name"));
         if(!RobotUtil.isDevMode() && ToolsKit.isEmpty(packagePath)) {
             logger.info("热部署功能只允许在开发环境下运行");
             return;
         }
         CLASSLOADER_SET = new HashSet<>();
 //        Set<String> classSet = ClassUtil.getClassPaths(packagePath);
+        // 抛出空指针
         Set<Class<?>> classSet = ClassUtil.scanPackage(packagePath);
         if (ToolsKit.isNotEmpty(classSet)) {
             for (Class<?> clazz : classSet) {
