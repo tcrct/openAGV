@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
@@ -51,7 +49,7 @@ public class RobotRequestHandler
      */
     private boolean initialized;
     private VehicleService vehicleService;
-    private Map<String, Method> METHOD_MAP = new HashMap<>();
+
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
@@ -145,7 +143,7 @@ public class RobotRequestHandler
         if (null == controllerName) {
             throw new NullPointerException("controller name is empty");
         }
-        Method method = METHOD_MAP.get(uri);
+        Method method = ControllerFactory.getMethodMap().get(uri);
         if (null != method) {
             return method;
         } else {
@@ -179,20 +177,20 @@ public class RobotRequestHandler
                                     if ("value".equalsIgnoreCase(annItemArray[0])) {
                                         // 以注解的value值为映射路径
                                         key = annItemArray[1].trim();
-                                        METHOD_MAP.put(key, action);
+                                        ControllerFactory.getMethodMap().put(key, action);
                                     }
                                 }
                             }
                         }
                     } else {
-                        METHOD_MAP.put("/" + controllerName + "/" + key.toLowerCase(), action);
+                        ControllerFactory.getMethodMap().put("/" + controllerName + "/" + key.toLowerCase(), action);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return METHOD_MAP.get(uri);
+        return ControllerFactory.getMethodMap().get(uri);
     }
 
     private String toJson(Object object) throws IllegalStateException {

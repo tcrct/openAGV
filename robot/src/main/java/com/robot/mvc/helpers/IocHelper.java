@@ -52,7 +52,7 @@ public class IocHelper {
         }
     }
 
-    private void ioc() throws Exception {
+    public void ioc() throws Exception {
         Iterator<Map.Entry<String, Route>> iterator = Optional.ofNullable(RouteHelper.duang().getRoutes().entrySet().iterator()).orElseThrow(NullPointerException::new);
         while (iterator.hasNext()) {
             Map.Entry<String, Route> entry = iterator.next();
@@ -76,7 +76,7 @@ public class IocHelper {
                 }
                 if (!MongoDao.class.equals(field.getType()) &&
                         (fieldTypeClass.isAnnotationPresent(Controller.class) || fieldTypeClass.isAnnotationPresent(Service.class)) ) {
-                    Object iocServiceObj = Optional.ofNullable(BeanHandler.duang().getBean(fieldTypeClass)).orElseThrow(NullPointerException::new);
+                    Object iocServiceObj = Optional.ofNullable(BeanHelper.duang().getBean(fieldTypeClass)).orElseThrow(NullPointerException::new);
                     field.setAccessible(true);
                     field.set(serviceObj, iocServiceObj);
                 } else if (MongoDao.class.equals(field.getType())) {

@@ -68,10 +68,15 @@ public class RouteHelper {
     }
 
     private RouteHelper() {
+      init();
+    }
+
+    private void init() {
         routeController();
         routeService();
         routeAction();
     }
+
 
     private void routeController() {
         if (CONTROLLER_ROUTE_MAP.isEmpty()) {
@@ -109,7 +114,7 @@ public class RouteHelper {
                     Route route = new Route(controllerClass, methodMap);
                     key = key.toLowerCase();
                     CONTROLLER_ROUTE_MAP.put(key, route);
-                    BeanHandler.duang().setBean(route.getServiceObj());
+                    BeanHelper.duang().setBean(route.getServiceObj());
                     ControllerFactory.setController(key, (IController) route.getServiceObj());
                 }
             }
@@ -151,7 +156,7 @@ public class RouteHelper {
                 }
                 Route route = new Route(serviceClass, methodMap);
                 SERVICE_ROUTE_MAP.put(key, route);
-                BeanHandler.duang().setBean(route.getServiceObj());
+                BeanHelper.duang().setBean(route.getServiceObj());
             }
         }
         printRouteKey();
@@ -174,7 +179,7 @@ public class RouteHelper {
                     String key = action.actionKey();
                     Route route = new Route(key, action);
                     ACTION_ROUTE_MAP.put(key, route);
-                    BeanHandler.duang().setBean(route.getServiceObj());
+                    BeanHelper.duang().setBean(route.getServiceObj());
                 }
             }
             printActionKey();
@@ -228,5 +233,16 @@ public class RouteHelper {
             Route action = ACTION_ROUTE_MAP.get(key);
             LOG.info(String.format("action mapping: %s, action class: %s", key, action.getServiceClass().getName()));
         }
+    }
+
+    public void reset() {
+        clearMap();
+        init();
+    }
+
+    private void clearMap(){
+        getControllerRouteMap().clear();
+        getServiceRouteMap().clear();
+        getActionRouteMap().clear();
     }
 }

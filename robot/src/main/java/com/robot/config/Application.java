@@ -1,6 +1,8 @@
 package com.robot.config;
 
 import com.robot.RobotContext;
+import com.robot.hotswap.CompilerKit;
+import com.robot.hotswap.HotSwapWatcher;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
 import com.robot.mvc.core.interfaces.IPlugin;
@@ -9,6 +11,7 @@ import com.robot.mvc.helpers.ClassHelper;
 import com.robot.mvc.helpers.IocHelper;
 import com.robot.mvc.helpers.PluginsHelper;
 import com.robot.mvc.helpers.RouteHelper;
+import com.robot.utils.RobotUtil;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
@@ -29,6 +32,14 @@ public class Application {
 
     private final static Logger LOG = LoggerFactory.getLogger(Application.class);
 
+    /**
+     * 是否正常启动完成
+     */
+    private static boolean isStarted = false;
+    /**
+     * 是否开启热启动
+     */
+    private static boolean isHotSwap = false;
     /**
      * 在执行Controller前的处理器链
      */
@@ -77,6 +88,15 @@ public class Application {
         return this;
     }
 
+    public Application hotSwap(boolean isHotSwap) {
+        this.isHotSwap = isHotSwap;
+        return this;
+    }
+
+    public boolean isStarted() {
+        return isStarted;
+    }
+
     public void run() {
         try {
             // 扫描类
@@ -91,7 +111,12 @@ public class Application {
             startOpenTcs();
             // 初始化
             initRobot();
+            // 是否启动完成
+            isStarted = true;
+            // 热部署
+            hotSwapWatcher();
         } catch (Exception e) {
+            isStarted = false;
             LOG.error("启动时发生异常: {}，程序退出！{}", e.getMessage(), e);
             System.exit(1);
         }
@@ -119,5 +144,16 @@ public class Application {
 
     private void initRobot() throws Exception {
         systemInit.init();
+    }
+
+    /**
+     * 开发模式下开启热部署功能
+     * 在IDEA下，需要按下ctrl+s组合键进行保存，以达到快速启动热部署功能
+     */
+    private void hotSwapWatcher() {
+        if(RobotUtil.isDevMode() && isHotSwap) {
+            HotSwapWatcher watcher  = new HotSwapWatcher(CompilerKit.duang().dir());
+            watcher.run();
+        }
     }
 }

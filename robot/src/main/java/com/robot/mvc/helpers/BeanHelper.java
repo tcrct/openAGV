@@ -12,20 +12,24 @@ import java.util.concurrent.locks.ReentrantLock;
  * 依赖注入
  * Created by laotang on 2019/11/3.
  */
-public class BeanHandler {
+public class BeanHelper {
 
-    private static BeanHandler BEAN_HELPER;
+    private static BeanHelper BEAN_HELPER = null;
     private final static Lock lock = new ReentrantLock();
     /**
      * ioc所需要的bean
      */
     private static final Map<String, Object> iocBeanMap = new HashMap<>();
 
-    public static BeanHandler duang() {
+    public static Map<String, Object> getIocBeanMap() {
+        return iocBeanMap;
+    }
+
+    public static BeanHelper duang() {
         try {
             lock.lock();
             if (null == BEAN_HELPER) {
-                BEAN_HELPER = new BeanHandler();
+                BEAN_HELPER = new BeanHelper();
             }
         } finally {
             lock.unlock();
@@ -33,12 +37,13 @@ public class BeanHandler {
         return BEAN_HELPER;
     }
 
-    private BeanHandler() {
+    private BeanHelper() {
 
     }
 
     public void setBean(Object targetObj) {
         String key = getBeanClassName(targetObj.getClass());
+        System.out.println("###################:   " + key);
         iocBeanMap.put(key, targetObj);
     }
 
@@ -68,6 +73,7 @@ public class BeanHandler {
         if (index > -1 && className.contains("CGLIB$$")) {
             className = className.substring(0, index);
         }
+        System.out.println("getBeanClassName: " + className);
         return className;
     }
 }

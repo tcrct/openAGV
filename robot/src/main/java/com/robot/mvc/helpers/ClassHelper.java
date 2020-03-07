@@ -48,7 +48,7 @@ public class ClassHelper {
         }
     }
 
-    private static boolean isScanClass(Class<?> clazz) {
+    private boolean isScanClass(Class<?> clazz) {
         if (null != clazz) {
             for (AnnotationType annotationEnum : AnnotationType.values()) {
                 if (clazz.isAnnotationPresent(annotationEnum.getClazz())) {
@@ -75,6 +75,26 @@ public class ClassHelper {
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     *  取出所有业务类代码，一般用于热替换(热部署)功能
+     *  不包括jar包下的类，仅包括classes文件下的所有class文件，一般是业务代码class
+     *
+     * @param classList       包路径，在该路径下的所有Class会扫描
+     * @return
+     */
+    public void reSetAllBizClass(List<Class<?>> classList) {
+        // 取出所有业务类之前，先将原有的
+        CLASS_MAP.clear();
+        // 将业务类按枚举名称作key，分类存放到CLASS_MAP中
+        setClass2Map(classList);
+    }
+
+    private void setClass2Map(List<Class<?>> clazzList) {
+        for(Class<?> clazz : clazzList) {
+            binder(clazz);
         }
     }
 
