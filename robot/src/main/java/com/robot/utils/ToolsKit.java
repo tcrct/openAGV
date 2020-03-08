@@ -1,5 +1,6 @@
 package com.robot.utils;
 
+import cn.hutool.core.date.DateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -176,6 +179,16 @@ public class ToolsKit {
             return objectMapper.writeValueAsString(obj);
         } catch (Exception e) {
             throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+
+    public static String getDateString(Date date) {
+        try {
+            return SDF.format(date);
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+            return null;
         }
     }
 

@@ -24,7 +24,8 @@ public class CompilerKit {
     private CompilerKit() {
 //        fileListener();
 //        rootPath = ClassUtil.getClassPath()+ "com" ;
-        rootPath = "C:\\workspace\\IdeaProjects\\agv4j\\src\\main";
+//        rootPath = "C:\\workspace\\IdeaProjects\\agv4j\\src\\main";
+        rootPath = "C:\\workspace\\java\\agv4j\\src\\main";
         if (rootPath.endsWith("-web") || rootPath.endsWith("-WEB")) {
             rootPath = rootPath.substring(0, rootPath.lastIndexOf(File.separator));
         }

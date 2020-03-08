@@ -1,5 +1,6 @@
 package com.robot.hotswap;
 
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.ClassUtil;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.utils.RobotUtil;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,8 +55,8 @@ public class DuangClassLoader extends ClassLoader {
     }
 
     private void init() {
-        String packagePath = SettingUtil.getString("package.name");
-//        String packagePath = getBasePackagePath(SettingUtil.getString("package.name"));
+//        String packagePath = SettingUtil.getString("package.name");
+        String packagePath = getBasePackagePath(SettingUtil.getString("package.name"));
         if(!RobotUtil.isDevMode() && ToolsKit.isEmpty(packagePath)) {
             logger.info("热部署功能只允许在开发环境下运行");
             return;
@@ -62,14 +64,14 @@ public class DuangClassLoader extends ClassLoader {
         CLASSLOADER_SET = new HashSet<>();
 //        Set<String> classSet = ClassUtil.getClassPaths(packagePath);
         // 抛出空指针
-        Set<Class<?>> classSet = ClassUtil.scanPackage(packagePath);
-        if (ToolsKit.isNotEmpty(classSet)) {
-            for (Class<?> clazz : classSet) {
-                String filePath = ClassUtil.getResourceURL(clazz.getName()).getPath();
-                getClassData(new File(filePath));
-            }
-        }
-//        scanClass2File(packagePath);
+//        Set<Class<?>> classSet = ClassUtil.scanPackage(packagePath);
+//        if (ToolsKit.isNotEmpty(classSet)) {
+//            for (Class<?> clazz : classSet) {
+//                String filePath = ResourceUtil.getResource(clazz.getName()).getPath();
+//                getClassData(new File(filePath));
+//            }
+//        }
+        scanClass2File(packagePath);
     }
 
     public Set<String> getClassKeySet() {
@@ -111,16 +113,17 @@ public class DuangClassLoader extends ClassLoader {
         }
     }
 
-    /**判断是否被修改过**/
+    /**
+     * 判断是否被修改过，修改过的才处理
+     **/
     private static boolean isClassModified(File file) {
-        return true;
-        /*
         boolean isModified = file.lastModified() > lastModified;
         if (!isModified) {
-            System.out.println("@@@@@@@@@@@@@@@@"  +  file.getAbsolutePath());
+            System.out.println(file.getName() + "        " + ToolsKit.getDateString(new Date(file.lastModified())) + "               " + ToolsKit.getDateString(new Date(lastModified)) + "@@@@@@@@@@@@@@@@" + file.getAbsolutePath());
+        } else {
+            System.out.println(file.getName() + "        " + ToolsKit.getDateString(new Date(file.lastModified())) + "               " + ToolsKit.getDateString(new Date(lastModified)));
         }
         return isModified;
-        */
     }
 
     private static String getClassAbsolutePath(File file) {

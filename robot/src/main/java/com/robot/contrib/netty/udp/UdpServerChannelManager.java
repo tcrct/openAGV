@@ -3,6 +3,7 @@ package com.robot.contrib.netty.udp;
 import com.robot.contrib.netty.comm.AbstractServerChannelManager;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.ServerConnectionStateNotifier;
+import com.robot.utils.ToolsKit;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
@@ -122,6 +123,10 @@ public class UdpServerChannelManager extends AbstractServerChannelManager {
     @Override
     public void send(String key, String message) throws Exception {
         ClientEntry clientEntry = clientEntries.get(key);
+        if (null == clientEntry || ToolsKit.isEmpty(clientEntry.getHost()) || clientEntry.getPort() < 1) {
+            LOG.info("根据[{}]查找不到ClientEntiry对象或host，port设置不正确", key);
+            return;
+        }
         InetSocketAddress address = new InetSocketAddress(clientEntry.getHost(), clientEntry.getPort());
         super.send(key, new DatagramPacket(Unpooled.copiedBuffer(message, CharsetUtil.UTF_8), address));
         LOG.info("send to client[{}:{}], message: {}", clientEntry.getHost(), clientEntry.getPort(), message);

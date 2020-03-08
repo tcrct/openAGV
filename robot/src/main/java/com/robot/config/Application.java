@@ -35,11 +35,11 @@ public class Application {
     /**
      * 是否正常启动完成
      */
-    private static boolean isStarted = false;
+    private boolean isStarted = false;
     /**
      * 是否开启热启动
      */
-    private static boolean isHotSwap = false;
+    private boolean isHotSwap = false;
     /**
      * 在执行Controller前的处理器链
      */
@@ -113,13 +113,13 @@ public class Application {
             initRobot();
             // 是否启动完成
             isStarted = true;
-            // 热部署
-            hotSwapWatcher();
         } catch (Exception e) {
             isStarted = false;
             LOG.error("启动时发生异常: {}，程序退出！{}", e.getMessage(), e);
             System.exit(1);
         }
+        // 热部署
+        // hotSwapWatcher();
     }
 
     private void startOpenTcs() throws Exception {
