@@ -3,6 +3,7 @@ package com.robot.mvc.helpers;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.robot.config.Application;
 import com.robot.mvc.core.annnotations.Action;
 import com.robot.mvc.core.annnotations.Controller;
 import com.robot.mvc.core.annnotations.Service;
@@ -163,6 +164,9 @@ public class RouteHelper {
     }
 
     private void routeAction() {
+        if (isRestart()) {
+            return;
+        }
         if (ACTION_ROUTE_MAP.isEmpty()) {
             List<Class<?>> actionClassList = ClassHelper.duang().getActionClassList();
             if (ToolsKit.isEmpty(actionClassList)) {
@@ -195,7 +199,9 @@ public class RouteHelper {
     }
 
     private void printRouteKey() {
-
+        if (isRestart()) {
+            return;
+        }
         if (!CONTROLLER_ROUTE_MAP.isEmpty()) {
             LOG.warn("**************** Controller Mapping ****************");
             List<String> keyList = new ArrayList<>(CONTROLLER_ROUTE_MAP.keySet());
@@ -222,6 +228,10 @@ public class RouteHelper {
     }
 
     private void printActionKey() {
+        if (isRestart()) {
+            return;
+        }
+
         List<String> keyList = new ArrayList<>(ACTION_ROUTE_MAP.keySet());
         if (keyList.isEmpty()) {
             LOG.info("工站动作处理类不存在！");
@@ -234,7 +244,9 @@ public class RouteHelper {
             LOG.info(String.format("action mapping: %s, action class: %s", key, action.getServiceClass().getName()));
         }
     }
-
+    public boolean isRestart() {
+        return Application.duang().isStarted();
+    }
     public void reset() {
         clearMap();
         init();

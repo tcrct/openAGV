@@ -43,7 +43,6 @@ public class BeanHelper {
 
     public void setBean(Object targetObj) {
         String key = getBeanClassName(targetObj.getClass());
-        System.out.println("###################:   " + key);
         iocBeanMap.put(key, targetObj);
     }
 
@@ -73,7 +72,6 @@ public class BeanHelper {
         if (index > -1 && className.contains("CGLIB$$")) {
             className = className.substring(0, index);
         }
-        System.out.println("getBeanClassName: " + className);
         return className;
     }
 }

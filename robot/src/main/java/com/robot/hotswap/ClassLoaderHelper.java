@@ -51,6 +51,7 @@ public class ClassLoaderHelper {
     }
 
     public void hotSwap() {
+        init();
         try {
             // 清除
             ControllerFactory.getMethodMap().clear();

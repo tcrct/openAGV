@@ -7,10 +7,11 @@
  */
 package org.opentcs.kernel.extensions.adminwebapi;
 
-import javax.inject.Singleton;
 import org.opentcs.customizations.kernel.KernelInjectionModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Singleton;
 
 /**
  * Configures the admin web API extension.

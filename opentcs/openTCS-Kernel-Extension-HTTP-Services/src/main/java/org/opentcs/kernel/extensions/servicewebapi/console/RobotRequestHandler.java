@@ -75,11 +75,11 @@ public class RobotRequestHandler
     @Inject
     public RobotRequestHandler(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
-        buildExcludedMethodName();
     }
 
     @Override
     public void initialize() {
+        buildExcludedMethodName();
         initialized = true;
         logger.info("ConsoleRequestHandler 初始化成功");
     }
@@ -95,7 +95,7 @@ public class RobotRequestHandler
             return;
         }
         initialized = false;
-        logger.info("ConsoleRequestHandler 销毁成功");
+        logger.info("RobotRequestHandler 销毁成功");
     }
 
     // TODO 控制中心(web) api路由

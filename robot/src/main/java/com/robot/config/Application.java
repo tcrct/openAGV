@@ -1,7 +1,7 @@
 package com.robot.config;
 
+import cn.hutool.core.util.ClassUtil;
 import com.robot.RobotContext;
-import com.robot.hotswap.CompilerKit;
 import com.robot.hotswap.HotSwapWatcher;
 import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IHandler;
@@ -33,9 +33,9 @@ public class Application {
     private final static Logger LOG = LoggerFactory.getLogger(Application.class);
 
     /**
-     * 是否正常启动完成
+     * 是否正常启动完成， 正常启动完成大于0
      */
-    private boolean isStarted = false;
+    private long startedTime = 0L;
     /**
      * 是否开启热启动
      */
@@ -94,7 +94,15 @@ public class Application {
     }
 
     public boolean isStarted() {
-        return isStarted;
+        return startedTime > 0L;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
     }
 
     public void run() {
@@ -112,14 +120,14 @@ public class Application {
             // 初始化
             initRobot();
             // 是否启动完成
-            isStarted = true;
+            startedTime = System.currentTimeMillis();
         } catch (Exception e) {
-            isStarted = false;
+            startedTime = 0L;
             LOG.error("启动时发生异常: {}，程序退出！{}", e.getMessage(), e);
             System.exit(1);
         }
         // 热部署
-        // hotSwapWatcher();
+         hotSwapWatcher();
     }
 
     private void startOpenTcs() throws Exception {
@@ -147,12 +155,15 @@ public class Application {
     }
 
     /**
-     * 开发模式下开启热部署功能
+     * 开发模式下开启热部署功能，必须要开启IDEA的自动编译功能
+     * File-->Setting-->Build-->Compiler--> Build project automatically
+     * ctrl+alt+shift+/ -- > Registry...  --> compiler.automake.allow when.app.runing (勾选中后退出）
+     *
      * 在IDEA下，需要按下ctrl+s组合键进行保存，以达到快速启动热部署功能
      */
     private void hotSwapWatcher() {
         if(RobotUtil.isDevMode() && isHotSwap) {
-            HotSwapWatcher watcher  = new HotSwapWatcher(CompilerKit.duang().dir());
+            HotSwapWatcher watcher  = new HotSwapWatcher(ClassUtil.getClassPath());
             watcher.run();
         }
     }

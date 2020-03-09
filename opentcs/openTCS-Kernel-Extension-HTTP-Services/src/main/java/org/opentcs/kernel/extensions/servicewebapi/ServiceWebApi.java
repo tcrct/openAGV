@@ -104,6 +104,7 @@ public class ServiceWebApi
     }
 
     v1RequestHandler.initialize();
+    robotRequestHandler.initialize();
 
     service = Service.ignite()
         .ipAddress(configuration.bindAddress())
@@ -188,6 +189,7 @@ public class ServiceWebApi
     }
 
     v1RequestHandler.terminate();
+    robotRequestHandler.terminate();
     service.stop();
 
     initialized = false;

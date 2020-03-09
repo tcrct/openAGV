@@ -48,7 +48,7 @@ public class HotSwapWatcher extends Thread {
 		if (file.isDirectory()) {
 			String filePath = file.getPath();
 			if(!filePath.contains(".")
-					&& !filePath.contains("target")
+//					&& !filePath.contains("target")
 					&& !filePath.contains("test")) {
 				watchingDirSet.add(filePath);
 			}
@@ -102,14 +102,12 @@ public class HotSwapWatcher extends Thread {
 				break ;
 			}
 			List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
-//			String dirPath = watchKey.watchable()+"";
  			for(WatchEvent<?> event : watchEvents) {
 				String fileName = event.context().toString();
-				if (fileName.endsWith(".java")) {
+				if (fileName.endsWith(".class")) {
 					if (Application.duang().isStarted()) {
 						resetWatchKey();
-                        // hotswap compiler
-                        CompilerKit.duang().compiler(watchingFiles);
+						ClassLoaderHelper.getInstance().hotSwap();
 						while((watchKey = watcher.poll()) != null) {
 							watchKey.pollEvents();
 							resetWatchKey();
