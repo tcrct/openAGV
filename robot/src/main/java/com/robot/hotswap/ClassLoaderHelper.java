@@ -50,7 +50,7 @@ public class ClassLoaderHelper {
         }
     }
 
-    public void hotSwap() {
+    public void hotSwap(long startTime) {
         init();
         try {
             // 清除
@@ -61,7 +61,7 @@ public class ClassLoaderHelper {
             RouteHelper.duang().reset();
             // 重新IOC
             IocHelper.duang().ioc();
-            logger.warn("hotswap is success");
+            logger.warn("hotswap is success! total time: {} ms", System.currentTimeMillis() - startTime);
         } catch (Exception e) {
             logger.warn("hotswap is fail: " + e.getMessage(),e);
         }

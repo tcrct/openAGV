@@ -37,9 +37,9 @@ public class Application {
      */
     private long startedTime = 0L;
     /**
-     * 是否开启热启动
+     * 需要启热启动的目录
      */
-    private boolean isHotSwap = false;
+    private String hotSwapDir;
     /**
      * 在执行Controller前的处理器链
      */
@@ -88,8 +88,8 @@ public class Application {
         return this;
     }
 
-    public Application hotSwap(boolean isHotSwap) {
-        this.isHotSwap = isHotSwap;
+    public Application hotSwap() {
+        this.hotSwapDir = ClassUtil.getClassPath();
         return this;
     }
 
@@ -162,8 +162,8 @@ public class Application {
      * 在IDEA下，需要按下ctrl+s组合键进行保存，以达到快速启动热部署功能
      */
     private void hotSwapWatcher() {
-        if(RobotUtil.isDevMode() && isHotSwap) {
-            HotSwapWatcher watcher  = new HotSwapWatcher(ClassUtil.getClassPath());
+        if(RobotUtil.isDevMode() || !hotSwapDir.isEmpty()) {
+            HotSwapWatcher watcher  = new HotSwapWatcher(hotSwapDir);
             watcher.run();
         }
     }

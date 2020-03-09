@@ -28,11 +28,10 @@ public class HotSwapWatcher extends Thread {
 		// 避免在调用 deploymentManager.stop()、undertow.stop() 后退出 JVM
 		setDaemon(false);
 		setPriority(Thread.MAX_PRIORITY);
-
 		this.watchingPaths = buildWatchingPaths(sourceDir);
 	}
 
-	protected List<Path> buildWatchingPaths(String sourceDir) {
+	private List<Path> buildWatchingPaths(String sourceDir) {
 		Set<String> watchingDirSet = new HashSet<>();
 		buildDirs(new File(sourceDir.trim()), watchingDirSet);
 		List<String> dirList = new ArrayList<>(watchingDirSet);
@@ -70,6 +69,7 @@ public class HotSwapWatcher extends Thread {
 		}
 	}
 
+	// 仅对修改有效？？
 	protected void doRun() throws IOException {
 		WatchService watcher = FileSystems.getDefault().newWatchService();
 		addShutdownHook(watcher);
@@ -77,9 +77,9 @@ public class HotSwapWatcher extends Thread {
 		for (Path path : watchingPaths) {
 			path.register(
 					watcher,
-					 StandardWatchEventKinds.ENTRY_DELETE,
-					StandardWatchEventKinds.ENTRY_MODIFY,
-					StandardWatchEventKinds.ENTRY_CREATE
+//					 StandardWatchEventKinds.ENTRY_DELETE,
+					StandardWatchEventKinds.ENTRY_MODIFY
+//					StandardWatchEventKinds.ENTRY_CREATE
 			);
 			watchingFiles.add(path.toFile());
 		}
@@ -102,12 +102,13 @@ public class HotSwapWatcher extends Thread {
 				break ;
 			}
 			List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+			long startTime = System.currentTimeMillis();
  			for(WatchEvent<?> event : watchEvents) {
 				String fileName = event.context().toString();
 				if (fileName.endsWith(".class")) {
 					if (Application.duang().isStarted()) {
 						resetWatchKey();
-						ClassLoaderHelper.getInstance().hotSwap();
+						ClassLoaderHelper.getInstance().hotSwap(startTime);
 						while((watchKey = watcher.poll()) != null) {
 							watchKey.pollEvents();
 							resetWatchKey();
