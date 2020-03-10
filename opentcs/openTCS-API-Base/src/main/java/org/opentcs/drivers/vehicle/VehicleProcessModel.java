@@ -7,20 +7,22 @@
  */
 package org.opentcs.drivers.vehicle;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.LinkedList;
-import java.util.List;
-import static java.util.Objects.requireNonNull;
-import java.util.Queue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Triple;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.notification.UserNotification;
 import org.opentcs.data.order.TransportOrder;
 import org.opentcs.util.annotations.ScheduledApiChange;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An observable model of a vehicle's and its comm adapter's attributes.

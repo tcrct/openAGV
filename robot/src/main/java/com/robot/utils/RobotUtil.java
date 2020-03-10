@@ -20,9 +20,7 @@ import com.robot.mvc.model.Route;
 import io.netty.channel.Channel;
 import org.opentcs.access.to.order.DestinationCreationTO;
 import org.opentcs.access.to.order.TransportOrderCreationTO;
-import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.TCSObjectService;
-import org.opentcs.components.kernel.services.TransportOrderService;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Location;
@@ -722,4 +720,7 @@ public class RobotUtil {
                 Collections.singletonList(transportOrderData));
         generator.createOrderBatch();
     }
+
+
+
 }
