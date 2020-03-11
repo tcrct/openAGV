@@ -8,6 +8,7 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.adapter.constants.AdapterConstants;
 import com.robot.adapter.enumes.OperatingState;
 import com.robot.adapter.model.EntryName;
+import com.robot.adapter.model.TransportOrderModel;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.contrib.netty.comm.RunType;
@@ -28,6 +29,7 @@ import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
+import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.guing.plugins.panels.loadgenerator.DriveOrderStructure;
 import org.opentcs.guing.plugins.panels.loadgenerator.TransportOrderData;
@@ -52,6 +54,15 @@ public class RobotUtil {
      * 重复发送对象
      */
     private static IRepeatSend repeatSend;
+
+    /**
+     * 车辆与移动订单的集合
+     * key为车辆名称
+     */
+    private static final Map<String, TransportOrderModel> VEHICLE_TRANSPORT_ORDER_MAP = new HashMap<>();
+    public static Map<String, TransportOrderModel> getVehicleTransportOrderMap() {
+        return VEHICLE_TRANSPORT_ORDER_MAP;
+    }
 
     /**
      * 是否开发模式
@@ -581,6 +592,10 @@ public class RobotUtil {
      * @return 如果该点在有车辆，则返回Vehicle对象，否则返回null
      */
     public static Vehicle getVehicleByPoint(String pointName) {
+        if (ToolsKit.isEmpty(pointName)) {
+            LOG.error("要查找的点为null！退出");
+            return null;
+        }
         List<String> vehicleNameList = getAllVehicleName();
         if (ToolsKit.isEmpty(vehicleNameList)) {
             LOG.error("没有找到车辆，车辆列表为空！");
@@ -588,7 +603,7 @@ public class RobotUtil {
         }
         for (String vehicleName : vehicleNameList) {
             String vehiclePosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
-            if (vehiclePosition.equals(pointName)) {
+            if (pointName.equals(vehiclePosition)) {
                 LOG.info("在点[{}]上有车辆[{}]", pointName, vehicleName);
                 return RobotUtil.getVehicle(vehicleName);
             }
@@ -656,52 +671,75 @@ public class RobotUtil {
         if (null == deptObj) {
             throw new RobotException("创建移动订单时，目标位置点或目标工站不能为空");
         }
+        TransportOrderModel orderModel = new TransportOrderModel();
+        orderModel.setVehicleName(vehicleName);
+        orderModel.setOrderId("Robot_");
+
+        String destPointName = "";
         if (deptObj instanceof Point) {
-            createTransportOrder(vehicleName, (Point) deptObj);
+            destPointName = ((Point)deptObj).getName();
+            orderModel.setOperation(DriveOrder.Destination.OP_MOVE);
+            orderModel.setFinalPosition(destPointName);
+            createTransportOrder(orderModel);
         } else if (deptObj instanceof Location) {
-            createTransportOrder(vehicleName, (Location) deptObj);
+            Location location = (Location)deptObj;
+            orderModel.setFinalPosition(location.getName());
+            Set<TCSObjectReference<Point>> set = RobotUtil.getPointByLocationName(location.getName());
+            for (TCSObjectReference<Point> pointReference : set) {
+                destPointName = pointReference.getName();
+            }
+            orderModel.setOperation(AdapterConstants.OP_NOP);
+            createTransportOrder(orderModel, vehicleName);
         } else {
             throw new RobotException("创建移动订单时，[deptObj]只能是Point或Location对象");
         }
+        // 车辆的步骤
+        String startPointName = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
+        List<org.opentcs.data.order.Route.Step> route =  RobotUtil.getRoute(vehicleName, startPointName, destPointName);
+        orderModel.setRouteStep(new LinkedList<>(route));
+        // 记录该车辆的移动订单最后一个位置，用于比较途中是否发生需要避让
+        VEHICLE_TRANSPORT_ORDER_MAP.put(vehicleName, orderModel);
+        ElementKit.duang().vehicle(vehicleName).route(route);
     }
 
     /**
      * 根据车辆名称及目标点位置创建移动订单
      *
-     * @param vehicleName 车辆名称
-     * @param deptPoint   目标点位置
+     * @param orderModel  订单对象
      */
-    private static void createTransportOrder(String vehicleName, Point deptPoint) {
+    private static void createTransportOrder(TransportOrderModel orderModel) {
+        String vehicleName = orderModel.getVehicleName();
         if (ToolsKit.isEmpty(vehicleName)) {
             throw new RobotException("创建移动订单时，车辆名称不能为空");
         }
-        if (null == deptPoint) {
+        String finalPosition = orderModel.getFinalPosition();
+        if (ToolsKit.isEmpty(finalPosition)) {
             throw new RobotException("创建移动订单时，目标位置点名称不能为空");
         }
         RobotCommAdapter adapter = RobotUtil.getAdapter(vehicleName);
         if (null == adapter) {
             throw new RobotException("创建移动订单时，adapter不能为空");
         }
-        adapter.getTransportOrderService().createTransportOrder(
-                new TransportOrderCreationTO("Move-",
-                        Collections.singletonList(new DestinationCreationTO(deptPoint.getName(), DriveOrder.Destination.OP_MOVE)))
-                        .withIncompleteName(true)
-                        .withDeadline(Instant.now())
-                        .withIntendedVehicleName(vehicleName)
-        );
+        TransportOrderCreationTO transportOrder  = new TransportOrderCreationTO(orderModel.getOrderId(),
+                Collections.singletonList(new DestinationCreationTO(finalPosition, orderModel.getOperation())))
+                .withIncompleteName(true)
+                .withDeadline(Instant.now())
+                .withIntendedVehicleName(vehicleName);
+        adapter.getTransportOrderService().createTransportOrder(transportOrder);
         adapter.getDispatcherService().dispatch();
     }
 
     /**
      * 根据车辆名称及目标工站创建移动订单
      *
+     * @param orderModel  订单对象
      * @param vehicleName  车辆名称
-     * @param deptLocation 目标工站
      */
-    private static void createTransportOrder(String vehicleName, Location deptLocation) {
+    private static void createTransportOrder(TransportOrderModel orderModel, String vehicleName) {
         if (ToolsKit.isEmpty(vehicleName)) {
             throw new RobotException("创建移动订单时，车辆名称不能为空");
         }
+        Location deptLocation = RobotUtil.getLocation(orderModel.getFinalPosition());
         if (null == deptLocation) {
             throw new RobotException("创建移动订单时，目标工站不能为空");
         }
@@ -712,15 +750,15 @@ public class RobotUtil {
         TransportOrderData transportOrderData = new TransportOrderData();
         transportOrderData.setDeadline(TransportOrderData.Deadline.PLUS_HALF_HOUR); // 30分钟
         transportOrderData.setIntendedVehicle(RobotUtil.getVehicle(vehicleName).getReference());
-        transportOrderData.addDriveOrder(new DriveOrderStructure(deptLocation.getReference(), AdapterConstants.OP_NOP));
+        transportOrderData.addDriveOrder(new DriveOrderStructure(deptLocation.getReference(), orderModel.getOperation()));
         //创建移动订单
         ExplicitOrderBatchGenerator generator = new ExplicitOrderBatchGenerator(
                 adapter.getTransportOrderService(),
                 adapter.getDispatcherService(),
                 Collections.singletonList(transportOrderData));
-        generator.createOrderBatch();
+        Set<TransportOrder> orderSet = generator.createOrderBatch();
+        for (TransportOrder transportOrder : orderSet) {
+            orderModel.setOrderId(transportOrder.getName());
+        }
     }
-
-
-
 }

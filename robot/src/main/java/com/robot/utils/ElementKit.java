@@ -1,6 +1,6 @@
 package com.robot.utils;
 
-import com.robot.adapter.model.PointElementModel;
+import com.robot.adapter.model.ElementModel;
 import com.robot.adapter.model.VehiclePointModel;
 import com.robot.mvc.core.exceptions.RobotException;
 import org.opentcs.data.TCSObjectReference;
@@ -11,10 +11,7 @@ import org.opentcs.data.order.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Opentcs元素工具类
@@ -30,7 +27,7 @@ public class ElementKit {
     /**
      * 点名称为key
      */
-    private static final Map<String, PointElementModel> POINT_ELEMENT_MODEL_MAP = new HashMap<>();
+    private static final Map<String, ElementModel> POINT_ELEMENT_MODEL_MAP = new HashMap<>();
     /**要取得信息的点名称*/
     private String pointName;
     /**当前车辆名称*/
@@ -52,7 +49,7 @@ public class ElementKit {
         Set<Point> pointSet =  RobotUtil.getOpenTcsObjectService().fetchObjects(Point.class);
         for (Point point : pointSet) {
             String name = point.getName();
-            POINT_ELEMENT_MODEL_MAP.put(name, new PointElementModel(name, initIncomingPaths(point), initOutgoingPoints(point), initLocation(point)));
+            POINT_ELEMENT_MODEL_MAP.put(name, new ElementModel(name, initIncomingPaths(point), initOutgoingPoints(point), initLocation(point)));
         }
     }
 
@@ -117,14 +114,14 @@ public class ElementKit {
     /**
      *将部份路由信息转为VehiclePointModel
      * ElementKit.duang().setRout()
-     * @param routeSet
+     * @param routeList
      */
-    public void setRoute(String vehicleName, Set<Route.Step> routeSet) {
-        for (Route.Step step : routeSet) {
+    public void route(List<Route.Step> routeList) {
+        for (Route.Step step : routeList) {
             Point sourcePoint = step.getSourcePoint();
             Point destinationPoint = step.getDestinationPoint();
             if (null != sourcePoint && null != destinationPoint) {
-                PointElementModel model =getModel(sourcePoint.getName());
+                ElementModel model =getModel(sourcePoint.getName());
                 if (null != model) {
                     VehiclePointModel vehiclePointModel = new VehiclePointModel();
                     vehiclePointModel.setVehicleName(vehicleName);
@@ -137,11 +134,11 @@ public class ElementKit {
     }
 
 
-    private PointElementModel getModel(String pointName) {
+    private ElementModel getModel(String pointName) {
         if (ToolsKit.isEmpty(pointName)) {
             throw new RobotException("点名称为空，请先设置点名称！");
         }
-        PointElementModel model = POINT_ELEMENT_MODEL_MAP.get(pointName);
+        ElementModel model = POINT_ELEMENT_MODEL_MAP.get(pointName);
         if (null == model) {
             throw new RobotException("根据["+pointName+"]找不到对应的PointElementModel，请确保点名称正确！");
         }

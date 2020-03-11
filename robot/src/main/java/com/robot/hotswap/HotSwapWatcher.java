@@ -77,9 +77,9 @@ public class HotSwapWatcher extends Thread {
 		for (Path path : watchingPaths) {
 			path.register(
 					watcher,
-//					 StandardWatchEventKinds.ENTRY_DELETE,
-					StandardWatchEventKinds.ENTRY_MODIFY
-//					StandardWatchEventKinds.ENTRY_CREATE
+					 StandardWatchEventKinds.ENTRY_DELETE,
+					StandardWatchEventKinds.ENTRY_MODIFY,
+					StandardWatchEventKinds.ENTRY_CREATE
 			);
 			watchingFiles.add(path.toFile());
 		}

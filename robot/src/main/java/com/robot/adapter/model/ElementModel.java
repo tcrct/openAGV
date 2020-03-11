@@ -12,7 +12,7 @@ import java.util.Set;
  * @since 1.0
  * @date 2020-03-10
  */
-public class PointElementModel implements java.io.Serializable {
+public class ElementModel implements java.io.Serializable {
 
     /**当前点名称*/
     private String pointName;
@@ -25,10 +25,10 @@ public class PointElementModel implements java.io.Serializable {
    /**车辆与当前点的关联*/
     private Map<String, VehiclePointModel> vehiclePointModelMap = new HashMap<>();
 
-    public PointElementModel() {
+    public ElementModel() {
     }
 
-    public PointElementModel(String pointName, Set<String> inPointNameSet, Set<String> outPointNameSet, Set<String> locationNameSet) {
+    public ElementModel(String pointName, Set<String> inPointNameSet, Set<String> outPointNameSet, Set<String> locationNameSet) {
         this.pointName = pointName;
         this.inPointNameSet = inPointNameSet;
         this.outPointNameSet = outPointNameSet;
