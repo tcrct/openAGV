@@ -24,9 +24,9 @@ public class ElementModel implements java.io.Serializable {
     private Set<String> locationNameSet = new HashSet<>();
    /**车辆与当前点的关联*/
     private Map<String, VehiclePointModel> vehiclePointModelMap = new HashMap<>();
+    /**点与工站的关联*/
+    private Map<String,String> pointLocationMap = new HashMap<>();
 
-    public ElementModel() {
-    }
 
     public ElementModel(String pointName, Set<String> inPointNameSet, Set<String> outPointNameSet, Set<String> locationNameSet) {
         this.pointName = pointName;
@@ -73,5 +73,9 @@ public class ElementModel implements java.io.Serializable {
 
     public void setVehiclePointModel(VehiclePointModel vehiclePointModel) {
         this.vehiclePointModelMap.put(vehiclePointModel.getCurrentPointName(), vehiclePointModel);
+    }
+
+    public Map<String, String> getPointLocationMap() {
+        return pointLocationMap;
     }
 }

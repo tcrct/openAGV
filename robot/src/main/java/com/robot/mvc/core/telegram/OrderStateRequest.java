@@ -3,7 +3,9 @@ package com.robot.mvc.core.telegram;
 import com.robot.adapter.RobotCommAdapter;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
+import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.event.RobotTransportOrderCallBack;
 
 import java.util.Queue;
 
@@ -15,14 +17,16 @@ import java.util.Queue;
  * @blame Android Team
  * @since 2020/1/12
  */
-public class FinishRequest extends BaseRequest {
+public class OrderStateRequest extends BaseRequest {
 
     private Queue<MovementCommand> movementCommandQueue;
 
-    public FinishRequest(IProtocol protocol) {
-        super(ReqType.FINISH, protocol);
+    public OrderStateRequest(IProtocol protocol) {
+        super(ReqType.ORDER_STATE, protocol);
     }
 
+    private String orderId;
+    private String state;
     /**该请求是否完成，用于标识移动订单完成时，通知业务系统*/
     private boolean isFinished;
 
@@ -31,11 +35,13 @@ public class FinishRequest extends BaseRequest {
      *
      * @param adapter     车辆适配器
      */
-    public FinishRequest(RobotCommAdapter adapter) {
-        super(ReqType.FINISH, null);
-        super.protocol = new FinishProtocol(adapter.getName(), "finish", "0", "0");
+    public OrderStateRequest(RobotCommAdapter adapter, RobotTransportOrderCallBack callBack) {
+        super(ReqType.ORDER_STATE, null);
+        super.protocol = new OrderStateProtocol(adapter.getName(), "orderState", callBack.getTransportOrder().getName(), callBack.getState().name());
         super.adapter = adapter;
-        this.isFinished = true;
+        this.orderId = callBack.getTransportOrder().getName();
+        this.state = callBack.getState().name();
+        this.isFinished = TransportOrder.State.FINISHED.name().equals(callBack.getState().name());
         // 不需要回到适配器进行操作
         super.setNeedAdapterOperation(false);
         //不需要发送到客户端
@@ -46,8 +52,16 @@ public class FinishRequest extends BaseRequest {
         return isFinished;
     }
 
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
     //定义一个内部类
-    class FinishProtocol implements IProtocol {
+    class OrderStateProtocol implements IProtocol {
         /**
          * 车辆/设备ID
          */
@@ -65,12 +79,12 @@ public class FinishRequest extends BaseRequest {
          */
         private String params;
 
-        FinishProtocol(String deviceId, String cmdKey) {
+        OrderStateProtocol(String deviceId, String cmdKey) {
             this.deviceId = deviceId;
             this.cmdKey = cmdKey;
         }
 
-        public FinishProtocol(String deviceId, String cmdKey, String code, String params) {
+        public OrderStateProtocol(String deviceId, String cmdKey, String code, String params) {
             this.deviceId = deviceId;
             this.cmdKey = cmdKey;
             this.code = code;

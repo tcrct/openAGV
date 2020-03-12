@@ -1,6 +1,6 @@
 package com.robot.adapter.model;
 
-import com.robot.adapter.constants.AdapterConstants;
+import com.robot.adapter.constants.RobotConstants;
 import com.robot.adapter.enumes.Attributes;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Vehicle;
@@ -267,7 +267,7 @@ public class RobotProcessModel extends VehicleProcessModel {
      * @return
      */
     private int parseOperatingTime(Vehicle vehicle) {
-        String opTime = vehicle.getProperty(AdapterConstants.PROPKEY_OPERATING_TIME);
+        String opTime = vehicle.getProperty(RobotConstants.PROPKEY_OPERATING_TIME);
         // Ensure it's a positive value.
         return Math.max(Parsers.tryParseString(opTime, 5000), 1);
     }
@@ -279,7 +279,7 @@ public class RobotProcessModel extends VehicleProcessModel {
      * @return 最大加速速度
      */
     private int parseAcceleration(Vehicle vehicle) {
-        String acceleration = vehicle.getProperty(AdapterConstants.PROPKEY_ACCELERATION);
+        String acceleration = vehicle.getProperty(RobotConstants.PROPKEY_ACCELERATION);
         // Ensure it's a positive value.
         return Math.max(Parsers.tryParseString(acceleration, 500), 1);
     }
@@ -291,23 +291,23 @@ public class RobotProcessModel extends VehicleProcessModel {
      * @return 最大减速速度
      */
     private int parseDeceleration(Vehicle vehicle) {
-        String deceleration = vehicle.getProperty(AdapterConstants.PROPKEY_DECELERATION);
+        String deceleration = vehicle.getProperty(RobotConstants.PROPKEY_DECELERATION);
         // Ensure it's a negative value.
         return Math.min(Parsers.tryParseString(deceleration, -500), -1);
     }
 
     private static String extractLoadOperation(Vehicle attachedVehicle) {
-        String result = attachedVehicle.getProperty(AdapterConstants.PROPKEY_LOAD_OPERATION);
+        String result = attachedVehicle.getProperty(RobotConstants.PROPKEY_LOAD_OPERATION);
         if (result == null) {
-            result = AdapterConstants.PROPVAL_LOAD_OPERATION_DEFAULT;
+            result = RobotConstants.PROPVAL_LOAD_OPERATION_DEFAULT;
         }
         return result;
     }
 
     private static String extractUnloadOperation(Vehicle attachedVehicle) {
-        String result = attachedVehicle.getProperty(AdapterConstants.PROPKEY_UNLOAD_OPERATION);
+        String result = attachedVehicle.getProperty(RobotConstants.PROPKEY_UNLOAD_OPERATION);
         if (result == null) {
-            result = AdapterConstants.PROPVAL_UNLOAD_OPERATION_DEFAULT;
+            result = RobotConstants.PROPVAL_UNLOAD_OPERATION_DEFAULT;
         }
         return result;
     }

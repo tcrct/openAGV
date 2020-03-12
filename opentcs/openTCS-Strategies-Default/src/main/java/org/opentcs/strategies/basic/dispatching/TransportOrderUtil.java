@@ -7,14 +7,6 @@
  */
 package org.opentcs.strategies.basic.dispatching;
 
-import static com.google.common.base.Preconditions.checkState;
-import java.util.Collections;
-import java.util.List;
-import static java.util.Objects.requireNonNull;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
 import org.opentcs.components.Lifecycle;
 import org.opentcs.components.kernel.Router;
 import org.opentcs.components.kernel.services.InternalTransportOrderService;
@@ -28,8 +20,19 @@ import org.opentcs.data.order.OrderSequence;
 import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.VehicleController;
 import org.opentcs.drivers.vehicle.VehicleControllerPool;
+import org.opentcs.event.RobotTransportOrderCallBack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Provides service functions for working with transport orders and their states.
@@ -171,6 +174,14 @@ public class TransportOrderUtil
     requireNonNull(newState, "newState");
 
     LOG.info("Updating state of transport order {} to {}...", ref.getName(), newState);
+    // TODO 添加代码回调到车辆通信适配器
+    try {
+      TransportOrder transportOrder = transportOrderService.fetchObject(TransportOrder.class, ref);
+      vehicleControllerPool.getVehicleController(transportOrder.getIntendedVehicle().getName())
+              .sendCommAdapterMessage(new RobotTransportOrderCallBack(transportOrder, newState));
+    } catch (Exception e) {
+      LOG.info("回调到车辆通信适配器时出错: "+ e.getMessage() ,e);
+    }
     switch (newState) {
       case FINISHED:
         setTOStateFinished(ref);

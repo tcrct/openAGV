@@ -25,12 +25,9 @@ public class Main {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
-
     private static Main MAIN = new Main();
 
-    private Main() {
-
-    }
+    private Main() {}
 
     public static Main duang() {
         return MAIN;
@@ -74,7 +71,7 @@ public class Main {
         // 如果是ActionRequest, MoveRequest, FinishRequest的请求，属于openTCS发起的请求，作直接跳过的特殊处理
         if (ReqType.MOVE.equals(reqType) ||
                 ReqType.ACTION.equals(reqType) ||
-                ReqType.FINISH.equals(reqType)) {
+                ReqType.ORDER_STATE.equals(reqType)) {
             return true;
         }
         // 不是业务处理请求则抛出异常

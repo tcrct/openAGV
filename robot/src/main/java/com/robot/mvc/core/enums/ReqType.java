@@ -21,8 +21,8 @@ public enum ReqType {
     BUSINESS,
 
     /**
-     * 完成请求，用于回调通知到Service
+     * 订单状态请求，用于回调通知到Service
      */
-    FINISH;
+    ORDER_STATE;
 
 }

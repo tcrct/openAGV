@@ -25,6 +25,9 @@ public class RobotStateModel implements java.io.Serializable {
      */
     private IProtocol protocol;
 
+    public RobotStateModel(IProtocol protocol) {
+        this("", protocol);
+    }
     public RobotStateModel(String currentPosition, IProtocol protocol) {
         this.currentPosition = currentPosition;
         this.cmdKey = protocol.getCmdKey();

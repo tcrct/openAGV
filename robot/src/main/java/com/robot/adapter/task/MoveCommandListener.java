@@ -1,18 +1,20 @@
 package com.robot.adapter.task;
 
-import cn.hutool.core.thread.ThreadUtil;
 import com.robot.adapter.RobotCommAdapter;
-import com.robot.mvc.core.telegram.FinishRequest;
+import com.robot.mvc.core.telegram.OrderStateRequest;
 import com.robot.mvc.core.telegram.MoveRequest;
 import com.robot.mvc.main.DispatchFactory;
-import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.MovementCommand;
+import org.opentcs.event.RobotTransportOrderCallBack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * 车辆移动指令监听器
@@ -120,13 +122,7 @@ public class MoveCommandListener implements ActionListener {
     /**
      * 订单完成发送请求到业务逻辑处理模块，以扩展完成后的处理方式
      */
-    public void noticeOrderFinished() {
-        ThreadUtil.execute(new Runnable() {
-            @Override
-            public void run() {
-                ThreadUtil.safeSleep(200);
-                DispatchFactory.dispatch(new FinishRequest(adapter));
-            }
-        });
+    public void noticeOrderState(RobotTransportOrderCallBack callBack) {
+        DispatchFactory.dispatch(new OrderStateRequest(adapter, callBack));
     }
 }

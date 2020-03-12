@@ -126,7 +126,7 @@ public class DispatchFactory {
      *
      * @param request FinishRequest
      */
-    public static IResponse dispatch(FinishRequest request) {
+    public static IResponse dispatch(OrderStateRequest request) {
         return dispatchHandler(request, new BaseResponse(request));
     }
 
@@ -140,7 +140,7 @@ public class DispatchFactory {
             }
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 不是业务请求且不是完成请求的都需要添加到重发队列
-                if (!RobotUtil.isBusinessRequest(request) && !RobotUtil.isFinishRequest(request)) {
+                if (!RobotUtil.isBusinessRequest(request) && !RobotUtil.isOrderStateRequest(request)) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     RobotUtil.getRepeatSend().add(response);
                 }

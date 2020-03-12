@@ -24,12 +24,12 @@ import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
-import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
 import org.opentcs.drivers.vehicle.MovementCommand;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterPanel;
 import org.opentcs.drivers.vehicle.VehicleControllerPool;
 import org.opentcs.drivers.vehicle.messages.SetSpeedMultiplier;
+import org.opentcs.event.RobotTransportOrderCallBack;
 import org.opentcs.kernel.services.StandardDispatcherService;
 import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.opentcs.kernel.services.StandardVehicleService;
@@ -313,6 +313,10 @@ public class RobotCommAdapter
                 vehicleService.sendCommAdapterCommand(vehicle.getReference(), new SetVehiclePausedCommand(true));
             }
         }
+        // 订单状态回调
+        if (object instanceof RobotTransportOrderCallBack) {
+            noticeOrderFinished((RobotTransportOrderCallBack)object);
+        }
     }
 
     /**
@@ -473,10 +477,8 @@ public class RobotCommAdapter
     /**
      * 通知业务处理模板，订单已经完成
      */
-    public void noticeOrderFinished() {
-        if (getCommandQueue().isEmpty() && getSentQueue().isEmpty()) {
-            moveCommandListener.noticeOrderFinished();
-        }
+    public void noticeOrderFinished(RobotTransportOrderCallBack callBack) {
+        moveCommandListener.noticeOrderState(callBack);
     }
 
     /***************************************BasicVehicleCommAdapter 抽象方法************************************************/

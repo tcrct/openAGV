@@ -1,6 +1,6 @@
 package com.robot.adapter.constants;
 
-public class AdapterConstants {
+public class RobotConstants {
 
     /**
      * The key of the vehicle property that specifies the vehicle's initial position.
@@ -47,4 +47,6 @@ public class AdapterConstants {
      * An operation constant for sending the vehicle to a point without a location associated to it.
      */
     public static final String OP_MOVE = "MOVE";
+
+    public static final String ORDER_ID_PREFIX = "Robot_";
 }

@@ -103,7 +103,6 @@ public class ElementKit {
             if (null != link) {
                 TCSObjectReference<Location> locationReference = link.getLocation();
                 if (null != locationReference) {
-                    // 点与工站
                     locationLinkNameSet.add(locationReference.getName());
                 }
             }
@@ -184,6 +183,14 @@ public class ElementKit {
         return locationNameSet;
     }
 
+
+    public String getLocationName() {
+        Set<String> tempSet =  getModel(pointName).getLocationNameSet();
+        if (ToolsKit.isEmpty(tempSet)) {
+            return "";
+        }
+        return tempSet.iterator().next();
+    }
     /**
      * 取出当前车辆在当前点的下一个点，是根据Route路径决定的下一个点
      * ElementKit.duang().point("1").vehicle("A001").getNextPointName();
