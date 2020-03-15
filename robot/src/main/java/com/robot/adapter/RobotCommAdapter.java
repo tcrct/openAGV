@@ -31,6 +31,7 @@ import org.opentcs.drivers.vehicle.VehicleControllerPool;
 import org.opentcs.drivers.vehicle.messages.SetSpeedMultiplier;
 import org.opentcs.event.RobotTransportOrderCallBack;
 import org.opentcs.kernel.services.StandardDispatcherService;
+import org.opentcs.kernel.services.StandardPlantModelService;
 import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.opentcs.kernel.services.StandardVehicleService;
 import org.opentcs.strategies.basic.routing.DefaultRouter;
@@ -110,6 +111,7 @@ public class RobotCommAdapter
     private StandardDispatcherService dispatcherService;
     private DefaultRouter router;
     private VehicleControllerPool vehicleControllerPool;
+    private StandardPlantModelService plantModelService;
 
     @Inject
     public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
@@ -117,6 +119,7 @@ public class RobotCommAdapter
                             RobotConfiguration configuration,
                             StandardVehicleService vehicleService,
                             StandardTransportOrderService transportOrderService,
+                            StandardPlantModelService plantModelService,
                             StandardDispatcherService dispatcherService,
                             DefaultRouter router,
                             VehicleControllerPool vehicleControllerPool,
@@ -137,6 +140,7 @@ public class RobotCommAdapter
         this.vehicleService = vehicleService;
         this.transportOrderService = transportOrderService;
         this.dispatcherService = dispatcherService;
+        this.plantModelService = plantModelService;
         this.router = router;
         this.vehicleControllerPool = vehicleControllerPool;
 
@@ -164,6 +168,10 @@ public class RobotCommAdapter
 
     public StandardDispatcherService getDispatcherService() {
         return dispatcherService;
+    }
+
+    public StandardPlantModelService getPlantModelService() {
+        return plantModelService;
     }
 
     /**

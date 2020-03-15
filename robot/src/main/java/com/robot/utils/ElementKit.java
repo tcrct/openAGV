@@ -44,6 +44,10 @@ public class ElementKit {
         return InstanceHolder.INSTANCE;
     }
 
+    public void clear() {
+        POINT_ELEMENT_MODEL_MAP.clear();
+    }
+
     private void init(){
         // 取出地图上所有的点，并设置与该点相关的所有出边点与工站名称
         Set<Point> pointSet =  RobotUtil.getOpenTcsObjectService().fetchObjects(Point.class);
@@ -51,6 +55,7 @@ public class ElementKit {
             String name = point.getName();
             POINT_ELEMENT_MODEL_MAP.put(name, new ElementModel(name, initIncomingPaths(point), initOutgoingPoints(point), initLocation(point)));
         }
+        LOG.info("ElementKit is init success, point model map size: " + POINT_ELEMENT_MODEL_MAP.size());
     }
 
     private Set<String> initIncomingPaths(Point point) {
@@ -137,6 +142,9 @@ public class ElementKit {
         if (ToolsKit.isEmpty(pointName)) {
             throw new RobotException("点名称为空，请先设置点名称！");
         }
+        if (POINT_ELEMENT_MODEL_MAP.isEmpty()) {
+            init();
+        }
         ElementModel model = POINT_ELEMENT_MODEL_MAP.get(pointName);
         if (null == model) {
             throw new RobotException("根据["+pointName+"]找不到对应的PointElementModel，请确保点名称正确！");
@@ -160,6 +168,19 @@ public class ElementKit {
     }
 
     /**
+     * 取出该点的所有入边点
+     *
+     * @return
+     */
+    public Set<String> getInPointNames() {
+        Set<String> inPointSet = getModel(pointName).getInPointNameSet();
+        if (ToolsKit.isEmpty(inPointSet)) {
+            LOG.info("该[{}]点没有入边点！", pointName);
+        }
+        return new LinkedHashSet<>(inPointSet);
+    }
+
+    /**
      * 取出该点的所有出边点
      * @return
      */
@@ -168,7 +189,7 @@ public class ElementKit {
         if (ToolsKit.isEmpty(outPointSet)){
             LOG.info("该[{}]点没有出边点！", pointName);
         }
-        return outPointSet;
+        return new LinkedHashSet<>(outPointSet);
     }
 
     /**
@@ -180,7 +201,7 @@ public class ElementKit {
         if (ToolsKit.isEmpty(locationNameSet)){
             LOG.info("该[{}]点没有设置工作站！", pointName);
         }
-        return locationNameSet;
+        return new LinkedHashSet<>(locationNameSet);
     }
 
 
