@@ -7,13 +7,6 @@
  */
 package org.opentcs.strategies.basic.routing.jgrapht;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import static java.util.Objects.requireNonNull;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.opentcs.data.TCSObjectReference;
@@ -23,6 +16,10 @@ import org.opentcs.data.order.Route;
 import org.opentcs.strategies.basic.routing.PointRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Computes routes between points using a JGraphT-based shortest path algorithm.
@@ -65,6 +62,7 @@ public class ShortestPathPointRouter
       return new ArrayList<>();
     }
 
+    //TODO 占用的点不再用，难道要在这里每次都new一个新的algo ??
     GraphPath<String, ModelEdge> graphPath = algo.getPath(srcPoint.getName(), destPoint.getName());
     if (graphPath == null) {
       return null;

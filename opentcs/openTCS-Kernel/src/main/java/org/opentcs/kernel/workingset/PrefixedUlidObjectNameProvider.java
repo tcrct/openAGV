@@ -8,9 +8,10 @@
 package org.opentcs.kernel.workingset;
 
 import de.huxhorn.sulky.ulid.ULID;
-import static java.util.Objects.requireNonNull;
 import org.opentcs.access.to.CreationTO;
 import org.opentcs.components.kernel.ObjectNameProvider;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Provides names for objects based on ULIDs, prefixed with the name taken from a given
@@ -18,6 +19,7 @@ import org.opentcs.components.kernel.ObjectNameProvider;
  *
  * @author Stefan Walter (Fraunhofer IML)
  */
+// TODO 订单ID的生产者
 public class PrefixedUlidObjectNameProvider
     implements ObjectNameProvider {
 

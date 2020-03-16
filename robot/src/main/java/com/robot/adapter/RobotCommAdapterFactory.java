@@ -8,7 +8,6 @@ import com.robot.adapter.model.DeviceAddress;
 import com.robot.adapter.model.RobotProcessModel;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
-import com.robot.utils.ElementKit;
 import com.robot.utils.RobotUtil;
 import com.robot.utils.ToolsKit;
 import org.opentcs.data.model.Vehicle;
@@ -19,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,11 +133,11 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
                 return null;
             }
             RobotCommAdapter adapter = componentsFactory.createCommAdapter(vehicle);
-            String xmlFileName = adapter.getPlantModelService().getModelName();
-            if (!xmlFileName.equals(XML_FILENAME)) {
-                ElementKit.duang().clear();
-                XML_FILENAME = xmlFileName;
-            }
+//            String xmlFileName = adapter.getPlantModelService().getModelName();
+//            if (!xmlFileName.equals(XML_FILENAME)) {
+//                ElementKit.duang().clear();
+//                XML_FILENAME = xmlFileName;
+//            }
             RobotProcessModel processModel = adapter.getProcessModel();
             if (NetChannelType.TCP.equals(channelType) || NetChannelType.UDP.equals(channelType)) {
                 processModel.setVehicleHost(vehicle.getProperty(VEHICLE_HOST));

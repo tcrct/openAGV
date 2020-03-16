@@ -726,4 +726,23 @@ public class RobotUtil {
     public static String getVehiclePosition(String vehicleName) {
         return RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
     }
+
+    /**
+     * 车辆是否开启通讯适配器
+     * @param  vehicleName 车辆名称
+     * @return
+     */
+    public static boolean isCommAdapterEnabled(String vehicleName) {
+        return RobotUtil.getAdapter(vehicleName).getProcessModel().isCommAdapterEnabled();
+    }
+
+    /**
+     * 取指定车辆的行驶路径时，当前位置的下一个位置名称
+     * @param  vehicleName 车辆名称
+     * @return
+     */
+    public static String getNextPosition(String vehicleName) {
+        TCSObjectReference<Point> pointReference =  getVehicle(vehicleName).getNextPosition();
+        return null != pointReference ? pointReference.getName() : "";
+    }
 }

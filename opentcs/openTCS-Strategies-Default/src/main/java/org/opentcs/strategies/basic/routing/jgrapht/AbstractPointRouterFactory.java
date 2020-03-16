@@ -7,10 +7,6 @@
  */
 package org.opentcs.strategies.basic.routing.jgrapht;
 
-import java.util.Iterator;
-import static java.util.Objects.requireNonNull;
-import java.util.Set;
-import javax.annotation.Nonnull;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -21,6 +17,12 @@ import org.opentcs.strategies.basic.routing.PointRouter;
 import org.opentcs.strategies.basic.routing.PointRouterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Iterator;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Creates {@link PointRouter} instances with algorithm implementations created by subclasses.
