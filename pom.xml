@@ -26,9 +26,18 @@
         <netty.version>4.1.42.Final</netty.version>
         <agv.version>1.0-SNAPSHOT</agv.version>
         <quartz.version>2.3.0</quartz.version>
+        <i18n.version>1.0.0</i18n.version>
     </properties>
 
     <dependencies>
+        <!-- i18n -->
+        <dependency>
+            <groupId>com.openagv.i18n</groupId>
+            <artifactId>openagv-i18n</artifactId>
+            <version>${i18n.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}\lib\opentcs-i18n-1.0.0.jar</systemPath>
+        </dependency>
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>
