@@ -15,14 +15,14 @@ public class RobotConfiguration {
      * @return
      */
     public int commandQueueCapacity() {
-        return 100;
+        return 1;
     }
 
     /**
      * @return
      */
     public int sentQueueCapacity() {
-        return 100;
+        return 1;
     }
 
     /***
