@@ -61,10 +61,6 @@ public class RobotCommAdapter
     private static final Logger LOG = LoggerFactory.getLogger(RobotCommAdapter.class);
 
     /**
-     * 大杀器
-     */
-    private TCSObjectService tcsObjectService;
-    /**
      * 执行器
      */
     private ExecutorService kernelExecutor;
@@ -115,7 +111,6 @@ public class RobotCommAdapter
 
     @Inject
     public RobotCommAdapter(AdapterComponentsFactory componentsFactory,
-                            TCSObjectService tcsObjectService,
                             RobotConfiguration configuration,
                             StandardVehicleService vehicleService,
                             StandardTransportOrderService transportOrderService,
@@ -131,7 +126,7 @@ public class RobotCommAdapter
                 configuration.sentQueueCapacity(),
                 configuration.rechargeOperation());
 
-        this.tcsObjectService = requireNonNull(tcsObjectService, "tcsObjectService");
+
         this.vehicle = requireNonNull(vehicle, "vehicle");
         this.configuration = requireNonNull(configuration, "configuration");
         this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
@@ -147,7 +142,6 @@ public class RobotCommAdapter
         /**移动命令队列*/
         this.tempCommandQueue = new LinkedBlockingQueue<>();
         this.movementCommandQueue = new LinkedBlockingQueue<>();
-        RobotContext.setTCSObjectService(tcsObjectService);
     }
 
     public StandardVehicleService getVehicleService() {

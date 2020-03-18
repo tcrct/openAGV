@@ -22,12 +22,15 @@ import io.netty.channel.Channel;
 import org.opentcs.access.to.order.DestinationCreationTO;
 import org.opentcs.access.to.order.TransportOrderCreationTO;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.TransportOrderService;
 import org.opentcs.components.kernel.services.VehicleService;
+import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.data.TCSObjectReference;
 import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Path;
 import org.opentcs.data.model.Point;
 import org.opentcs.data.model.Vehicle;
+import org.opentcs.data.order.TransportOrder;
 import org.opentcs.drivers.vehicle.AdapterCommand;
 import org.opentcs.guing.plugins.panels.loadgenerator.DriveOrderStructure;
 import org.opentcs.guing.plugins.panels.loadgenerator.TransportOrderData;
@@ -692,14 +695,15 @@ public class RobotUtil {
         if (null == adapter) {
             throw new RobotException("创建移动订单时，adapter不能为空");
         }
+        TransportOrder transportOrder = null;
         // 如果是点
         if (RobotConstants.OP_MOVE.equals(finalOperation)) {
-            TransportOrderCreationTO transportOrder  = new TransportOrderCreationTO(RobotConstants.ORDER_ID_PREFIX,
+            TransportOrderCreationTO transportOrderTO = new TransportOrderCreationTO(RobotConstants.ORDER_ID_PREFIX,
                     Collections.singletonList(new DestinationCreationTO(finalPosition, finalOperation)))
                     .withIncompleteName(true)
                     .withDeadline(Instant.now())
                     .withIntendedVehicleName(vehicleName);
-            adapter.getTransportOrderService().createTransportOrder(transportOrder);
+            transportOrder = adapter.getTransportOrderService().createTransportOrder(transportOrderTO);
             adapter.getDispatcherService().dispatch();
         } else {
             TransportOrderData transportOrderData = new TransportOrderData();
@@ -711,11 +715,57 @@ public class RobotUtil {
                     adapter.getTransportOrderService(),
                     adapter.getDispatcherService(),
                     Collections.singletonList(transportOrderData));
-            generator.createOrderBatch();
+            Set<TransportOrder> transportOrderSet = generator.createOrderBatch();
+            transportOrder = transportOrderSet.iterator().next();
+        }
+        if (null != transportOrder) {
+            orderModel.setOrderId(transportOrder.getName());
         }
         // 记录该车辆的移动订单最后一个位置，用于比较途中是否发生需要避让
         VEHICLE_TRANSPORT_ORDER_MAP.put(vehicleName, orderModel);
         ElementKit.duang().vehicle(vehicleName).route(new ArrayList<>(orderModel.getRouteStep()));
+    }
+
+    /**
+     * 根据订单ID取消订单
+     *
+     * @param orderId 订单号
+     * @return
+     */
+    public static boolean cancelTransportOrder(String orderId) {
+        return cancelTransportOrder(orderId, false, true);
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param orderId        订单号
+     * @param disableVehicle 是否关闭车辆，即将车辆的等级更改为TO_BE_RESPECTED状态
+     * @param immediate      是否立即撤回订单，为true是立即撤回，
+     *                       为false时，订单将继续，直于完成移动为止，此时订单状态更改为WITHDRAWN
+     * @return
+     */
+    public static boolean cancelTransportOrder(String orderId, boolean disableVehicle, boolean immediate) {
+        if (ToolsKit.isEmpty(orderId)) {
+            throw new RobotException("取消移动订单时，订单ID不能为空!");
+        }
+        try {
+            TransportOrder transportOrder = RobotContext.getTransportOrderService().fetchObject(TransportOrder.class, orderId);
+            if (null == transportOrder) {
+                throw new ObjectUnknownException("Unknown transport order: " + orderId);
+            }
+            if (disableVehicle && transportOrder.getProcessingVehicle() != null) {
+                String vehicleName = transportOrder.getProcessingVehicle().getName();
+                RobotUtil.getAdapter(vehicleName).getVehicleService().updateVehicleIntegrationLevel(transportOrder.getProcessingVehicle(),
+                        Vehicle.IntegrationLevel.TO_BE_RESPECTED);
+            }
+            RobotContext.getDispatcherService().withdrawByTransportOrder(transportOrder.getReference(), immediate);
+            return true;
+        } catch (Exception e) {
+            LOG.info("取消移动订单时出错: {}", e.getMessage(), e);
+            return false;
+        }
+
     }
 
     /**

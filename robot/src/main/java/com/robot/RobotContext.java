@@ -7,7 +7,9 @@ import com.robot.mvc.core.interfaces.IComponents;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.utils.RobotUtil;
 import org.opentcs.access.KernelServicePortal;
+import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.TransportOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,11 +90,36 @@ public class RobotContext {
             tcsObjectService = objectService;
         }
     }
-
     public static TCSObjectService getTCSObjectService() {
         return RobotContext.tcsObjectService;
     }
 
+
+    /**
+     * 订单服务
+     */
+    private static TransportOrderService transportOrderService;
+
+    public static TransportOrderService getTransportOrderService() {
+        return transportOrderService;
+    }
+
+    public static void setTransportOrderService(TransportOrderService transportOrderService) {
+        RobotContext.transportOrderService = transportOrderService;
+    }
+
+    /**
+     * 分发任务服务
+     */
+    private static DispatcherService dispatcherService;
+
+    public static DispatcherService getDispatcherService() {
+        return dispatcherService;
+    }
+
+    public static void setDispatcherService(DispatcherService dispatcherService) {
+        RobotContext.dispatcherService = dispatcherService;
+    }
 
     /**
      * 内核服务

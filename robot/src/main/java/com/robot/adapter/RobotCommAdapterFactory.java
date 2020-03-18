@@ -10,10 +10,16 @@ import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.utils.RobotUtil;
 import com.robot.utils.ToolsKit;
+import org.opentcs.components.kernel.services.DispatcherService;
+import org.opentcs.components.kernel.services.TCSObjectService;
+import org.opentcs.components.kernel.services.TransportOrderService;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterFactory;
+import org.opentcs.kernel.services.StandardDispatcherService;
+import org.opentcs.kernel.services.StandardPlantModelService;
+import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +54,33 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
      */
     private NetChannelType channelType;
 
+
+    /**
+     * 大杀器
+     */
+    private TCSObjectService tcsObjectService;
+    /**
+     * 订单服务
+     */
+    private TransportOrderService transportOrderService;
+    /**
+     * 分发任务服务
+     */
+    private DispatcherService dispatcherService;
     /**
      * 创建组件工厂
      *
      * @param componentsFactory 创建特定于通信适配器的组件工厂
      */
     @Inject
-    public RobotCommAdapterFactory(AdapterComponentsFactory componentsFactory) {
+    public RobotCommAdapterFactory(AdapterComponentsFactory componentsFactory,
+                                   TCSObjectService tcsObjectService,
+                                   TransportOrderService transportOrderService,
+                                   DispatcherService dispatcherService) {
         this.componentsFactory = requireNonNull(componentsFactory, "组件工厂对象不能为空");
+        this.tcsObjectService = requireNonNull(tcsObjectService, "tcsObjectService");
+        this.transportOrderService = transportOrderService;
+        this.dispatcherService = dispatcherService;
     }
 
     @Override
@@ -66,6 +91,9 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
         }
         channelType = RobotUtil.getNetChannelType();
         initialized = true;
+        RobotContext.setTCSObjectService(tcsObjectService);
+        RobotContext.setTransportOrderService(transportOrderService);
+        RobotContext.setDispatcherService(dispatcherService);
         LOG.info("Robot适配器工厂初始化完成");
     }
 
