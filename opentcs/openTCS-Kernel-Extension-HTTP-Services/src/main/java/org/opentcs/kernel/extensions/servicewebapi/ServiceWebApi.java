@@ -138,7 +138,7 @@ public class ServiceWebApi
                   this.put("timestamp", String.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
               }});
           }};
-          response.type(HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8);
+          response.type(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
           service.halt(403, objectMapper.writeValueAsString(returnMap));
       }
 
