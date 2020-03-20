@@ -1,7 +1,9 @@
 package org.opentcs.kernel.extensions.servicewebapi.console;
 
 /**
+ * 安全用户对象接口
  * Created by laotang on 2020/3/20.
  */
-public class SecurityUser {
+public interface ISecurityUser extends java.io.Serializable {
+
 }

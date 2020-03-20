@@ -18,8 +18,8 @@ public interface ISecurity {
     /**
      * 取安全用户，即登录成功的用户
      *
-     * @return SecurityUser
+     * @return ISecurityUser
      */
-    SecurityUser getSecurityUser();
+    ISecurityUser getSecurityUser();
 
 }
