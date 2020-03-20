@@ -79,6 +79,10 @@ public class TransportOrderModel implements java.io.Serializable {
         return vehicleName;
     }
 
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+
     public String getOrderId() {
         return orderId;
     }
