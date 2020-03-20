@@ -8,6 +8,7 @@
 package org.opentcs.kernel.extensions.servicewebapi;
 
 import com.google.common.base.Strings;
+import org.opentcs.kernel.extensions.servicewebapi.console.ISecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -25,7 +26,7 @@ import static java.util.Objects.requireNonNull;
 public class Authenticator {
 
   /**
-   * This class's logger.
+   * This class'security logger.
    */
   private static final Logger LOG = LoggerFactory.getLogger(Authenticator.class);
   /**
@@ -37,8 +38,15 @@ public class Authenticator {
    */
   private static String authAccessKey;
 
+    /**
+     * 访问验证
+     */
+    private static ISecurity security;
+
   // TODO 访问验证码设置，需要在app.setting里设置该key值
   public static final String ID = "robot.webapi.accessKey";
+    // TODO 访问验证类，请在系统启动时设置 System.setProperty(SECURITY_CLASS_NAME, 类名);
+    public static final String SECURITY_CLASS_NAME = "robot.security.className";
   /**
    * Creates a new instance.
    *
@@ -51,9 +59,20 @@ public class Authenticator {
   }
 
   private void init() {
-    if (null == configuration) {
-      return;
-    }
+      if (null == configuration) {
+          return;
+      }
+      try {
+          if (null != security) {
+              return;
+          }
+          Class<?> securityClass = Class.forName(System.getProperty(SECURITY_CLASS_NAME));
+          if (null != securityClass) {
+              security = (ISecurity) securityClass.newInstance();
+          }
+      } catch (Exception e) {
+          LOG.error("创建安全验证类时出错: " + e.getMessage(), e);
+      }
   }
 
   /**
@@ -64,24 +83,32 @@ public class Authenticator {
    * authenticated.
    */
   public boolean isAuthenticated(Request request) {
-    requireNonNull(request, "request");
+      requireNonNull(request, "request");
 
-    if (Strings.isNullOrEmpty(authAccessKey)) {
-      authAccessKey = System.getProperty(ID, configuration.accessKey());
-    }
+      if (Strings.isNullOrEmpty(authAccessKey)) {
+          authAccessKey = System.getProperty(ID, configuration.accessKey());
+      }
 
-    String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
-    LOG.debug("Provided access key in header is '{}', required value is '{}'",
+      String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
+      LOG.debug("Provided access key in header is '{}', required value is '{}'",
               requestAccessKey,
-            authAccessKey);
+              authAccessKey);
 
-    // Any empty access key indicates authentication is not required.
-    if (Strings.isNullOrEmpty(authAccessKey)) {
-      LOG.debug("No access key, authentication not required.");
-      return true;
-    }
+      // Any empty access key indicates authentication is not required.
+      if (Strings.isNullOrEmpty(authAccessKey)) {
+          LOG.debug("No access key, authentication not required.");
+          return true;
+      }
 
-    return Objects.equals(requestAccessKey, authAccessKey);
+      boolean isAuth = Objects.equals(requestAccessKey, authAccessKey);
+      // 开启URI权限验证
+      if (isAuth && null != security) {
+          isAuth = security.isAllowAccess(request.uri());
+      }
+      return isAuth;
   }
 
+    public static ISecurity getSecurity() {
+        return security;
+    }
 }
