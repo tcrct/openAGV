@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,6 +70,8 @@ public class RobotRequestHandler
                 generator.writeString("");
             }
         });
+        //指定遇到date按照这种格式转换
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
 
 
@@ -176,7 +179,8 @@ public class RobotRequestHandler
                                     String[] annItemArray = annItem.split("=");
                                     if ("value".equalsIgnoreCase(annItemArray[0])) {
                                         // 以注解的value值为映射路径
-                                        key = annItemArray[1].trim();
+                                        key = annItemArray[1].trim().toLowerCase();
+                                        key = "/" + controllerName + (key.startsWith("/")?key:"/" + key);
                                         ControllerFactory.getMethodMap().put(key, action);
                                     }
                                 }

@@ -31,13 +31,13 @@
 
     <dependencies>
         <!-- i18n -->
-        <dependency>
-            <groupId>com.openagv.i18n</groupId>
-            <artifactId>openagv-i18n</artifactId>
-            <version>${i18n.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}\lib\opentcs-i18n-1.0.0.jar</systemPath>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.openagv.i18n</groupId>-->
+<!--            <artifactId>openagv-i18n</artifactId>-->
+<!--            <version>${i18n.version}</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}\lib\opentcs-i18n-1.0.0.jar</systemPath>-->
+<!--        </dependency>-->
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>

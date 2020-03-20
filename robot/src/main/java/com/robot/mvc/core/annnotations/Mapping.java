@@ -12,5 +12,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Mapping {
+    /**路径值*/
     String value() default "";
+    /**方法说明*/
+    String desc() default "";
 }

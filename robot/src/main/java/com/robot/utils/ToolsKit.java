@@ -1,6 +1,5 @@
 package com.robot.utils;
 
-import cn.hutool.core.date.DateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,8 +16,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -48,6 +45,8 @@ public class ToolsKit {
                 generator.writeString("");
             }
         });
+        //指定遇到date按照这种格式转换
+        objectMapper.setDateFormat(SDF);
     }
 
     /***
