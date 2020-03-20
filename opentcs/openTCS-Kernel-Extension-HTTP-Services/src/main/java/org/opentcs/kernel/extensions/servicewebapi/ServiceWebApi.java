@@ -24,6 +24,10 @@ import org.slf4j.LoggerFactory;
 import spark.Service;
 
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
@@ -124,7 +128,17 @@ public class ServiceWebApi
       if (!authenticator.isAuthenticated(request)) {
         // Delay the response a bit to slow down brute force attacks.
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-        service.halt(403, "Not authenticated.");
+
+          Map<String, Map<String, String>> returnMap = new HashMap<String, Map<String, String>>() {{
+              this.put("head", new HashMap<String, String>() {{
+                  this.put("code", "403");
+                  this.put("message", "Not authenticated");
+                  this.put("uri", request.uri());
+                  this.put("clientIp", request.ip());
+                  this.put("timestamp", String.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+              }});
+          }};
+          service.halt(403, objectMapper.writeValueAsString(returnMap));
       }
 
       // Add a CORS header to allow cross-origin requests from all hosts.
