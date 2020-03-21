@@ -22,7 +22,6 @@ import io.netty.channel.Channel;
 import org.opentcs.access.to.order.DestinationCreationTO;
 import org.opentcs.access.to.order.TransportOrderCreationTO;
 import org.opentcs.components.kernel.services.TCSObjectService;
-import org.opentcs.components.kernel.services.TransportOrderService;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.data.TCSObjectReference;
@@ -674,7 +673,7 @@ public class RobotUtil {
      * 创建移动订单并发分
      * @param orderModel TransportOrderModel对象
      */
-    public static void createTransportOrder(TransportOrderModel orderModel) {
+    public static TransportOrder createTransportOrder(TransportOrderModel orderModel) {
         if (null == orderModel) {
             throw new RobotException("创建移动订单时，TransportOrderModel不能为空");
         }
@@ -724,6 +723,7 @@ public class RobotUtil {
         // 记录该车辆的移动订单最后一个位置，用于比较途中是否发生需要避让
         VEHICLE_TRANSPORT_ORDER_MAP.put(vehicleName, orderModel);
         ElementKit.duang().vehicle(vehicleName).route(new ArrayList<>(orderModel.getRouteStep()));
+        return transportOrder;
     }
 
     /**

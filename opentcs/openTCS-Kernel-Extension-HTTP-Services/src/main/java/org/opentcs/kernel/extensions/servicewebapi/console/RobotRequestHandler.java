@@ -105,8 +105,9 @@ public class RobotRequestHandler
     @Override
     public void addRoutes(Service service) {
         requireNonNull(service, "service");
-        //将所有请求转向到指定的类进行处理
+        //将所有[get/post]请求转向到指定的类进行处理
         service.get("/*", this::toControllerMethod);
+        service.post("/*", this::toControllerMethod);
     }
 
     private Object toControllerMethod(Request request, Response response)
