@@ -51,4 +51,7 @@ public class RobotConstants {
     public static final String ORDER_ID_PREFIX = "Robot_";
 
     public static final String TERMINAL_FIELD = "terminal";
+
+    public static String ROOT_FIELD = "root";
+    public static final String ADMIN_FIELD = "admin";
 }

@@ -1,5 +1,7 @@
 package org.opentcs.kernel.extensions.servicewebapi.console;
 
+import java.io.Serializable;
+
 /**
  * 安全验证接口
  *
@@ -18,8 +20,25 @@ public interface ISecurity {
     /**
      * 取安全用户，即登录成功的用户
      *
+     * @param userId 用户ID
      * @return ISecurityUser
      */
-    ISecurityUser getSecurityUser();
+    ISecurityUser getSecurityUser(String userId);
+
+    /**
+     * 登录
+     *
+     * @param serializable 登录Dto
+     * @return
+     */
+    ISecurityUser login(Serializable serializable);
+
+    /**
+     * 退出登录
+     *
+     * @param userId 用户ID
+     * @return
+     */
+    boolean logout(String userId);
 
 }
