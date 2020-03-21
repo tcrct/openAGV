@@ -130,7 +130,7 @@ public class RobotRequestHandler
                 throw new NullPointerException("根据[" + request.uri() + "]查找不到对应的Controller Method，请检查路径是否正确！");
             }
             response.type(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
-            request.attribute("_vehicleService", vehicleService);
+//            request.attribute("_vehicleService", vehicleService);
             controller.init(request, response);
             Object resuleObj = method.invoke(controller);
             if (!(resuleObj instanceof String)) {

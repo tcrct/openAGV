@@ -83,6 +83,8 @@ public class RouteHelper {
         if (CONTROLLER_ROUTE_MAP.isEmpty()) {
             if (null == excludedMethodName) {
                 excludedMethodName = ToolsKit.buildExcludedMethodName();
+                // init方法不能对外映射
+                excludedMethodName.add("init");
             }
             List<Class<?>> controllerClassList = ClassHelper.duang().getControllerClassList();
             if (ToolsKit.isEmpty(controllerClassList)) {

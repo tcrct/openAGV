@@ -49,4 +49,6 @@ public class RobotConstants {
     public static final String OP_MOVE = "MOVE";
 
     public static final String ORDER_ID_PREFIX = "Robot_";
+
+    public static final String TERMINAL_FIELD = "terminal";
 }
