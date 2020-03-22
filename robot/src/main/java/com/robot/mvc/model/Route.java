@@ -43,6 +43,10 @@ public class Route {
         return serviceObj;
     }
 
+    public void setServiceObj(Object serviceObj) {
+        this.serviceObj = serviceObj;
+    }
+
     public Class<?> getServiceClass() {
         return serviceClass;
     }

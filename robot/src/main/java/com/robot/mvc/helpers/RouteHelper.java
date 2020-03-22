@@ -10,6 +10,7 @@ import com.robot.mvc.core.annnotations.Service;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.utils.ToolsKit;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.opentcs.kernel.extensions.servicewebapi.console.ControllerFactory;
 import org.opentcs.kernel.extensions.servicewebapi.console.IController;
 
@@ -55,6 +56,8 @@ public class RouteHelper {
     }
 
     private static RouteHelper ROUTE_HELPER = null;
+
+    private static final String PROTOCOL_SERVICE_NAME_FIELD = "ProtocolService";
 
     public static RouteHelper duang() {
         try {
@@ -150,7 +153,13 @@ public class RouteHelper {
                 if (ToolsKit.isEmpty(key)) {
                     int endIndex = serviceClass.getSimpleName().toLowerCase().indexOf("service");
                     if (endIndex > -1) {
-                        key = serviceClass.getSimpleName().substring(0, endIndex);
+                        // 继承了ProtocolService(车辆业务逻辑处理类)，只需要取XXXService的XXX作为key
+                        if (PROTOCOL_SERVICE_NAME_FIELD.equals(serviceClass.getSuperclass().getSimpleName())) {
+                            key = serviceClass.getSimpleName().substring(0, endIndex);
+                        } else {
+                            // 如果不是则取类的全名作为唯一标识
+                            key = serviceClass.getName();
+                        }
                     }
                 }
                 Map<String, Method> methodMap = new HashMap<>();
@@ -193,11 +202,22 @@ public class RouteHelper {
     }
 
 
+    private static final Map<String, Route> ALL_ROUTE_MAP = new HashMap<>();
     public static Map<String, Route> getRoutes() {
-        Map<String,Route> routeMap = new HashMap<>();
-        routeMap.putAll(CONTROLLER_ROUTE_MAP);
-        routeMap.putAll(SERVICE_ROUTE_MAP);
-        return routeMap;
+        if (ALL_ROUTE_MAP.isEmpty()) {
+            ALL_ROUTE_MAP.putAll(CONTROLLER_ROUTE_MAP);
+            ALL_ROUTE_MAP.putAll(SERVICE_ROUTE_MAP);
+        }
+        return ALL_ROUTE_MAP;
+    }
+
+    public static Route getServiceRoute(Class clazz) {
+        String key = clazz.getName();
+        if (PROTOCOL_SERVICE_NAME_FIELD.equals(clazz.getSuperclass().getSimpleName())) {
+            int endIndex = clazz.getSimpleName().toLowerCase().indexOf("service");
+            key = clazz.getSimpleName().substring(0, endIndex);
+        }
+        return SERVICE_ROUTE_MAP.get(key);
     }
 
     private void printRouteKey() {
