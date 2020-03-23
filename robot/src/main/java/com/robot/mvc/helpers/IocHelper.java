@@ -17,7 +17,9 @@ import com.robot.utils.ToolsKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -65,21 +67,10 @@ public class IocHelper {
         if (!CURD_SERVICE_NAME.equalsIgnoreCase(serviceClazz.getSuperclass().getSimpleName())) {
             return serviceObj;
         }
-
-        Method[] methods = serviceClazz.getMethods();
-        if (ToolsKit.isEmpty(methods)) {
-            return serviceObj;
-        }
-        boolean isInjectServiceMethod = false;
-        for (Method method : methods) {
-            if (INJECT_SERVICE_METHOD_NAME.equals(method.getName())) {
-                isInjectServiceMethod = true;
-                break;
-            }
-        }
-
-        if (!isInjectServiceMethod) {
-            LOG.warn("[{}]里没有实现[{}]方法，请检查！", CURD_SERVICE_NAME, INJECT_SERVICE_METHOD_NAME);
+        try {
+            serviceClazz.getSuperclass().getDeclaredMethod(INJECT_SERVICE_METHOD_NAME, MongoDao.class, ICacheService.class);
+        } catch (Exception e) {
+            LOG.warn("[{}]的父类里没有实现[{}]方法，请检查！", serviceClazz.getName(), INJECT_SERVICE_METHOD_NAME);
             return serviceObj;
         }
 //        Constructor constructor = ReflectUtil.getConstructor(serviceClazz, MongoDao.class, ICacheService.class);
@@ -146,7 +137,7 @@ public class IocHelper {
             Map.Entry<String, Route> entry = iterator.next();
             Route route = Optional.ofNullable(entry.getValue()).orElseThrow(NullPointerException::new);
             Object serviceObj = injectServiceMethod(route.getServiceObj(), route.getServiceClass());
-            ioc(serviceObj, serviceObj.getClass());
+            ioc(serviceObj, route.getServiceClass());
         }
     }
 

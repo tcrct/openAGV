@@ -54,4 +54,5 @@ public class RobotConstants {
 
     public static String ROOT_FIELD = "root";
     public static final String ADMIN_FIELD = "admin";
+    public static final String DEFAULT_PASSWORD = "robot";
 }

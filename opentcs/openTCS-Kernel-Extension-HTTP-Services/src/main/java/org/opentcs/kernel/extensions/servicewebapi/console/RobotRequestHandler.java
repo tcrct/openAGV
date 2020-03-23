@@ -117,8 +117,15 @@ public class RobotRequestHandler
             return  "please set access path, not supported '/' access system!";
         }
         String[] uriArray = uri.split("/");
-        String controllerName = uriArray[1];
-        IController controller = ControllerFactory.getController(controllerName);
+        String controllerName = "";
+        IController controller = null;
+        for (int i=1; i<uriArray.length; i++) {
+            controllerName += "/" + uriArray[i];
+            controller = ControllerFactory.getController(controllerName);
+            if (null != controller) {
+                break;
+            }
+        }
         if (null == controller) {
             logger.error("根据[{}]找不到对应的Controller，请检查Controller映射路径规则是否符合规则！", controllerName);
             logger.error(" \n 规则如下：\n uri第一层目录结构必须是与是以该目录名称命名的Controller，如: /user/add，则Controller文件应该为UserController.或在Controller Mapping指定");
@@ -181,7 +188,7 @@ public class RobotRequestHandler
                                     if ("value".equalsIgnoreCase(annItemArray[0])) {
                                         // 以注解的value值为映射路径
                                         key = annItemArray[1].trim().toLowerCase();
-                                        key = "/" + controllerName + (key.startsWith("/")?key:"/" + key);
+                                        key = (controllerName.startsWith("/")?controllerName:"/"+controllerName) + (key.startsWith("/")?key:"/"+key);
                                         ControllerFactory.getMethodMap().put(key, action);
                                     }
                                 }

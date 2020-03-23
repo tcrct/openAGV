@@ -5,12 +5,10 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.config.Application;
 import com.robot.mvc.core.annnotations.Action;
-import com.robot.mvc.core.annnotations.Controller;
-import com.robot.mvc.core.annnotations.Service;
+import com.robot.mvc.core.annnotations.Mapping;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.utils.ToolsKit;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.opentcs.kernel.extensions.servicewebapi.console.ControllerFactory;
 import org.opentcs.kernel.extensions.servicewebapi.console.IController;
 
@@ -105,17 +103,20 @@ public class RouteHelper {
                     methodList.add(method);
                 }
                 if (ToolsKit.isNotEmpty(methodList)) {
-                    Controller controllerAnnoy = controllerClass.getAnnotation(Controller.class);
-                    String key = controllerAnnoy.value();
+                    Mapping controllerMapping = controllerClass.getAnnotation(Mapping.class);
+                    String key = null !=controllerMapping ? controllerMapping.value() : null;
                     if (ToolsKit.isEmpty(key)) {
                         int endIndex = controllerClass.getSimpleName().toLowerCase().indexOf("controller");
                         if (endIndex > -1) {
-                            key = controllerClass.getSimpleName().substring(0, endIndex);
+                            key = "/" + controllerClass.getSimpleName().substring(0, endIndex);
                         }
                     }
                     Map<String, Method> methodMap = new HashMap<>();
                     for (Method method : methodList) {
-                        methodMap.put(method.getName().toLowerCase(), method);
+                        Mapping methodMapping = method.getClass().getAnnotation(Mapping.class);
+                        String methodKey = null != methodMapping ? methodMapping.value() :
+                                ("/".equals(key) ? method.getName() : "/" + method.getName());
+                        methodMap.put(methodKey.toLowerCase(), method);
                     }
                     Route route = new Route(controllerClass, methodMap);
                     key = key.toLowerCase();
@@ -148,8 +149,8 @@ public class RouteHelper {
                 methodList.add(method);
             }
             if (ToolsKit.isNotEmpty(methodList)) {
-                Service serviceAnnoy = serviceClass.getAnnotation(Service.class);
-                String key = serviceAnnoy.value();
+                Mapping serviceMapping = serviceClass.getAnnotation(Mapping.class);
+                String key = null != serviceMapping ? serviceMapping.value() : null;
                 if (ToolsKit.isEmpty(key)) {
                     int endIndex = serviceClass.getSimpleName().toLowerCase().indexOf("service");
                     if (endIndex > -1) {
@@ -228,11 +229,11 @@ public class RouteHelper {
             LOG.warn("**************** Controller Mapping ****************");
             List<String> keyList = new ArrayList<>(CONTROLLER_ROUTE_MAP.keySet());
             Collections.sort(keyList);
-            for (String key : keyList) {
-                Route route = CONTROLLER_ROUTE_MAP.get(key);
+            for (String controllerKey : keyList) {
+                Route route = CONTROLLER_ROUTE_MAP.get(controllerKey);
                 for(Iterator<String> iterator = route.getMethodMap().keySet().iterator(); iterator.hasNext();) {
-                    String methodName = iterator.next();
-                    LOG.info(String.format("controller mapping: /%s/%s, route: %s", key, methodName, route.getServiceClass().getName()));
+                    String methodKey = iterator.next();
+                    LOG.info(String.format("controller mapping: %s%s, route: %s", controllerKey, methodKey, route.getServiceClass().getName()));
                 }
             }
         }
@@ -278,5 +279,6 @@ public class RouteHelper {
         getControllerRouteMap().clear();
         getServiceRouteMap().clear();
         getActionRouteMap().clear();
+        ALL_ROUTE_MAP.clear();
     }
 }

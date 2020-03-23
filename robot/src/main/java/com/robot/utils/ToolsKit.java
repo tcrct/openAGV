@@ -49,6 +49,12 @@ public class ToolsKit {
         objectMapper.setDateFormat(SDF);
     }
 
+    public static <T> T requireNonNull(T obj, String message) {
+        if (obj == null)
+            throw new NullPointerException(message);
+        return obj;
+    }
+
     /***
      * 判断传入的对象是否为空
      *
