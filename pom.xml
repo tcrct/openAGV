@@ -27,6 +27,7 @@
         <agv.version>1.0-SNAPSHOT</agv.version>
         <quartz.version>2.3.0</quartz.version>
         <i18n.version>1.0.0</i18n.version>
+        <common.version>3.4</common.version>
     </properties>
 
     <dependencies>
@@ -116,6 +117,18 @@
             <artifactId>duang-db</artifactId>
             <version>${db.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${common.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.13</version>
+        </dependency>
+
     </dependencies>
 
 </project>

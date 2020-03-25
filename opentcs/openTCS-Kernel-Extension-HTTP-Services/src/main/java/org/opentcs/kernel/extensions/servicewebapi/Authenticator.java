@@ -89,7 +89,10 @@ public class Authenticator {
           authAccessKey = System.getProperty(ID, configuration.accessKey());
       }
 
-      String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
+      String requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY.toLowerCase());
+      if (null == requestAccessKey) {
+          requestAccessKey = request.headers(HttpConstants.HEADER_NAME_ACCESS_KEY);
+      }
       LOG.debug("Provided access key in header is '{}', required value is '{}'",
               requestAccessKey,
               authAccessKey);
