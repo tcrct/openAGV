@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.opentcs.access.KernelRuntimeException;
 import org.opentcs.access.SslParameterSet;
 import org.opentcs.components.kernel.KernelExtension;
@@ -21,8 +22,14 @@ import org.opentcs.kernel.extensions.servicewebapi.v1.V1RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
+import spark.route.HttpMethod;
 
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 
@@ -118,8 +125,7 @@ public class ServiceWebApi
         }
 
         service.before((request, response) -> {
-            /*
-            if (!authenticator.isAuthenticated(request)) {
+            if (!authenticator.isAuthenticated(request) && !request.requestMethod().equalsIgnoreCase(HttpMethod.options.toString())) {
                 // Delay the response a bit to slow down brute force attacks.
                 Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
 
@@ -135,7 +141,6 @@ public class ServiceWebApi
                 response.type(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
                 service.halt(403, objectMapper.writeValueAsString(returnMap));
             }
-             */
 
             // Add a CORS header to allow cross-origin requests from all hosts.
             // This also makes using the "try it out" buttons in the Swagger UI documentation possible.
@@ -146,7 +151,6 @@ public class ServiceWebApi
         service.options(
                 "/*",
                 (request, response) -> {
-                    response.header("Access-Control-Allow-Origin", "*");
                     response.header("access-control-allow-credentials", "true");
                     String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
                     if (accessControlRequestHeaders != null) {
