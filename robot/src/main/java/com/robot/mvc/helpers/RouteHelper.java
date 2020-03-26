@@ -9,8 +9,8 @@ import com.robot.mvc.core.annnotations.Mapping;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
 import com.robot.utils.ToolsKit;
-import org.opentcs.kernel.extensions.servicewebapi.console.ControllerFactory;
-import org.opentcs.kernel.extensions.servicewebapi.console.IController;
+import org.opentcs.kernel.extensions.servicewebapi.console.SparkMappingFactory;
+import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.IController;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -122,7 +122,7 @@ public class RouteHelper {
                     key = key.toLowerCase();
                     CONTROLLER_ROUTE_MAP.put(key, route);
                     BeanHelper.duang().setBean(route.getServiceObj());
-                    ControllerFactory.setController(key, (IController) route.getServiceObj());
+                    SparkMappingFactory.setController(key, (IController) route.getServiceObj());
                 }
             }
         }

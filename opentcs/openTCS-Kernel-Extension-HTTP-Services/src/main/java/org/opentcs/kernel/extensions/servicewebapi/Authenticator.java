@@ -8,7 +8,7 @@
 package org.opentcs.kernel.extensions.servicewebapi;
 
 import com.google.common.base.Strings;
-import org.opentcs.kernel.extensions.servicewebapi.console.ISecurity;
+import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.ISecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

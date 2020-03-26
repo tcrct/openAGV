@@ -5,7 +5,7 @@ import com.robot.mvc.helpers.ClassHelper;
 import com.robot.mvc.helpers.IocHelper;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.utils.RobotUtil;
-import org.opentcs.kernel.extensions.servicewebapi.console.ControllerFactory;
+import org.opentcs.kernel.extensions.servicewebapi.console.SparkMappingFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class ClassLoaderHelper {
         init();
         try {
             // 清除
-            ControllerFactory.getMethodMap().clear();
+            SparkMappingFactory.getMethodMap().clear();
             // 清除旧的IocBeanMap
             BeanHelper.duang().getIocBeanMap().clear();
             // 重置Class

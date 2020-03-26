@@ -12,12 +12,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import org.eclipse.jetty.http.HttpHeader;
 import org.opentcs.access.KernelRuntimeException;
 import org.opentcs.access.SslParameterSet;
 import org.opentcs.components.kernel.KernelExtension;
 import org.opentcs.data.ObjectExistsException;
 import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.kernel.extensions.servicewebapi.console.RobotRequestHandler;
+import org.opentcs.kernel.extensions.servicewebapi.console.SparkMappingFactory;
+import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.IWebSocket;
 import org.opentcs.kernel.extensions.servicewebapi.v1.V1RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,7 @@ import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -108,12 +113,20 @@ public class ServiceWebApi
             return;
         }
 
+
         v1RequestHandler.initialize();
         robotRequestHandler.initialize();
 
         service = Service.ignite()
                 .ipAddress(configuration.bindAddress())
                 .port(configuration.bindPort());
+
+        if (!SparkMappingFactory.getWebSocketMap().isEmpty()) {
+            for (Iterator<Map.Entry<String, Class<? extends IWebSocket>>> iterator = SparkMappingFactory.getWebSocketMap().entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, Class<? extends IWebSocket>> entry = iterator.next();
+                service.webSocket(entry.getKey(), entry.getValue());
+            }
+        }
 
         if (configuration.useSsl()) {
             service.secure(sslParamSet.getKeystoreFile().getAbsolutePath(),
@@ -125,7 +138,10 @@ public class ServiceWebApi
         }
 
         service.before((request, response) -> {
-            if (!authenticator.isAuthenticated(request) && !request.requestMethod().equalsIgnoreCase(HttpMethod.options.toString())) {
+            // 开启了安全认证，并且不是options请求及websocket握手请求
+            if (!authenticator.isAuthenticated(request) &&
+                    !request.requestMethod().equalsIgnoreCase(HttpMethod.options.toString()) &&
+                    !HttpHeaderValues.WEBSOCKET.toString().equalsIgnoreCase(request.headers(HttpHeader.UPGRADE.toString()))) {
                 // Delay the response a bit to slow down brute force attacks.
                 Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
 

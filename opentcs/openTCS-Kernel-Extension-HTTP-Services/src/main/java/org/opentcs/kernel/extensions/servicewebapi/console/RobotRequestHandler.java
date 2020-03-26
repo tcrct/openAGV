@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import org.opentcs.components.kernel.services.VehicleService;
 import org.opentcs.kernel.extensions.servicewebapi.HttpConstants;
 import org.opentcs.kernel.extensions.servicewebapi.RequestHandler;
+import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.IController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -121,7 +122,7 @@ public class RobotRequestHandler
         IController controller = null;
         for (int i=1; i<uriArray.length; i++) {
             controllerName += "/" + uriArray[i];
-            controller = ControllerFactory.getController(controllerName);
+            controller = SparkMappingFactory.getController(controllerName);
             if (null != controller) {
                 break;
             }
@@ -154,7 +155,7 @@ public class RobotRequestHandler
         if (null == controllerName) {
             throw new NullPointerException("controller name is empty");
         }
-        Method method = ControllerFactory.getMethodMap().get(uri);
+        Method method = SparkMappingFactory.getMethodMap().get(uri);
         if (null != method) {
             return method;
         } else {
@@ -189,20 +190,20 @@ public class RobotRequestHandler
                                         // 以注解的value值为映射路径
                                         key = annItemArray[1].trim().toLowerCase();
                                         key = (controllerName.startsWith("/")?controllerName:"/"+controllerName) + (key.startsWith("/")?key:"/"+key);
-                                        ControllerFactory.getMethodMap().put(key, action);
+                                        SparkMappingFactory.getMethodMap().put(key, action);
                                     }
                                 }
                             }
                         }
                     } else {
-                        ControllerFactory.getMethodMap().put("/" + controllerName + "/" + key.toLowerCase(), action);
+                        SparkMappingFactory.getMethodMap().put("/" + controllerName + "/" + key.toLowerCase(), action);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return ControllerFactory.getMethodMap().get(uri);
+        return SparkMappingFactory.getMethodMap().get(uri);
     }
 
     private String toJson(Object object) throws IllegalStateException {

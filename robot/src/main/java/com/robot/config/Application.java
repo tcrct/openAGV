@@ -12,14 +12,19 @@ import com.robot.mvc.helpers.IocHelper;
 import com.robot.mvc.helpers.PluginsHelper;
 import com.robot.mvc.helpers.RouteHelper;
 import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
+import org.opentcs.App;
 import org.opentcs.guing.RunPlantOverview;
 import org.opentcs.kernel.RunKernel;
+import org.opentcs.kernel.extensions.servicewebapi.console.SparkMappingFactory;
+import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.IWebSocket;
 import org.opentcs.kernelcontrolcenter.RunKernelControlCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 程序启动Robot
@@ -85,6 +90,13 @@ public class Application {
 
     public Application init(ISystemInit systemInit) {
         this.systemInit = systemInit;
+        return this;
+    }
+
+    public Application webSocket(Map<String, Class<? extends IWebSocket>> webSocketMap) {
+        if (ToolsKit.isNotEmpty(webSocketMap)) {
+            SparkMappingFactory.getWebSocketMap().putAll(webSocketMap);
+        }
         return this;
     }
 

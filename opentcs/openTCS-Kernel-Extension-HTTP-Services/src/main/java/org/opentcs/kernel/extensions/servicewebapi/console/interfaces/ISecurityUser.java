@@ -1,4 +1,4 @@
-package org.opentcs.kernel.extensions.servicewebapi.console;
+package org.opentcs.kernel.extensions.servicewebapi.console.interfaces;
 
 /**
  * 安全用户对象接口
