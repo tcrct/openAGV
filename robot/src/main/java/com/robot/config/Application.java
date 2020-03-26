@@ -127,7 +127,7 @@ public class Application {
             System.exit(1);
         }
         // 热部署
-         hotSwapWatcher();
+//         hotSwapWatcher();
     }
 
     private void startOpenTcs() throws Exception {

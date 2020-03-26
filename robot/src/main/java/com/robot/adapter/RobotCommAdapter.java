@@ -20,7 +20,6 @@ import com.robot.mvc.core.telegram.ITelegramSender;
 import com.robot.utils.RobotUtil;
 import com.robot.utils.ServerContribKit;
 import com.robot.utils.ToolsKit;
-import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
@@ -462,7 +461,7 @@ public class RobotCommAdapter
      * @return
      */
     @Override
-    protected RobotVehicleModelTO createCustomTransferableProcessModel() {
+    public RobotVehicleModelTO createCustomTransferableProcessModel() {
         // 发送到其他软件（如控制中心或工厂概览）时，添加车辆的附加信息
         return new RobotVehicleModelTO()
                 .setSingleStepModeEnabled(getProcessModel().isSingleStepModeEnabled())
