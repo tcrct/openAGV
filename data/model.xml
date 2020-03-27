@@ -177,13 +177,17 @@
     </locationType>
     <locationType name="LType-0002">
         <allowedOperation name="NOP"/>
+        <allowedOperation name="充电"/>
         <property name="tcs:defaultLocationTypeSymbol" value="RECHARGE_GENERIC"/>
     </locationType>
     <location name="C16" xPosition="15000" yPosition="29500" zPosition="0" type="LType-0002">
         <link point="16"/>
     </location>
     <location name="C18" xPosition="39250" yPosition="22250" zPosition="0" type="LType-0002">
-        <link point="18"/>
+        <link point="18">
+            <allowedOperation name="充电"/>
+        </link>
+        <property name="tcs:defaultLocationSymbol" value="RECHARGE_ALT_1"/>
     </location>
     <location name="C196" xPosition="73750" yPosition="47250" zPosition="0" type="LType-0002">
         <link point="196"/>
@@ -699,5 +703,5 @@
             <property name="POSITION_Y" value="37250"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2020-03-17T13:49:41.424Z"/>
+    <property name="tcs:modelFileLastModified" value="2020-03-27T02:39:52.731Z"/>
 </model>
