@@ -11,9 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.util.concurrent.Uninterruptibles;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import org.eclipse.jetty.http.HttpHeader;
 import org.opentcs.access.KernelRuntimeException;
 import org.opentcs.access.SslParameterSet;
 import org.opentcs.components.kernel.KernelExtension;
@@ -26,15 +23,10 @@ import org.opentcs.kernel.extensions.servicewebapi.v1.V1RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
-import spark.route.HttpMethod;
 
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 
@@ -138,6 +130,7 @@ public class ServiceWebApi
         }
 
         service.before((request, response) -> {
+            /*
             // 开启了安全认证，并且不是options请求及websocket握手请求
             if (!authenticator.isAuthenticated(request) &&
                     !request.requestMethod().equalsIgnoreCase(HttpMethod.options.toString()) &&
@@ -157,6 +150,7 @@ public class ServiceWebApi
                 response.type(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
                 service.halt(403, objectMapper.writeValueAsString(returnMap));
             }
+            */
 
             // Add a CORS header to allow cross-origin requests from all hosts.
             // This also makes using the "try it out" buttons in the Swagger UI documentation possible.
