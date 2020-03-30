@@ -4,7 +4,9 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.robot.config.Application;
+import com.robot.event.core.EventListener;
 import com.robot.mvc.core.annnotations.Action;
+import com.robot.mvc.core.annnotations.Listener;
 import com.robot.mvc.core.annnotations.Mapping;
 import com.robot.mvc.core.interfaces.IAction;
 import com.robot.mvc.model.Route;
@@ -40,6 +42,10 @@ public class RouteHelper {
      * Controller类Map集合，key为Controller文件名去除Controller部份
      */
     private static Map<String, Route> CONTROLLER_ROUTE_MAP = new HashMap<>();
+    /**
+     * Listener类Map集合，key为监听器标识符，如果没有设置则为类全名
+     */
+    private static Map<String, Route> LISTENER_ROUTE_MAP = new HashMap<>();
 
     public static Map<String, Route> getControllerRouteMap() {
         return CONTROLLER_ROUTE_MAP;
@@ -51,6 +57,10 @@ public class RouteHelper {
 
     public static Map<String, Route> getActionRouteMap() {
         return ACTION_ROUTE_MAP;
+    }
+
+    public static Map<String, Route> getListenerRouteMap() {
+        return LISTENER_ROUTE_MAP;
     }
 
     private static RouteHelper ROUTE_HELPER = null;
@@ -77,6 +87,7 @@ public class RouteHelper {
         routeController();
         routeService();
         routeAction();
+        routeListener();
     }
 
 
@@ -203,6 +214,33 @@ public class RouteHelper {
     }
 
 
+    private void routeListener() {
+        if (LISTENER_ROUTE_MAP.isEmpty()) {
+            List<Class<?>> listenerClassList = ClassHelper.duang().getListenerClassList();
+            if (ToolsKit.isEmpty(listenerClassList)) {
+                LOG.info("监听器类为空,退出routeListener方法");
+                return;
+            }
+            for (Class<?> listenerClass : listenerClassList) {
+                Listener listenerAnnot = listenerClass.getAnnotation(Listener.class);
+                if (ToolsKit.isEmpty(listenerAnnot)) {
+                    continue;
+                }
+                EventListener eventListener = (EventListener) ReflectUtil.newInstance(listenerClass);
+                if (ToolsKit.isNotEmpty(eventListener)) {
+                    String key = listenerAnnot.key();
+                    if (ToolsKit.isEmpty(key)) {
+                        key = listenerClass.getName();
+                    }
+                    Route route = new Route(key, eventListener);
+                    LISTENER_ROUTE_MAP.put(key, route);
+                    BeanHelper.duang().setBean(route.getServiceObj());
+                }
+            }
+            printListenetKey();
+        }
+    }
+
     private static final Map<String, Route> ALL_ROUTE_MAP = new HashMap<>();
     public static Map<String, Route> getRoutes() {
         if (ALL_ROUTE_MAP.isEmpty()) {
@@ -254,7 +292,6 @@ public class RouteHelper {
         if (isRestart()) {
             return;
         }
-
         List<String> keyList = new ArrayList<>(ACTION_ROUTE_MAP.keySet());
         if (keyList.isEmpty()) {
             LOG.info("工站动作处理类不存在！");
@@ -267,6 +304,24 @@ public class RouteHelper {
             LOG.info(String.format("action mapping: %s, action class: %s", key, action.getServiceClass().getName()));
         }
     }
+
+    private void printListenetKey() {
+        if (LISTENER_ROUTE_MAP.isEmpty()) {
+            return;
+        }
+        List<String> keyList = new ArrayList<>(LISTENER_ROUTE_MAP.keySet());
+        if (keyList.isEmpty()) {
+            LOG.info("工站动作处理类不存在！");
+            return;
+        }
+        Collections.sort(keyList);
+        LOG.warn("**************** Listener Mapping ****************");
+        for (String key : keyList) {
+            Route route = LISTENER_ROUTE_MAP.get(key);
+            LOG.info(String.format("listener mapping: %s, class: %s", key, route.getServiceClass().getName()));
+        }
+    }
+
     public boolean isRestart() {
         return Application.duang().isStarted();
     }
@@ -279,6 +334,7 @@ public class RouteHelper {
         getControllerRouteMap().clear();
         getServiceRouteMap().clear();
         getActionRouteMap().clear();
+        getListenerRouteMap().clear();
         ALL_ROUTE_MAP.clear();
     }
 }

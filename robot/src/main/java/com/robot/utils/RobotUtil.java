@@ -344,7 +344,7 @@ public class RobotUtil {
     }
 
     /**
-     * 是否订单完成请求
+     * 是否移动订单状态请求
      *
      * @param request 请求对象
      * @return

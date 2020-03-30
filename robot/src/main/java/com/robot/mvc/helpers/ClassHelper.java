@@ -110,12 +110,20 @@ public class ClassHelper {
         return CLASS_MAP.get(AnnotationType.ACTION_ANNOTATION.getName());
     }
 
+    public List<Class<?>> getListenerClassList() {
+        return CLASS_MAP.get(AnnotationType.LISTENER_ANNOTATION.getName());
+    }
+
     public List<Class<?>> getEntityClassList() {
         return CLASS_MAP.get(AnnotationType.ENTITY_ANNOTATION.getName());
     }
 
     public List<Class<?>> getJobClassList() {
         return CLASS_MAP.get(AnnotationType.JOB_ANNOTATION.getName());
+    }
+
+    public List<Class<?>> getWebSocketClassList() {
+        return CLASS_MAP.get(AnnotationType.WEBSOCKET_ANNOTATION.getName());
     }
 
 

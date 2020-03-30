@@ -26,7 +26,8 @@ public class ToolsKit {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToolsKit.class);
     private static final Set<String> EXCLUDED_METHOD_NAME = new HashSet<>();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat SDF2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
