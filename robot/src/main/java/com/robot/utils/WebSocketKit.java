@@ -1,6 +1,5 @@
 package com.robot.utils;
 
-import com.robot.mvc.core.exceptions.RobotException;
 import org.opentcs.kernel.extensions.servicewebapi.console.interfaces.IWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +78,10 @@ public class WebSocketKit {
             } else {
                 webSocket.push(userIdList, message);
             }
-            return true;
         } catch (Exception e) {
-            throw new RobotException("推送消息到["+topic+"]时失败："+ e.getMessage(), e);
+            LOG.info("推送消息到["+topic+"]时失败："+ e.getMessage(), e);
         }
+        return true;
     }
 
 }
