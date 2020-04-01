@@ -2,6 +2,9 @@ package com.robot.mvc.model;
 
 import com.robot.utils.ToolsKit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class HeadDto implements java.io.Serializable {
     /**
      * 非0值均代表有异常
@@ -29,6 +32,11 @@ public class HeadDto implements java.io.Serializable {
      * 响应返回时间
      */
     private String timestamp = ToolsKit.getCurrentDateString();
+
+    /**
+     * 请求头
+     */
+    private Map<String, String> headerMap = new HashMap<>();
 
     public HeadDto() {
     }
@@ -80,5 +88,13 @@ public class HeadDto implements java.io.Serializable {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Map<String, String> getHeaderMap() {
+        return headerMap;
+    }
+
+    public void setHeaderMap(Map<String, String> headerMap) {
+        this.headerMap = headerMap;
     }
 }

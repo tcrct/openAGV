@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.robot.adapter.model.DeviceAddress;
 import com.robot.mvc.core.exceptions.RobotException;
+import com.robot.mvc.model.HeadDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,28 @@ public class ToolsKit {
         objectMapper.setDateFormat(SDF);
         //配置该objectMapper在反序列化时，忽略目标对象没有的属性。
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    // 定义一个请求对象安全线程类
+    private static DuangThreadLocal<HeadDto> requestHeaderThreadLocal = new DuangThreadLocal<HeadDto>() {
+        @Override
+        public HeadDto initialValue() {
+            return new HeadDto();
+        }
+    };
+    /**
+     * 设置请求头DTO到ThreadLocal变量
+     * @param headDto       请求头DTO
+     */
+    public static void setThreadLocalDto(HeadDto headDto) {
+        requestHeaderThreadLocal.set(headDto);
+    }
+    /**
+     *  取ThreadLocal里的HeadDto对象
+     * @return
+     */
+    public static HeadDto getThreadLocalDto() {
+        return  requestHeaderThreadLocal.get();
     }
 
     public static <T> T requireNonEmpty(T obj, String message) {
