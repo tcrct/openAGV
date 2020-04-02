@@ -9,7 +9,7 @@ public class HeadDto implements java.io.Serializable {
     /**
      * 非0值均代表有异常
      */
-    private int code = 0;
+    private int code = 1;
     /**
      * 异常信息
      */
@@ -37,6 +37,11 @@ public class HeadDto implements java.io.Serializable {
      * 请求头
      */
     private Map<String, String> headerMap = new HashMap<>();
+
+    /**
+     * 令牌ID
+     */
+    private String tokenId;
 
     public HeadDto() {
     }
@@ -96,5 +101,13 @@ public class HeadDto implements java.io.Serializable {
 
     public void setHeaderMap(Map<String, String> headerMap) {
         this.headerMap = headerMap;
+    }
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 }

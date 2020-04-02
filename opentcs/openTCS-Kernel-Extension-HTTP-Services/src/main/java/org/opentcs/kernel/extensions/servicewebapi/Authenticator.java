@@ -62,16 +62,9 @@ public class Authenticator {
       if (null == configuration) {
           return;
       }
-      try {
-          if (null != security) {
-              return;
-          }
-          Class<?> securityClass = Class.forName(System.getProperty(SECURITY_CLASS_NAME));
-          if (null != securityClass) {
-              security = (ISecurity) securityClass.newInstance();
-          }
-      } catch (Exception e) {
-          LOG.error("创建安全验证类时出错: " + e.getMessage(), e);
+
+      if (null == security) {
+          LOG.error("创建安全验证类时出错:  security is null");
       }
   }
 
@@ -111,7 +104,8 @@ public class Authenticator {
       return isAuth;
   }
 
-    public static ISecurity getSecurity() {
-        return security;
+    public static void setSecurity(ISecurity security) {
+        Authenticator.security = security;
+        LOG.info("注入安全验证类成功!");
     }
 }

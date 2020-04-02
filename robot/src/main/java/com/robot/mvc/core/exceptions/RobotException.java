@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by laotang on 2020/1/12.
  */
-public class RobotException extends RuntimeException {
+public class RobotException extends RuntimeException implements IException {
 
     private static final Logger LOG = LoggerFactory.getLogger(RobotException.class);
 
