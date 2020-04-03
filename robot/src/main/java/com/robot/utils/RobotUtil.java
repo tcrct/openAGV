@@ -795,4 +795,48 @@ public class RobotUtil {
         TCSObjectReference<Point> pointReference =  getVehicle(vehicleName).getNextPosition();
         return null != pointReference ? pointReference.getName() : "";
     }
+
+    /**
+     * 查找距离指定位置最近的可用的车辆
+     * 可用的车辆：
+     * 1，空闲的
+     * 2，车辆所在位置与指定位置的线路上没有车辆阻挡的
+     *
+     * @param pointName 指定的位置
+     */
+    public static Vehicle findMinDistanceVehicle(String pointName) {
+        List<String> vehicleNameList = getAllVehicleName();
+        if (ToolsKit.isEmpty(vehicleNameList)) {
+            LOG.info("没有发现车辆，请检查！");
+            return null;
+        }
+        Map<Long, Vehicle> vehicleIdeaMap = new TreeMap<>();
+        for (String vehicleName : vehicleNameList) {
+            Vehicle vehicle = getVehicle(vehicleName);
+            //先找出所有可用的车辆，即空闲状态的车辆
+            if (Vehicle.State.IDLE.name().equals(vehicle.getState().name())) {
+                String currentPosition = vehicle.getCurrentPosition().getName();
+                List<org.opentcs.data.order.Route.Step> stepList = getRoute(vehicleName, currentPosition, pointName);
+                boolean isExistVehicleOnPath = false;
+                long lengthCount = 0;
+                for (org.opentcs.data.order.Route.Step step : stepList) {
+                    // 如果路径上任意一个点上有车辆，则退出
+                    if (null != getVehicleByPoint(step.getSourcePoint().getName())) {
+                        isExistVehicleOnPath = true;
+                        LOG.info("由于线路上有车辆，该车辆[{}]不能作为空闲车辆，退出方法，继续查找下一车辆", vehicle.getName());
+                        break;
+                    }
+                    // 计算总路长
+                    lengthCount += step.getPath().getLength();
+                }
+                // 路径上没有车辆
+                if (!isExistVehicleOnPath) {
+                    vehicleIdeaMap.put(lengthCount, vehicle);
+                }
+            }
+        }
+        // 取出距离最近的车辆，排第一的车辆
+        Map.Entry<Long, Vehicle> vehicleEntry = vehicleIdeaMap.entrySet().iterator().next();
+        return null == vehicleEntry ? null : vehicleEntry.getValue();
+    }
 }
