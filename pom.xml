@@ -28,6 +28,7 @@
         <quartz.version>2.3.0</quartz.version>
         <i18n.version>1.0.0</i18n.version>
         <common.version>3.4</common.version>
+        <velocity.version>1.7</velocity.version>
     </properties>
 
     <dependencies>
@@ -128,7 +129,6 @@
             <artifactId>httpcore</artifactId>
             <version>4.4.13</version>
         </dependency>
-
     </dependencies>
 
 </project>

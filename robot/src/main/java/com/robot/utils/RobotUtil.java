@@ -47,6 +47,11 @@ public class RobotUtil {
     private static final Log LOG = LogFactory.get();
 
     /**
+     * 标识是否注册过工站，true是为已经注册
+     */
+    private static boolean isRegLocation = false;
+
+    /**
      * 协议解码器
      */
     private static IProtocolMatcher protocolMatcher;
@@ -73,6 +78,13 @@ public class RobotUtil {
         return SettingUtil.getBoolean("dev.mode", false);
     }
 
+    public static boolean isRegisterLocation() {
+        return isRegLocation;
+    }
+
+    public static void setRegLocation(boolean isRegLocation) {
+        RobotUtil.isRegLocation = isRegLocation;
+    }
 
     /**
      * 取所有车辆
@@ -838,5 +850,21 @@ public class RobotUtil {
         // 取出距离最近的车辆，排第一的车辆
         Map.Entry<Long, Vehicle> vehicleEntry = vehicleIdeaMap.entrySet().iterator().next();
         return null == vehicleEntry ? null : vehicleEntry.getValue();
+    }
+
+    /**
+     * 取所有设备(工站)
+     * @return
+     */
+    public static List<String> getAllLocationName() {
+        Set<Location> locationSet = RobotUtil.getOpenTcsObjectService().fetchObjects(Location.class);
+        List<String> locationNameList = new ArrayList<>();
+        if (ToolsKit.isEmpty(locationSet)) {
+            return locationNameList;
+        }
+        for (Iterator<Location> iterator = locationSet.iterator(); iterator.hasNext();){
+            locationNameList.add(iterator.next().getName());
+        }
+        return locationNameList;
     }
 }

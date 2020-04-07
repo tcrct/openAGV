@@ -1,8 +1,13 @@
 package com.robot.mvc.core.telegram;
 
+import cn.hutool.core.util.ReflectUtil;
 import com.robot.mvc.core.enums.ReqType;
+import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IActionCommand;
 import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.interfaces.IService;
+import com.robot.mvc.helpers.BeanHelper;
+import com.robot.utils.ToolsKit;
 
 /**
  * 工作站动作请求
@@ -27,6 +32,11 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
         super.setNeedSend(true);
     }
 
+    public ActionRequest(String deviceId, ActionRequest.ServiceRequestDto serviceRequestDto) {
+        super(ReqType.ACTION, null);
+        super.setNeedSend(true);
+    }
+
     public abstract String cmd();
 
     public double getIndex() {
@@ -43,5 +53,55 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
 
     public void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+
+    public static String callServiceMethod(ServiceRequestDto serviceRequestDto) {
+        Object service = BeanHelper.duang().getBean(serviceRequestDto.getServiceClass());
+        if (ToolsKit.isEmpty(service)) {
+            throw new RobotException("根据["+serviceRequestDto.getServiceClass().getName()+"]没有找到实例对象，请检查！");
+        }
+        try {
+            Object resultObj = ReflectUtil.invoke(service, serviceRequestDto.getMethodName(), serviceRequestDto.getParam());
+            String result = "";
+            if (resultObj instanceof String) {
+                result = resultObj.toString();
+            } else if (resultObj instanceof IProtocol) {
+                result = ((IProtocol) resultObj).getParams();
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RobotException(e.getMessage(), e);
+        }
+    }
+
+
+    public static class ServiceRequestDto {
+        private Class<? extends IService> serviceClass;
+        private String methodName;
+        private Object param;
+
+        public ServiceRequestDto(Class<? extends IService> serviceClass, String methodName) {
+            this.serviceClass= serviceClass;
+            this.methodName = methodName;
+        }
+
+        public ServiceRequestDto(Class<? extends IService> serviceClass, String methodName, Object param) {
+            this.serviceClass= serviceClass;
+            this.methodName = methodName;
+            this.param = param;
+        }
+
+        public Class<? extends IService> getServiceClass() {
+            return serviceClass;
+        }
+
+        public String getMethodName() {
+            return methodName;
+        }
+
+        public Object getParam() {
+            return param;
+        }
     }
 }

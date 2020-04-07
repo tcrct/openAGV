@@ -2,6 +2,7 @@ package com.robot.adapter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.robot.RobotContext;
+import com.robot.adapter.constants.RobotConstants;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
 import com.robot.adapter.exchange.RobotAdapterDescription;
 import com.robot.adapter.model.DeviceAddress;
@@ -17,9 +18,6 @@ import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterFactory;
-import org.opentcs.kernel.services.StandardDispatcherService;
-import org.opentcs.kernel.services.StandardPlantModelService;
-import org.opentcs.kernel.services.StandardTransportOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +35,6 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(RobotCommAdapterFactory.class);
 
-    private static final String VEHICLE_HOST = "host";
-    private static final String VEHICLE_PORT = "port";
     private static final String  DEVICE_ADDRESS = "deviceAddress";
     private static String XML_FILENAME = "";
     /**
@@ -132,16 +128,16 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
     public boolean providesAdapterFor(Vehicle vehicle) {
         requireNonNull(vehicle, "车辆不能为空");
         if (NetChannelType.TCP.equals(channelType) || NetChannelType.UDP.equals(channelType)) {
-            if (ToolsKit.isEmpty(vehicle.getProperty(VEHICLE_HOST))) {
+            if (ToolsKit.isEmpty(vehicle.getProperty(RobotConstants.HOST_FIELD))) {
                 throw new RobotException(vehicle.getName() + "车辆host没有设置");
             }
 
-            if (ToolsKit.isEmpty(vehicle.getProperty(VEHICLE_PORT))) {
+            if (ToolsKit.isEmpty(vehicle.getProperty(RobotConstants.PORT_FIELD))) {
                 throw new RobotException(vehicle.getName() + "车辆port没有设置");
             }
             try {
                 //设置端口范围
-                checkInRange(Integer.parseInt(vehicle.getProperty(VEHICLE_PORT)),
+                checkInRange(Integer.parseInt(vehicle.getProperty(RobotConstants.PORT_FIELD)),
                         1024,
                         65535);
             } catch (IllegalArgumentException exc) {
@@ -168,8 +164,8 @@ public class RobotCommAdapterFactory implements VehicleCommAdapterFactory {
 //            }
             RobotProcessModel processModel = adapter.getProcessModel();
             if (NetChannelType.TCP.equals(channelType) || NetChannelType.UDP.equals(channelType)) {
-                processModel.setVehicleHost(vehicle.getProperty(VEHICLE_HOST));
-                processModel.setVehiclePort(Integer.parseInt(vehicle.getProperty(VEHICLE_PORT)));
+                processModel.setVehicleHost(vehicle.getProperty(RobotConstants.HOST_FIELD));
+                processModel.setVehiclePort(Integer.parseInt(vehicle.getProperty(RobotConstants.PORT_FIELD)));
                 processModel.setDeviceAddress(getDeviceAddressList(vehicle.getProperty(DEVICE_ADDRESS)));
             }
             // 加入到缓存集合

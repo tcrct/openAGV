@@ -53,7 +53,12 @@ public class RobotConstants {
      */
     public static final String ORDER_ID_PREFIX = "Robot_";
 
+    public static final String NAME_FIELD = "name";
+    public static final String HOST_FIELD = "host";
+    public static final String PORT_FIELD = "port";
+
     public static final String TERMINAL_FIELD = "terminal";
+    public static final String BUSINESS_RPTMT_FIELD = "business_rptmt";
 
     /**默认的根用户帐号*/
     public static String ROOT_FIELD = "root";
