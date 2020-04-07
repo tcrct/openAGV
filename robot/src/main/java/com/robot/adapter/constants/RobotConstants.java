@@ -48,11 +48,25 @@ public class RobotConstants {
      */
     public static final String OP_MOVE = "MOVE";
 
+    /**
+     * 订单ID前缀字段
+     */
     public static final String ORDER_ID_PREFIX = "Robot_";
 
     public static final String TERMINAL_FIELD = "terminal";
 
+    /**默认的根用户帐号*/
     public static String ROOT_FIELD = "root";
+    /**
+     * 默认的根用户密码
+     */
+    public static final String DEFAULT_PASSWORD = "1b88ab6d";
+    /**默认的管理员用户帐号*/
     public static final String ADMIN_FIELD = "admin";
-    public static final String DEFAULT_PASSWORD = "robot";
+
+
+    /**
+     * 是否业务传感器提交，即生产业务过程中，主动提交上来的传感器参数，不是由工站主动下发后等待回复的
+     */
+    public static final String BUSINESS_RPTMT_FIELD = "isBusinessRptMt";
 }
