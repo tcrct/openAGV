@@ -105,6 +105,6 @@ public class TaskHandler {
                 response.setNeedSend(true);
             }
         }
-        return null;
+        return response;
     }
 }
