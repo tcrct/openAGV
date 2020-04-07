@@ -3,10 +3,13 @@ package com.robot.adapter;
 import cn.hutool.core.thread.ThreadUtil;
 import com.google.inject.assistedinject.Assisted;
 import com.robot.RobotContext;
+import com.robot.adapter.constants.RobotConstants;
 import com.robot.adapter.enumes.LoadAction;
 import com.robot.adapter.enumes.LoadState;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
-import com.robot.adapter.model.*;
+import com.robot.adapter.model.RobotProcessModel;
+import com.robot.adapter.model.RobotStateModel;
+import com.robot.adapter.model.RobotVehicleModelTO;
 import com.robot.adapter.task.MoveCommandListener;
 import com.robot.adapter.task.MoveRequesterTask;
 import com.robot.commands.SetVehiclePausedCommand;
@@ -21,6 +24,7 @@ import com.robot.utils.RobotUtil;
 import com.robot.utils.ServerContribKit;
 import com.robot.utils.ToolsKit;
 import org.opentcs.customizations.kernel.KernelExecutor;
+import org.opentcs.data.model.Location;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.BasicVehicleCommAdapter;
@@ -501,32 +505,38 @@ public class RobotCommAdapter
             contribKit.register(name, host, port, this);
             LOG.info("注册车辆[{}]成功: [{}]", name, (host + ":" + port));
 
-            //如果是TCP，则根据在控制地图里，对车辆属性表输入的json数据进行设备注册
-            List<DeviceAddress> deviceAddressList = getProcessModel().getDeviceAddress();
-            if (NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) && ToolsKit.isNotEmpty(deviceAddressList)) {
-                for(Iterator<DeviceAddress> iterator = deviceAddressList.iterator(); iterator.hasNext();) {
-                    DeviceAddress deviceAddress = iterator.next();
-                    name = deviceAddress.getName();
-                    host = deviceAddress.getHost();
-                    port = deviceAddress.getPort();
-                    contribKit.register(name, host, port, this);
-                    LOG.info("注册设备[{}]成功: [{}]", name, (host + ":" + port));
-                }
-            } // 如果UDP或RXTX的话，就根据
-            else {
-                EntryName entryName = RobotUtil.getEntryName(getName());
-                try {
-                    for (Iterator<String> iterator = entryName.getDeviceNameList().iterator(); iterator.hasNext(); ) {
-                        String deviceName = iterator.next();
-                        contribKit.register(deviceName, host, port, this);
-                        LOG.info("注册设备[{}]成功: [{}]", deviceName, (host + ":" + port));
-                    }
-                } catch (Exception e) {
-                    throw new RobotException("注册设备[{}]失败，请注意是否添加了车辆Service类！");
-                }
+            // 如果是已经注册过工站的，则直接退出
+            if (RobotUtil.isRegisterLocation()) {
+                return;
             }
 
+            // 没有注册的，则先找到所有工站
+            Set<Location> locationSet = RobotUtil.getOpenTcsObjectService().fetchObjects(Location.class);
+            if (ToolsKit.isNotEmpty(locationSet)) {
+                for (Location location : locationSet) {
+                    name = location.getName();
+                    String deviceName = location.getProperty(RobotConstants.NAME_FIELD);
+                    host = location.getProperty(RobotConstants.HOST_FIELD);
+                    String portStr = location.getProperty(RobotConstants.PORT_FIELD);
 
+
+                    if (ToolsKit.isEmpty(deviceName) &&
+                            NetChannelType.RXTX.name().equals(RobotUtil.getNetChannelType().name())) {
+                        throw new RobotException("RXTX通讯模式下，在注册设备时，设备模板名称不能为空");
+                    }
+
+                    if (ToolsKit.isNotEmpty(deviceName)) {
+                        name = deviceName;
+                    }
+
+                    if (ToolsKit.isNotEmpty(name) && ToolsKit.isNotEmpty(host) && ToolsKit.isNotEmpty(portStr)) {
+                        contribKit.register(name, host, Integer.parseInt(portStr), this);
+                        LOG.info("注册设备[{}]成功: [{}]", name, (host + ":" + portStr));
+                    }
+                }
+            }
+            // 标识已经注册工站
+            RobotUtil.setRegLocation(true);
         } catch (RobotException e) {
             LOG.error("连接或注册车辆或设备[{}]时发生异常: {}", name, e.getMessage());
             throw e;
@@ -692,6 +702,10 @@ public class RobotCommAdapter
     public void sendTelegram(IResponse response) {
         if (null == contribKit) {
             throw new RobotException("contribKit is null");
+        }
+        // 如果不是车辆则报出异常，请使用TeletramSendKit发送
+        if (!getName().equals(response.getDeviceId())) {
+            throw new RobotException("如果不是发送到车辆，请使用TeletramSendKit发送");
         }
         try {
             contribKit.send(getName(), response.getRawContent());

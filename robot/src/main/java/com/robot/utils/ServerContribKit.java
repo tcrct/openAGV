@@ -5,9 +5,15 @@ import com.robot.contrib.netty.comm.*;
 import com.robot.contrib.netty.rxtx.RxtxServerChannelManager;
 import com.robot.contrib.netty.tcp.TcpServerChannelManager;
 import com.robot.contrib.netty.udp.UdpServerChannelManager;
+import com.robot.mvc.core.exceptions.RobotException;
 import io.netty.channel.ChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,6 +25,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 1.0
  */
 public class ServerContribKit {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ServerContribKit.class);
 
     private static ServerContribKit CONTRIB_KIT;
     private static final Lock lock = new ReentrantLock();
@@ -43,6 +51,13 @@ public class ServerContribKit {
             if (null == CONTRIB_KIT) {
                 CONTRIB_KIT = new ServerContribKit(host, port);
             }
+        }
+        return CONTRIB_KIT;
+    }
+
+    public static ServerContribKit getInstance() {
+        if (null == CONTRIB_KIT) {
+            throw new RobotException("服务器网络处理工具为null，请检查！");
         }
         return CONTRIB_KIT;
     }
@@ -134,9 +149,16 @@ public class ServerContribKit {
         if (ToolsKit.isEmpty(listener)) {
             throw new NullPointerException("注册时，ConnectionEventListener不能为空");
         }
-        serviceChannelManager.register(new ClientEntry(key, host, port, listener));
+
+        if (!containsKey(key)) {
+            serviceChannelManager.register(new ClientEntry(key, host, port, listener));
+        }
     }
 
+
+    public boolean containsKey(String key){
+        return CLIENT_ENTRIES.containsKey(key);
+    }
 
     /**
      * 取消客户端注册

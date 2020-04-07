@@ -10,6 +10,7 @@ import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.*;
 import com.robot.utils.RobotUtil;
+import com.robot.utils.TelegramSendKit;
 import com.robot.utils.ToolsKit;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
@@ -147,7 +148,8 @@ public class DispatchFactory {
                 //是同一单元的请求响应且需要发送的响应
                 if (response.isResponseTo(request) && response.isNeedSend()) {
                     // 正确的响应才发送到车辆或设备
-                    request.getAdapter().sendTelegram(response);
+//                    request.getAdapter().sendTelegram(response);
+                    TelegramSendKit.duang().key(response.getDeviceId()).response(response).send();
                 }
             } else {
                 createResponseException(request, response, response.getException());
