@@ -18,17 +18,17 @@ public interface IAction {
     /**
      * 车辆ID
      */
-    String vehicleId();
+    String vehicleId(String vehicleName);
 
     /***
      * 工站设备ID
      * @return
      */
-    String deviceId();
+    String deviceId(String locationName);
 
     /**
      * 执行操作
      */
-    void execute() throws Exception;
+    void execute(String actionKey, String vehicleId, String deviceId) throws Exception;
 
 }

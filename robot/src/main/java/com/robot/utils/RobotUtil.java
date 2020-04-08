@@ -8,6 +8,7 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.adapter.constants.RobotConstants;
 import com.robot.adapter.enumes.OperatingState;
 import com.robot.adapter.model.EntryName;
+import com.robot.adapter.model.LocationOperation;
 import com.robot.adapter.model.TransportOrderModel;
 import com.robot.contrib.netty.comm.ClientEntry;
 import com.robot.contrib.netty.comm.NetChannelType;
@@ -398,8 +399,8 @@ public class RobotUtil {
                 continue;
             }
             IAction action = (IAction) obj;
-            String deviceName = action.deviceId();
-            String vehicleName = action.vehicleId();
+            String deviceName = action.deviceId("");
+            String vehicleName = action.vehicleId("");
             String actionName = action.actionKey();
             put2Set(deviceName, vehicleName, deviceName, actionName);
             put2Set(vehicleName, vehicleName, deviceName, actionName);
@@ -695,16 +696,17 @@ public class RobotUtil {
             throw new RobotException("创建移动订单时，车辆名称不能为空");
         }
         String finalPosition = orderModel.getFinalPosition();
-        if (ToolsKit.isEmpty(finalPosition)) {
+        List<LocationOperation> locationOperationList = orderModel.getLocationOperationList();
+        if (ToolsKit.isEmpty(finalPosition) && ToolsKit.isEmpty(locationOperationList)) {
             throw new RobotException("创建移动订单时，目标位置点名称不能为空");
         }
         String finalOperation = orderModel.getFinalOperation();
-        if (ToolsKit.isEmpty(finalOperation)) {
+        if (ToolsKit.isEmpty(finalOperation) && ToolsKit.isEmpty(locationOperationList)) {
             throw new RobotException("创建移动订单时，目标位置动作不能为空");
         }
         RobotCommAdapter adapter = RobotUtil.getAdapter(vehicleName);
         if (null == adapter) {
-            throw new RobotException("创建移动订单时，adapter不能为空");
+            throw new RobotException("创建移动订单时，车辆adapter不能为空");
         }
         TransportOrder transportOrder = null;
         // 如果是点
@@ -720,7 +722,14 @@ public class RobotUtil {
             TransportOrderData transportOrderData = new TransportOrderData();
             transportOrderData.setDeadline(TransportOrderData.Deadline.PLUS_HALF_HOUR); // 30分钟
             transportOrderData.setIntendedVehicle(RobotUtil.getVehicle(vehicleName).getReference());
-            transportOrderData.addDriveOrder(new DriveOrderStructure(RobotUtil.getLocation(finalPosition).getReference(), finalOperation));
+            if  (ToolsKit.isNotEmpty(locationOperationList)){
+                for (LocationOperation operation : locationOperationList) {
+                    transportOrderData.addDriveOrder(new DriveOrderStructure(RobotUtil.getLocation(operation.getLocation()).getReference(), operation.getOperation()));
+                }
+            } else {
+                String destLocation = ToolsKit.isEmpty(orderModel.getFinalLocation()) ? finalPosition : orderModel.getFinalLocation();
+                transportOrderData.addDriveOrder(new DriveOrderStructure(RobotUtil.getLocation(destLocation).getReference(), finalOperation));
+            }
             //创建移动订单
             ExplicitOrderBatchGenerator generator = new ExplicitOrderBatchGenerator(
                     adapter.getTransportOrderService(),
@@ -734,7 +743,11 @@ public class RobotUtil {
         }
         // 记录该车辆的移动订单最后一个位置，用于比较途中是否发生需要避让
         VEHICLE_TRANSPORT_ORDER_MAP.put(vehicleName, orderModel);
-        ElementKit.duang().vehicle(vehicleName).route(new ArrayList<>(orderModel.getRouteStep()));
+        try {
+            ElementKit.duang().vehicle(vehicleName).route(new ArrayList<>(orderModel.getRouteStep()));
+        } catch (Exception e) {
+            LOG.info("创建订单路由时出错: " + e.getMessage(), e);
+        }
         return transportOrder;
     }
 
