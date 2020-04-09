@@ -56,6 +56,9 @@ public class RobotConstants {
 
     public static final String TERMINAL_FIELD = "terminal";
     public static final String BUSINESS_RPTMT_FIELD = "business_rptmt";
+    public static final String ACTION_KEY_FIELD = "robot_action_key";
+    public static final String DYNAMIC_PARAM_FIELD = "dynamic_param";
+
 
     public static String ROOT_FIELD = "root";
     public static final String ADMIN_FIELD = "admin";
