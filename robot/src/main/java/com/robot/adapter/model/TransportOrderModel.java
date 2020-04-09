@@ -5,11 +5,12 @@ import cn.hutool.core.util.IdUtil;
 import com.robot.adapter.constants.RobotConstants;
 import com.robot.utils.ElementKit;
 import com.robot.utils.RobotUtil;
+import com.robot.utils.ToolsKit;
+import org.opentcs.data.TCSObjectReference;
+import org.opentcs.data.model.Point;
 import org.opentcs.data.order.Route;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * 订单信息
@@ -48,15 +49,20 @@ public class TransportOrderModel implements java.io.Serializable {
 
     private List<String> pointPaths;
     private String pointPathStr;
+    private List<LocationOperation> locationOperationList;
 
-    private TransportOrderModel(String vehicleName, String finalPosition, String finalLocation, String finalOperation, List<String> pointPaths) {
+    private TransportOrderModel(String vehicleName, String finalPosition, String finalLocation, String finalOperation, List<String> pointPaths,
+                                List<LocationOperation> locationOperationList) {
         this.id = IdUtil.objectId();
         this.vehicleName = vehicleName;
         this.finalPosition = finalPosition;
         this.finalLocation = finalLocation;
         this.finalOperation = finalOperation;
         this.pointPaths = pointPaths;
-        this.pointPathStr = CollectionUtil.join(pointPaths.iterator(), ",");
+        if (null != pointPaths) {
+            this.pointPathStr = CollectionUtil.join(pointPaths.iterator(), ",");
+        }
+        this.locationOperationList = locationOperationList;
     }
 
     public String getId() {
@@ -99,14 +105,20 @@ public class TransportOrderModel implements java.io.Serializable {
         return pointPathStr;
     }
 
+    public List<LocationOperation> getLocationOperationList() {
+        return locationOperationList;
+    }
+
     public static class Builder {
         private String vehicleName;
         private String finalPosition;
         private String finalLocation;
         private String finalOperation;
         private List<String> pointPaths;
+        private List<LocationOperation> locationOperationList;
 
-        public Builder() {}
+        public Builder() {
+        }
 
         public Builder vehicleName(String vehicleName){
             this.vehicleName = vehicleName;
@@ -116,13 +128,19 @@ public class TransportOrderModel implements java.io.Serializable {
         public Builder destPosition(String destPosition){
             this.finalPosition = destPosition;
             if (null == finalLocation) {
-                finalLocation = ElementKit.duang().point(destPosition).getLocationName();
+                destLocation(ElementKit.duang().point(destPosition).getLocationName());
             }
             return this;
         }
 
         public Builder destLocation(String destLocation){
             this.finalLocation = destLocation;
+            return this;
+        }
+
+        public Builder destLocations(List<LocationOperation> dtoList) {
+            locationOperationList = new ArrayList<>();
+            locationOperationList.addAll(dtoList);
             return this;
         }
 
@@ -151,13 +169,26 @@ public class TransportOrderModel implements java.io.Serializable {
 
         public TransportOrderModel build() {
             setFinalOperation(finalPosition);
-            return new TransportOrderModel(vehicleName, finalPosition, finalLocation, finalOperation, pointPaths);
+            return new TransportOrderModel(vehicleName, finalPosition, finalLocation, finalOperation, pointPaths, locationOperationList);
         }
     }
 
     public Queue<org.opentcs.data.order.Route.Step> getRouteStep() {
         if (null == routeStep) {
             String startPosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
+
+            if (null == finalPosition) {
+                if (null != finalLocation) {
+                    Set<TCSObjectReference<Point>> pointSet = RobotUtil.getPointByLocationName(finalLocation);
+                    if (ToolsKit.isNotEmpty(pointSet)) {
+                        finalPosition = pointSet.iterator().next().getName();
+                    }
+                }
+            }
+
+            if (ToolsKit.isEmpty(finalPosition)) {
+                throw new NullPointerException("最终位置点或最终工站没有设置");
+            }
             routeStep = new LinkedList<>(RobotUtil.getRoute(vehicleName, startPosition, finalPosition));
         }
         return routeStep;

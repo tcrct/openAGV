@@ -20,7 +20,7 @@ public class RobotException extends RuntimeException implements IException {
 
     public RobotException(String errMessage, Throwable e) {
         super(errMessage, e);
-        LOG.info(errMessage);
+        LOG.info(errMessage, e);
     }
 
     public RobotException(IException enums) {

@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  */
 public class ActionsQueue {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActionsQueue.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionsQueue.class);
 
     private final static Map<String, Queue<IRequest>> ACTION_MAP = new HashMap<>();
     private final static Map<String, List<String>> VERIFICATIONCODE_MAP = new HashMap<>();
@@ -111,6 +111,20 @@ public class ActionsQueue {
             queue = new LinkedBlockingQueue<>();
         }
         return queue;
+    }
+
+    public IRequest getRequest(String actionKey, String requestId) {
+        Queue<IRequest> queue = getQueue(actionKey);
+        if (ToolsKit.isEmpty(queue)) {
+            LOG.info("根据[{}]没有找到对应的action request队列对象", actionKey);
+            return null;
+        }
+        for (IRequest request : queue) {
+            if (requestId.equals(request.getId())) {
+                return request;
+            }
+        }
+        return null;
     }
 
 

@@ -3,24 +3,30 @@
     <point name="1" xPosition="15000" yPosition="42000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="1 --- 2"/>
     </point>
-    <point name="2" xPosition="15000" yPosition="30000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="2" xPosition="15000" yPosition="21000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="2 --- 1"/>
         <outgoingPath name="2 --- 3"/>
-        <outgoingPath name="2 --- 4"/>
     </point>
-    <point name="3" xPosition="15000" yPosition="21000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="3" xPosition="15000" yPosition="30000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <outgoingPath name="3 --- 2"/>
+        <outgoingPath name="3 --- 4"/>
     </point>
-    <point name="4" xPosition="29500" yPosition="30000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
-        <outgoingPath name="4 --- 2"/>
+    <point name="4" xPosition="22000" yPosition="30000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="4 --- 3"/>
+        <outgoingPath name="4 --- 5"/>
     </point>
-    <path name="1 --- 2" sourcePoint="1" destinationPoint="2" length="12000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="2 --- 1" sourcePoint="2" destinationPoint="1" length="12000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <point name="5" xPosition="29500" yPosition="30000" zPosition="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <outgoingPath name="5 --- 4"/>
+    </point>
+    <path name="1 --- 2" sourcePoint="1" destinationPoint="2" length="21000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="2 --- 1" sourcePoint="2" destinationPoint="1" length="21000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="2 --- 3" sourcePoint="2" destinationPoint="3" length="9000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="2 --- 4" sourcePoint="2" destinationPoint="4" length="14500" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
     <path name="3 --- 2" sourcePoint="3" destinationPoint="2" length="9000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <path name="4 --- 2" sourcePoint="4" destinationPoint="2" length="14500" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
-    <vehicle name="V001" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
+    <path name="3 --- 4" sourcePoint="3" destinationPoint="4" length="7000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="4 --- 3" sourcePoint="4" destinationPoint="3" length="7000" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="4 --- 5" sourcePoint="4" destinationPoint="5" length="7500" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <path name="5 --- 4" sourcePoint="5" destinationPoint="4" length="7500" routingCost="1" maxVelocity="1000" maxReverseVelocity="0" locked="false"/>
+    <vehicle name="A001" length="1000" energyLevelCritical="30" energyLevelGood="90" energyLevelFullyRecharged="30" energyLevelSufficientlyRecharged="90" maxVelocity="1000" maxReverseVelocity="1000" type="">
         <property name="host" value="127.0.0.1"/>
         <property name="port" value="50000"/>
         <property name="tcs:preferredAdapterClass" value="com.robot.adapter.RobotCommAdapterFactory"/>
@@ -33,32 +39,29 @@
         <allowedOperation name="FineTuning"/>
         <allowedOperation name="FineTuning2"/>
     </locationType>
-    <location name="L001" xPosition="9500" yPosition="40500" zPosition="0" type="LType-0001">
-        <link point="1"/>
-    </location>
-    <location name="L002" xPosition="8000" yPosition="29500" zPosition="0" type="LType-0002">
-        <link point="2"/>
-        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_ALT_1"/>
-    </location>
-    <location name="L003" xPosition="8000" yPosition="19500" zPosition="0" type="LType-0001">
-        <link point="3"/>
-    </location>
-    <location name="L004" xPosition="29000" yPosition="26500" zPosition="0" type="LType-0001">
-        <link point="4"/>
+    <location name="B001" xPosition="29000" yPosition="26500" zPosition="0" type="LType-0001">
+        <link point="5"/>
         <property name="host" value="127.0.0.1"/>
         <property name="port" value="60000"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_ALT_1"/>
     </location>
-    <location name="L005" xPosition="8000" yPosition="27000" zPosition="0" type="LType-0002">
-        <link point="2"/>
+    <location name="L001" xPosition="9500" yPosition="40500" zPosition="0" type="LType-0001">
+        <link point="1"/>
+    </location>
+    <location name="L002" xPosition="8000" yPosition="29500" zPosition="0" type="LType-0002">
+        <link point="3"/>
+        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_ALT_1"/>
+    </location>
+    <location name="L003" xPosition="8000" yPosition="27000" zPosition="0" type="LType-0002">
+        <link point="3"/>
         <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC"/>
     </location>
     <visualLayout name="VLayout-1" scaleX="50.0" scaleY="50.0">
         <modelLayoutElement visualizedObjectName="1" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="14750"/>
-            <property name="POSITION_Y" value="39750"/>
+            <property name="POSITION_X" value="13750"/>
+            <property name="POSITION_Y" value="17250"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="1 --- 2" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
@@ -66,8 +69,8 @@
         <modelLayoutElement visualizedObjectName="2" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="14750"/>
-            <property name="POSITION_Y" value="29750"/>
+            <property name="POSITION_X" value="13750"/>
+            <property name="POSITION_Y" value="23250"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="2 --- 1" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
@@ -75,32 +78,53 @@
         <modelLayoutElement visualizedObjectName="2 --- 3" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="2 --- 4" layer="0">
-            <property name="CONN_TYPE" value="DIRECT"/>
-        </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="3" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="14750"/>
-            <property name="POSITION_Y" value="19250"/>
+            <property name="POSITION_X" value="13750"/>
+            <property name="POSITION_Y" value="29750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="3 --- 2" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
         </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="3 --- 4" layer="0">
+            <property name="CONN_TYPE" value="DIRECT"/>
+        </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="4" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-22"/>
+            <property name="POSITION_X" value="21750"/>
+            <property name="POSITION_Y" value="29750"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="4 --- 3" layer="0">
+            <property name="CONN_TYPE" value="DIRECT"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="4 --- 5" layer="0">
+            <property name="CONN_TYPE" value="DIRECT"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="5" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
             <property name="POSITION_X" value="29250"/>
             <property name="POSITION_Y" value="29750"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="4 --- 2" layer="0">
+        <modelLayoutElement visualizedObjectName="5 --- 4" layer="0">
             <property name="CONN_TYPE" value="DIRECT"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="A001" layer="0">
+            <property name="ROUTE_COLOR" value="#FF0000"/>
+        </modelLayoutElement>
+        <modelLayoutElement visualizedObjectName="B001" layer="0">
+            <property name="LABEL_OFFSET_X" value="-10"/>
+            <property name="LABEL_OFFSET_Y" value="-20"/>
+            <property name="POSITION_X" value="36750"/>
+            <property name="POSITION_Y" value="29750"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="L001" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
             <property name="POSITION_X" value="7750"/>
-            <property name="POSITION_Y" value="39750"/>
+            <property name="POSITION_Y" value="17250"/>
         </modelLayoutElement>
         <modelLayoutElement visualizedObjectName="L002" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
@@ -111,24 +135,9 @@
         <modelLayoutElement visualizedObjectName="L003" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="7750"/>
-            <property name="POSITION_Y" value="19250"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="L004" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
-            <property name="POSITION_X" value="36750"/>
-            <property name="POSITION_Y" value="29750"/>
-        </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="L005" layer="0">
-            <property name="LABEL_OFFSET_X" value="-10"/>
-            <property name="LABEL_OFFSET_Y" value="-20"/>
             <property name="POSITION_X" value="8250"/>
             <property name="POSITION_Y" value="27250"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="V001" layer="0">
-            <property name="ROUTE_COLOR" value="#FF0000"/>
-        </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2020-04-07T08:22:58.905Z"/>
+    <property name="tcs:modelFileLastModified" value="2020-04-09T07:54:25.682Z"/>
 </model>

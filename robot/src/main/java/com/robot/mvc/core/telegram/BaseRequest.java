@@ -2,6 +2,7 @@ package com.robot.mvc.core.telegram;
 
 import cn.hutool.core.util.IdUtil;
 import com.robot.adapter.RobotCommAdapter;
+import com.robot.adapter.constants.RobotConstants;
 import com.robot.mvc.core.enums.ReqType;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
@@ -150,5 +151,10 @@ public class BaseRequest implements IRequest, java.io.Serializable {
      */
     public void setNeedSend(boolean needSend) {
         isNeedSend = needSend;
+    }
+
+    @Override
+    public boolean isDynamicParam() {
+        return RobotConstants.DYNAMIC_PARAM_FIELD.equals(protocol.getParams());
     }
 }

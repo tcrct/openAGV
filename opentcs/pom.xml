@@ -248,13 +248,7 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.opentcs.thirdparty.jhotdraw</groupId>
-            <artifactId>jhotdraw</artifactId>
-            <version>7.6.20190506</version>
-            <!--      <scope>system</scope>-->
-            <!--      <systemPath>C:/workspace/IdeaProjects/java/openTCS_4.16/libs/jhotdraw-7.6.20190506.jar</systemPath>-->
-        </dependency>
+
         <dependency>
             <groupId>org.opentcs.thirdparty.dockingframes</groupId>
             <artifactId>docking-frames-common</artifactId>

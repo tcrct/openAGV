@@ -414,8 +414,16 @@ public class RobotCommAdapter
                         if (ToolsKit.isNotEmpty(action)) {
                             // 添加到执行动作集合，标识该动作已经执行，执行完成后，需要移除
                             executeLocationActionNameSet.add(operation);
+                            Location location = cmd.getFinalDestinationLocation();
+                            if (ToolsKit.isEmpty(location)) {
+                                throw new RobotException("车辆["+getName()+"]执行["+operation+"]指令集动作时，对应的工站不存在，请检查");
+                            }
+                            String deviceId = location.getProperty(RobotConstants.NAME_FIELD);
+                            if (ToolsKit.isEmpty(deviceId)) {
+                                deviceId = location.getName();
+                            }
                             // 调用BaseActions里execute方法
-                            action.execute();
+                            action.execute(operation, getName(), deviceId);
                         } else {
                             LOG.info("根据[{}]查找不到对应的动作指令处理类", operation);
                         }
@@ -519,10 +527,10 @@ public class RobotCommAdapter
                     host = location.getProperty(RobotConstants.HOST_FIELD);
                     String portStr = location.getProperty(RobotConstants.PORT_FIELD);
 
-
                     if (ToolsKit.isEmpty(deviceName) &&
                             NetChannelType.RXTX.name().equals(RobotUtil.getNetChannelType().name())) {
-                        throw new RobotException("RXTX通讯模式下，在注册设备时，设备模板名称不能为空");
+                        LOG.info("RXTX通讯模式下，在注册设备时，工站["+location.getName()+"]对应设备模板名称没有设置，默认与工站名称一致");
+                        deviceName = name;
                     }
 
                     if (ToolsKit.isNotEmpty(deviceName)) {
