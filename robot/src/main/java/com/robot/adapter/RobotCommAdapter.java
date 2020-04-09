@@ -527,10 +527,10 @@ public class RobotCommAdapter
                     host = location.getProperty(RobotConstants.HOST_FIELD);
                     String portStr = location.getProperty(RobotConstants.PORT_FIELD);
 
-
                     if (ToolsKit.isEmpty(deviceName) &&
                             NetChannelType.RXTX.name().equals(RobotUtil.getNetChannelType().name())) {
-                        throw new RobotException("RXTX通讯模式下，在注册设备时，设备模板名称不能为空");
+                        LOG.info("RXTX通讯模式下，在注册设备时，工站["+location.getName()+"]对应设备模板名称没有设置，默认与工站名称一致");
+                        deviceName = name;
                     }
 
                     if (ToolsKit.isNotEmpty(deviceName)) {
