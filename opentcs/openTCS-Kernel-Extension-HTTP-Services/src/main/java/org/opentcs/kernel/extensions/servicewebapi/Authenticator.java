@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -99,7 +101,14 @@ public class Authenticator {
       boolean isAuth = Objects.equals(requestAccessKey, authAccessKey);
       // 开启URI权限验证
       if (isAuth && null != security) {
-          isAuth = security.isAllowAccess(request.uri());
+          Map<String, String> headerMap = new HashMap<>(request.headers().size());
+          for(String key : request.headers()) {
+              String value = request.headers(key);
+              if (null != value || value.trim().length()>0) {
+                  headerMap.put(key, value);
+              }
+          }
+          isAuth = security.isAllowAccess(request.uri(), headerMap);
       }
       return isAuth;
   }

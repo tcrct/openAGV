@@ -48,19 +48,30 @@ public class RobotConstants {
      */
     public static final String OP_MOVE = "MOVE";
 
+    // 订单ID前缀标符串
     public static final String ORDER_ID_PREFIX = "Robot_";
-
+    // 车辆或设备在控制台设置名称参数所使用的标识符
     public static final String NAME_FIELD = "name";
+    // 车辆或设备在控制台设置地址参数所使用的标识符
     public static final String HOST_FIELD = "host";
+    // 车辆或设备在控制台设置端口参数所使用的标识符
     public static final String PORT_FIELD = "port";
 
+    // IdEntity里的source字段里的其中一个标识符
     public static final String TERMINAL_FIELD = "terminal";
+    // 标识符，是否是业务主动提交的传感器请求
     public static final String BUSINESS_RPTMT_FIELD = "business_rptmt";
+    // BaseActions里用于标识actionKey的关键字
     public static final String ACTION_KEY_FIELD = "robot_action_key";
+    // 动作指令集如需要在运行时实时取得参数，则需要在ActionRequest里设置该值作为标识符
     public static final String DYNAMIC_PARAM_FIELD = "dynamic_param";
 
-
+    // 根据用户名称
     public static String ROOT_FIELD = "root";
+    // 管理员用户名称
     public static final String ADMIN_FIELD = "admin";
+    // 系统默认的用户密码
     public static final String DEFAULT_PASSWORD = "robot";
+    // 根据用户访问密钥，非常重要
+    public static final String ROOT_SECRET_KEY = "x-api-secret-key";
 }

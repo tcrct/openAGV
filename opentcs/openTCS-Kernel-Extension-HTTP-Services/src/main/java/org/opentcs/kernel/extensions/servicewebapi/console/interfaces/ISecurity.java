@@ -1,6 +1,7 @@
 package org.opentcs.kernel.extensions.servicewebapi.console.interfaces;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 安全验证接口
@@ -15,7 +16,7 @@ public interface ISecurity {
      *
      * @return 返回true则代表允许访问
      */
-    boolean isAllowAccess(String uri);
+    boolean isAllowAccess(String uri, Map<String, String> headerMap);
 
     /**
      * 取安全用户，即登录成功的用户
