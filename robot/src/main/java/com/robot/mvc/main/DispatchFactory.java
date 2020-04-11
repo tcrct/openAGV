@@ -80,7 +80,7 @@ public class DispatchFactory {
             businessRequest.setAdapter(RobotUtil.getAdapter(protocol.getDeviceId()));
             IResponse response = dispatchHandler(businessRequest, new BaseResponse(businessRequest));
             // 如果状态等于200并且是需要进行到适配器进行操作的
-            // isNeedAdapterOperation在BaseService里设置，默认为false;
+            // isNeedAdapterOperation在BaseService里设置，默认为false，当需要进入到adapter时，值为true
             if (response.getStatus() == HttpStatus.HTTP_OK && response.isNeedAdapterOperation()) {
                 // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
                 RobotStateModel robotStateModel = response.getRobotStateModel();
