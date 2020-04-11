@@ -71,9 +71,11 @@ public class DispatchFactory {
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并跳出本次循环
             if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
                 LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
-                protocolQueue.add(protocol);
-                RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
-                return;
+                if (null != protocolQueue) {
+                    protocolQueue.add(protocol);
+                    RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                    return;
+                }
             }
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
