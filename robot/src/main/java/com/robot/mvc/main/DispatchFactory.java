@@ -143,7 +143,9 @@ public class DispatchFactory {
             }
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 不是业务请求且不是完成请求的都需要添加到重发队列
-                if (!RobotUtil.isBusinessRequest(request) && !RobotUtil.isOrderStateRequest(request)) {
+                if (!RobotUtil.isBusinessRequest(request)
+                        && !RobotUtil.isOrderStateRequest(request)
+                        && request.isNeedRepeatSend()) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     RobotUtil.getRepeatSend().add(response);
                 }

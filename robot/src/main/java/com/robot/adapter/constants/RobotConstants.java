@@ -48,6 +48,11 @@ public class RobotConstants {
      */
     public static final String OP_MOVE = "MOVE";
 
+    /**
+     * 协议服务类的父类名称
+     */
+    public static final String PROTOCOL_SERVICE_NAME_FIELD = "ProtocolService";
+
     // 订单ID前缀标符串
     public static final String ORDER_ID_PREFIX = "Robot_";
     // 车辆或设备在控制台设置名称参数所使用的标识符

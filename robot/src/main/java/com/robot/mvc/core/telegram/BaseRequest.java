@@ -48,7 +48,12 @@ public class BaseRequest implements IRequest, java.io.Serializable {
      */
     protected boolean isNeedAdapterOperation;
     /**
-     * 是否需要发送，默认是不需要发送
+     * 是否需要重复发送，默认是需要发送
+     */
+    protected boolean isNeedRepeatSend;
+
+    /**
+     * 是否需要重复发送，默认是不需要发送
      */
     protected boolean isNeedSend;
 
@@ -61,6 +66,7 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         paramMap = new HashMap();
         isNeedAdapterOperation = false;
         isNeedSend = false;
+        isNeedRepeatSend = true;
     }
 
     public void setAdapter(RobotCommAdapter adapter) {
@@ -151,6 +157,19 @@ public class BaseRequest implements IRequest, java.io.Serializable {
      */
     public void setNeedSend(boolean needSend) {
         isNeedSend = needSend;
+    }
+
+    public boolean isNeedRepeatSend() {
+        return isNeedRepeatSend;
+    }
+
+    /**
+     * 设置是否需要重复发送协议，默认为true, 为true时代表需要重复发送
+     *
+     * @param needSend
+     */
+    public void setNeedRepeatSend(boolean needRepeatSend) {
+        isNeedRepeatSend = needRepeatSend;
     }
 
     @Override

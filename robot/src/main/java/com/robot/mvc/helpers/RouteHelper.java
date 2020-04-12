@@ -3,6 +3,7 @@ package com.robot.mvc.helpers;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.robot.adapter.constants.RobotConstants;
 import com.robot.config.Application;
 import com.robot.event.core.EventListener;
 import com.robot.mvc.core.annnotations.Action;
@@ -64,8 +65,6 @@ public class RouteHelper {
     }
 
     private static RouteHelper ROUTE_HELPER = null;
-
-    private static final String PROTOCOL_SERVICE_NAME_FIELD = "ProtocolService";
 
     public static RouteHelper duang() {
         try {
@@ -166,7 +165,7 @@ public class RouteHelper {
                     int endIndex = serviceClass.getSimpleName().toLowerCase().indexOf("service");
                     if (endIndex > -1) {
                         // 继承了ProtocolService(车辆业务逻辑处理类)，只需要取XXXService的XXX作为key
-                        if (PROTOCOL_SERVICE_NAME_FIELD.equals(serviceClass.getSuperclass().getSimpleName())) {
+                        if (RobotConstants.PROTOCOL_SERVICE_NAME_FIELD.equals(serviceClass.getSuperclass().getSimpleName())) {
                             key = serviceClass.getSimpleName().substring(0, endIndex);
                         } else {
                             // 如果不是则取类的全名作为唯一标识
@@ -252,7 +251,7 @@ public class RouteHelper {
 
     public static Route getServiceRoute(Class clazz) {
         String key = clazz.getName();
-        if (PROTOCOL_SERVICE_NAME_FIELD.equals(clazz.getSuperclass().getSimpleName())) {
+        if (RobotConstants.PROTOCOL_SERVICE_NAME_FIELD.equals(clazz.getSuperclass().getSimpleName())) {
             int endIndex = clazz.getSimpleName().toLowerCase().indexOf("service");
             key = clazz.getSimpleName().substring(0, endIndex);
         }

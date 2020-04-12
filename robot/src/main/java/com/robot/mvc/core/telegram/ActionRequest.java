@@ -27,14 +27,23 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
      */
     private String vehicleId;
 
+    /**
+     * 业务服务类请求Dto对象
+     */
+    private ActionRequest.ServiceRequestDto serviceRequestDto;
+
     public ActionRequest(IProtocol protocol) {
         super(ReqType.ACTION, protocol);
         super.setNeedSend(true);
     }
 
-    public ActionRequest(String deviceId, ActionRequest.ServiceRequestDto serviceRequestDto) {
-        super(ReqType.ACTION, null);
-        super.setNeedSend(true);
+    // 子任务不需要发送，不需要重复发送，不需要进入到adapter
+    public ActionRequest(IProtocol protocol, ActionRequest.ServiceRequestDto serviceRequestDto) {
+        super(ReqType.ACTION, protocol);
+        super.setNeedSend(false);
+        super.setNeedAdapterOperation(false);
+        super.setNeedRepeatSend(false);
+        this.serviceRequestDto = serviceRequestDto;
     }
 
     public abstract String cmd();
@@ -55,6 +64,9 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
         this.vehicleId = vehicleId;
     }
 
+    public ServiceRequestDto getServiceRequestDto() {
+        return serviceRequestDto;
+    }
 
     public static String callServiceMethod(ServiceRequestDto serviceRequestDto) {
         Object service = BeanHelper.duang().getBean(serviceRequestDto.getServiceClass());
