@@ -62,6 +62,7 @@ public class BaseResponse implements IResponse {
 
     /**
      * 默认是不进入到 adapter及不发送的
+     *
      * @param request
      * @param protocol
      */

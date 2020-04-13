@@ -7,6 +7,7 @@ import com.robot.adapter.constants.RobotConstants;
 import com.robot.adapter.enumes.LoadAction;
 import com.robot.adapter.enumes.LoadState;
 import com.robot.adapter.exchange.AdapterComponentsFactory;
+import com.robot.adapter.exchange.BoundedCounter;
 import com.robot.adapter.model.RobotProcessModel;
 import com.robot.adapter.model.RobotStateModel;
 import com.robot.adapter.model.RobotVehicleModelTO;
@@ -49,6 +50,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.robot.adapter.exchange.BoundedCounter.INT_MAX_VALUE;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -104,6 +106,8 @@ public class RobotCommAdapter
      * 如果Set里存在该动作名称，则代表动作正在执行，执行完成后，需要remove该动作名称
      */
     private static final Set<String> executeLocationActionNameSet = new HashSet<>();
+
+    private final BoundedCounter globalRequestCounter = new BoundedCounter(0, INT_MAX_VALUE);
 
     private StandardVehicleService vehicleService;
     private StandardTransportOrderService transportOrderService;
@@ -700,6 +704,15 @@ public class RobotCommAdapter
         }
     }
 
+    /**
+     * 清除移动命令队列
+     */
+    @Override
+    public void clearCommandQueue() {
+        super.clearCommandQueue();
+        movementCommandQueue.clear();
+    }
+
     /********************************* ITelegramSender *************************************/
     /**
      * 发送报文
@@ -717,6 +730,7 @@ public class RobotCommAdapter
         }
         try {
             contribKit.send(getName(), response.getRawContent());
+            globalRequestCounter.getAndIncrement();
         } catch (Exception e) {
             LOG.error("发送报文消息到[{}]时异常: {}", getName(), e.getMessage(), e);
         }

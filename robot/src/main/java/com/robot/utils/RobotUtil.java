@@ -792,7 +792,7 @@ public class RobotUtil {
             if (disableVehicle) {
                 adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle, Vehicle.IntegrationLevel.TO_BE_RESPECTED);
             } else {
-                adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle,  Vehicle.IntegrationLevel.TO_BE_UTILIZED);
+                adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle, Vehicle.IntegrationLevel.TO_BE_UTILIZED);
             }
             RobotContext.getDispatcherService().withdrawByTransportOrder(transportOrder.getReference(), immediate);
             return true;
