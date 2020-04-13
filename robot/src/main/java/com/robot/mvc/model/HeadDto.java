@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HeadDto implements java.io.Serializable {
+
+    public static final String TOKENID_FIELD = "tokenId";
+
     /**
      * 非0值均代表有异常
      */

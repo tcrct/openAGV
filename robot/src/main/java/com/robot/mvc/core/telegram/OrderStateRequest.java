@@ -46,6 +46,8 @@ public class OrderStateRequest extends BaseRequest {
         super.setNeedAdapterOperation(false);
         //不需要发送到客户端
         super.setNeedSend(false);
+        //不需要重复发送
+        super.setNeedRepeatSend(false);
     }
 
     public boolean isFinished() {

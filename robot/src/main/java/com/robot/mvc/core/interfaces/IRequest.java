@@ -71,6 +71,11 @@ public interface IRequest extends ITelegram {
     boolean isNeedSend();
 
     /**
+     * 是否需要重量发送协议到车辆或设备，默认是需要
+     **/
+    boolean isNeedRepeatSend();
+
+    /**
      * 是否需要在运行时实时确认协议参数
      * @return true为需要
      */

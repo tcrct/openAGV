@@ -60,6 +60,11 @@ public class BaseResponse implements IResponse {
         responseDefaultValue(request, protocol);
     }
 
+    /**
+     * 默认是不进入到 adapter及不发送的
+     * @param request
+     * @param protocol
+     */
     private void responseDefaultValue(IRequest request, IProtocol protocol) {
         this.id = request.getId();
         this.deviceId = protocol.getDeviceId();

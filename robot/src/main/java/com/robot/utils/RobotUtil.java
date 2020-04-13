@@ -748,6 +748,10 @@ public class RobotUtil {
         } catch (Exception e) {
             LOG.info("创建订单路由时出错: " + e.getMessage(), e);
         }
+        //将车辆状态更新至空闲状态
+        adapter.getProcessModel().setVehicleIdle(true);
+        adapter.getProcessModel().setVehicleState(Vehicle.State.IDLE);
+        LOG.info("创建移动订单成功，将车辆[{}]状态更改为空闲状态", adapter.getName());
         return transportOrder;
     }
 
@@ -779,10 +783,16 @@ public class RobotUtil {
             if (null == transportOrder) {
                 throw new ObjectUnknownException("Unknown transport order: " + orderId);
             }
-            if (disableVehicle && transportOrder.getProcessingVehicle() != null) {
-                String vehicleName = transportOrder.getProcessingVehicle().getName();
-                RobotUtil.getAdapter(vehicleName).getVehicleService().updateVehicleIntegrationLevel(transportOrder.getProcessingVehicle(),
-                        Vehicle.IntegrationLevel.TO_BE_RESPECTED);
+            TCSObjectReference<Vehicle> vehicle = transportOrder.getProcessingVehicle();
+            if (vehicle == null) {
+                throw new RobotException("取消移动订单时，执行的车辆不能为空!");
+            }
+            String vehicleName = vehicle.getName();
+            RobotCommAdapter adapter = RobotUtil.getAdapter(vehicleName);
+            if (disableVehicle) {
+                adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle, Vehicle.IntegrationLevel.TO_BE_RESPECTED);
+            } else {
+                adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle,  Vehicle.IntegrationLevel.TO_BE_UTILIZED);
             }
             RobotContext.getDispatcherService().withdrawByTransportOrder(transportOrder.getReference(), immediate);
             return true;

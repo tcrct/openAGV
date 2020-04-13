@@ -71,16 +71,18 @@ public class DispatchFactory {
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并跳出本次循环
             if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
                 LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(protocol.getCode());
-                protocolQueue.add(protocol);
-                RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
-                return;
+                if (null != protocolQueue) {
+                    protocolQueue.add(protocol);
+                    RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                    return;
+                }
             }
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
             businessRequest.setAdapter(RobotUtil.getAdapter(protocol.getDeviceId()));
             IResponse response = dispatchHandler(businessRequest, new BaseResponse(businessRequest));
             // 如果状态等于200并且是需要进行到适配器进行操作的
-            // isNeedAdapterOperation在BaseService里设置，默认为false;
+            // isNeedAdapterOperation在BaseService里设置，默认为false，当需要进入到adapter时，值为true
             if (response.getStatus() == HttpStatus.HTTP_OK && response.isNeedAdapterOperation()) {
                 // 调用通讯适配器方法，更新车辆位置显示或调用工站动作
                 RobotStateModel robotStateModel = response.getRobotStateModel();
@@ -141,7 +143,9 @@ public class DispatchFactory {
             }
             if (response.getStatus() == HttpStatus.HTTP_OK) {
                 // 不是业务请求且不是完成请求的都需要添加到重发队列
-                if (!RobotUtil.isBusinessRequest(request) && !RobotUtil.isOrderStateRequest(request)) {
+                if (!RobotUtil.isBusinessRequest(request)
+                        && !RobotUtil.isOrderStateRequest(request)
+                        && request.isNeedRepeatSend()) {
                     // 将Response对象放入重发队列，确保消息发送到车辆
                     RobotUtil.getRepeatSend().add(response);
                 }
