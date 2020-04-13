@@ -128,7 +128,11 @@ public class TransportOrderModel implements java.io.Serializable {
         public Builder destPosition(String destPosition){
             this.finalPosition = destPosition;
             if (null == finalLocation) {
-                destLocation(ElementKit.duang().point(destPosition).getLocationName());
+                try {
+                    destLocation(ElementKit.duang().point(destPosition).getLocationName());
+                } catch (Exception e) {
+                    destLocation(destPosition);
+                }
             }
             return this;
         }
@@ -177,12 +181,12 @@ public class TransportOrderModel implements java.io.Serializable {
         if (null == routeStep) {
             String startPosition = RobotUtil.getAdapter(vehicleName).getProcessModel().getVehiclePosition();
 
-            if (null == finalPosition) {
-                if (null != finalLocation) {
-                    Set<TCSObjectReference<Point>> pointSet = RobotUtil.getPointByLocationName(finalLocation);
-                    if (ToolsKit.isNotEmpty(pointSet)) {
-                        finalPosition = pointSet.iterator().next().getName();
-                    }
+            try {
+                RobotUtil.getPoint(finalPosition).getName();
+            } catch (Exception e) {
+                Set<TCSObjectReference<Point>> pointSet = RobotUtil.getPointByLocationName(finalLocation);
+                if (ToolsKit.isNotEmpty(pointSet)) {
+                    finalPosition = pointSet.iterator().next().getName();
                 }
             }
 

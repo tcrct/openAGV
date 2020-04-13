@@ -22,8 +22,15 @@ public class ActionsQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsQueue.class);
 
+    /**
+     * 工站动作指令
+     * key为工站动作名称，value为动作队列
+     */
     private final static Map<String, Queue<IRequest>> ACTION_MAP = new HashMap<>();
     private final static Map<String, List<String>> VERIFICATIONCODE_MAP = new HashMap<>();
+
+    private final static Map<String, String> VEHICLEID_ACTIONKEY_MAP = new HashMap<>();
+    private final static Map<String, String> DEVICEID_ACTIONKEY_MAP = new HashMap<>();
 
     private static ActionsQueue actionsQueue;
     private static Lock lock = new ReentrantLock();
@@ -44,12 +51,12 @@ public class ActionsQueue {
 
     }
 
-    public void put(String deviceId, Queue queue) {
-        ACTION_MAP.put(deviceId, queue);
+    public void put(String actionKey, Queue queue) {
+        ACTION_MAP.put(actionKey, queue);
     }
 
-    public void remove(String deviceId) {
-        ACTION_MAP.remove(deviceId);
+    public void remove(String actionKey) {
+        ACTION_MAP.remove(actionKey);
     }
 
     /**
@@ -192,5 +199,18 @@ public class ActionsQueue {
         });
         queue.clear();
         queue.addAll(requestList);
+    }
+
+
+    public void setActionKeyMapping(String vehicleId, String deviceId, String actionKey) {
+        VEHICLEID_ACTIONKEY_MAP.put(vehicleId, actionKey);
+        DEVICEID_ACTIONKEY_MAP.put(deviceId, actionKey);
+    }
+
+    public String getActionKeyByVehicleId(String vehicleId) {
+        return VEHICLEID_ACTIONKEY_MAP.get(vehicleId);
+    }
+    public String getActionKeyByDeviceId(String deviceId) {
+        return DEVICEID_ACTIONKEY_MAP.get(deviceId);
     }
 }

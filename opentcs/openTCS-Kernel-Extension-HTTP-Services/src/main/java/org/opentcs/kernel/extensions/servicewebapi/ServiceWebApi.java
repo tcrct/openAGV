@@ -105,7 +105,6 @@ public class ServiceWebApi
             return;
         }
 
-
         v1RequestHandler.initialize();
         robotRequestHandler.initialize();
 
