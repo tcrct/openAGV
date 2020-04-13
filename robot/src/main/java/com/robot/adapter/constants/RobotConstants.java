@@ -72,9 +72,4 @@ public class RobotConstants {
     /**默认的管理员用户帐号*/
     public static final String ADMIN_FIELD = "admin";
 
-
-    /**
-     * 是否业务传感器提交，即生产业务过程中，主动提交上来的传感器参数，不是由工站主动下发后等待回复的
-     */
-    public static final String BUSINESS_RPTMT_FIELD = "isBusinessRptMt";
 }
