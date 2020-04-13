@@ -713,6 +713,13 @@ public class RobotCommAdapter
         movementCommandQueue.clear();
     }
 
+    /**
+     * 取报文发送累计数，系统重启后会初始化为0
+     */
+    public int getTelegramCountValue() {
+        return globalRequestCounter.getCounterValue();
+    }
+
     /********************************* ITelegramSender *************************************/
     /**
      * 发送报文
