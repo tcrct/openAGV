@@ -43,6 +43,7 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
         super.setNeedSend(false);
         super.setNeedAdapterOperation(false);
         super.setNeedRepeatSend(false);
+        super.setId("sub_" + this.getId());
         this.serviceRequestDto = serviceRequestDto;
     }
 

@@ -102,9 +102,9 @@ public class Authenticator {
       // 开启URI权限验证
       if (isAuth && null != security) {
           Map<String, String> headerMap = new HashMap<>(request.headers().size());
-          for(String key : request.headers()) {
+          for (String key : request.headers()) {
               String value = request.headers(key);
-              if (null != value || value.trim().length()>0) {
+              if (null != value || value.trim().length() > 0) {
                   headerMap.put(key, value);
               }
           }

@@ -40,7 +40,7 @@
         <allowedOperation name="FineTuning"/>
         <allowedOperation name="FineTuning2"/>
     </locationType>
-    <location name="B001" xPosition="29000" yPosition="26500" zPosition="0" type="LType-0001">
+    <location name="B030" xPosition="29000" yPosition="26500" zPosition="0" type="LType-0001">
         <link point="5"/>
         <property name="host" value="127.0.0.1"/>
         <property name="port" value="60000"/>
@@ -115,7 +115,7 @@
         <modelLayoutElement visualizedObjectName="A001" layer="0">
             <property name="ROUTE_COLOR" value="#FF0000"/>
         </modelLayoutElement>
-        <modelLayoutElement visualizedObjectName="B001" layer="0">
+        <modelLayoutElement visualizedObjectName="B030" layer="0">
             <property name="LABEL_OFFSET_X" value="-10"/>
             <property name="LABEL_OFFSET_Y" value="-20"/>
             <property name="POSITION_X" value="36750"/>
@@ -140,5 +140,5 @@
             <property name="POSITION_Y" value="27250"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2020-04-10T12:08:43.274Z"/>
+    <property name="tcs:modelFileLastModified" value="2020-04-14T14:46:39.265Z"/>
 </model>
