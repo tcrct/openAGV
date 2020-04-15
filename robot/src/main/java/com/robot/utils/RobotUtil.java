@@ -795,6 +795,7 @@ public class RobotUtil {
                 adapter.getVehicleService().updateVehicleIntegrationLevel(vehicle, Vehicle.IntegrationLevel.TO_BE_UTILIZED);
             }
             RobotContext.getDispatcherService().withdrawByTransportOrder(transportOrder.getReference(), immediate);
+            LOG.info("取消车辆[{}]移动订单成功!", vehicleName);
             return true;
         } catch (Exception e) {
             LOG.info("取消移动订单时出错: {}", e.getMessage(), e);

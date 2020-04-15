@@ -4,7 +4,7 @@ import com.robot.adapter.RobotCommAdapter;
 import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
-import com.robot.mvc.core.interfaces.IProtocol;
+import com.robot.mvc.core.interfaces.IRequestCallback;
 import com.robot.utils.RobotUtil;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.DispatcherService;
@@ -13,10 +13,8 @@ import org.opentcs.components.kernel.services.TransportOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by laotang on 2020/1/12.
@@ -26,7 +24,7 @@ public class RobotContext {
     private static final Logger LOG = LoggerFactory.getLogger(RobotContext.class);
 
     // RequestKit发送的请求后，缓存到此Map，等待回复
-    private static Map<String, LinkedBlockingQueue<IProtocol>> RESPONSE_PROTOCOL_MAP = new ConcurrentHashMap<>();
+    private static Map<String, IRequestCallback> RESPONSE_PROTOCOL_MAP = new ConcurrentHashMap<>();
     // OpenAgv需要的组件接口
     private static IComponents components;
     // 车辆适配器集合
@@ -76,7 +74,7 @@ public class RobotContext {
     /**
      * 缓存RequestKit发出的请求，等待响应回复，key为crc验证码
      */
-    public static Map<String, LinkedBlockingQueue<IProtocol>> getResponseProtocolMap() {
+    public static Map<String, IRequestCallback> getResponseProtocolMap() {
         return RESPONSE_PROTOCOL_MAP;
     }
 
