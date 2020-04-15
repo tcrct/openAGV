@@ -88,7 +88,6 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
         }
     }
 
-
     public static class ServiceRequestDto {
         private Class<? extends IService> serviceClass;
         private String methodName;

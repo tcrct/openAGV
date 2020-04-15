@@ -7,7 +7,6 @@ import com.robot.adapter.model.RobotStateModel;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IProtocol;
 import com.robot.mvc.core.interfaces.IRequest;
-import com.robot.mvc.core.interfaces.IRequestCallback;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.mvc.core.telegram.*;
 import com.robot.utils.RobotUtil;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -69,13 +69,14 @@ public class DispatchFactory {
         LOG.info("onIncomingTelegram: {}", message);
         try {
             // 如果返回的code在Map集合里存在，则视为由RequestKit发送请求的响应，将响应协议对象设置到对应的Map集合里，并跳出本次循环
-            if (RobotContext.getResponseProtocolMap().containsKey(protocol.getCode())) {
-                IRequestCallback requestCallback = RobotContext.getResponseProtocolMap().get(protocol.getCode());
-                if (null != requestCallback) {
-                    requestCallback.call(protocol);
-//                    RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+            String resCode = RobotContext.getRobotComponents().getProtocolMatcher().responseCode(protocol);
+            if (ToolsKit.isNotEmpty(resCode)) {
+                LinkedBlockingQueue<IProtocol> protocolQueue = RobotContext.getResponseProtocolMap().get(resCode);
+                if (null != protocolQueue) {
+                    protocolQueue.add(protocol);
+                    RobotContext.getResponseProtocolMap().put(protocol.getCode(), protocolQueue);
+                    return;
                 }
-                return;
             }
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
             // 如果在BusinessRequest里的adapter为null，则说明提交的协议字符串不属于车辆移动协议
