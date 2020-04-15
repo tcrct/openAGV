@@ -29,12 +29,4 @@ public interface IProtocolMatcher {
      */
     String decode(IProtocol protocol) throws RobotException;
 
-    /**
-     * RequestKit发出的请求后，等待响应的验证码
-     *
-     * @param protocol 接收到的报文协议对象
-     * @return
-     * @throws RobotException
-     */
-    String responseCode(IProtocol protocol) throws RobotException;
 }
