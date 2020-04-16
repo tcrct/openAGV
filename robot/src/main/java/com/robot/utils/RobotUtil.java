@@ -99,7 +99,7 @@ public class RobotUtil {
         try {
             return RobotUtil.getEntryName(key).getVehicleNameList().get(0);
         } catch (Exception e) {
-            LOG.error("可能没有该车辆[{}]对应的业务逻辑服务类，请检查！", key);
+//            LOG.error("可能没有该车辆[{}]对应的业务逻辑服务类，请检查！", key);
             return key;
         }
     }
@@ -383,7 +383,7 @@ public class RobotUtil {
         }
 
         if (!ENTRYNAME_MAP.isEmpty()) {
-            LOG.info("EntryName Map 已经存在，不需要重复调用");
+//            LOG.info("EntryName Map 已经存在，不需要重复调用");
             return null;
         }
 

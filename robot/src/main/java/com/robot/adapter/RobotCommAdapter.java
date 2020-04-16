@@ -427,7 +427,7 @@ public class RobotCommAdapter
                                 deviceId = location.getName();
                             }
                             // 调用BaseActions里execute方法
-                            action.execute(operation, getName(), deviceId);
+                            action.execute(operation, operation, getName(), deviceId);
                         } else {
                             LOG.info("根据[{}]查找不到对应的动作指令处理类", operation);
                         }
