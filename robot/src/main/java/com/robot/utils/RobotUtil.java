@@ -857,7 +857,7 @@ public class RobotUtil {
                 long lengthCount = 0;
                 for (org.opentcs.data.order.Route.Step step : stepList) {
                     // 如果路径上任意一个点上有车辆，则退出
-                    if (null != getVehicleByPoint(step.getSourcePoint().getName())) {
+                    if (null != getVehicleByPoint(step.getDestinationPoint().getName())) {
                         isExistVehicleOnPath = true;
                         LOG.info("由于线路上有车辆，该车辆[{}]不能作为空闲车辆，退出方法，继续查找下一车辆", vehicle.getName());
                         break;
@@ -870,6 +870,9 @@ public class RobotUtil {
                     vehicleIdeaMap.put(lengthCount, vehicle);
                 }
             }
+        }
+        if (vehicleIdeaMap.isEmpty()) {
+            throw new RobotException("没有找到可用的车辆");
         }
         // 取出距离最近的车辆，排第一的车辆
         Map.Entry<Long, Vehicle> vehicleEntry = vehicleIdeaMap.entrySet().iterator().next();

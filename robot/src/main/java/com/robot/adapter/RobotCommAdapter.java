@@ -293,7 +293,6 @@ public class RobotCommAdapter
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
         cmd = requireNonNull(cmd, "MovementCommand is null");
-        LOG.info("###### {}正在发送移动指令", getName());
         // 添加到队列
         tempCommandQueue.add(cmd);
         /**
