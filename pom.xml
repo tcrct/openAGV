@@ -18,6 +18,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <db.version>1.0-SNAPSHOT</db.version>
+        <cache.version>1.0-SNAPSHOT</cache.version>
         <opentcs.version>4.17</opentcs.version>
         <hutool.version>4.6.7</hutool.version>
         <commons.codec.version>1.10</commons.codec.version>
@@ -117,6 +118,11 @@
             <groupId>com.duangframework.database</groupId>
             <artifactId>duang-db</artifactId>
             <version>${db.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.duangframework.cache</groupId>
+            <artifactId>duang-cache</artifactId>
+            <version>${cache.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
