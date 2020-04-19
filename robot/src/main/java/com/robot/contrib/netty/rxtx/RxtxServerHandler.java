@@ -42,6 +42,6 @@ public class RxtxServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOG.error("################TcpServerHandler exception: " + cause.getMessage(), cause);
+        LOG.error("################RxtxServerHandler exception: " + cause.getMessage(), cause);
     }
 }

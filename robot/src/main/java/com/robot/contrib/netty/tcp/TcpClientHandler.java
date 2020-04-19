@@ -3,8 +3,12 @@ package com.robot.contrib.netty.tcp;
 import com.robot.contrib.netty.ConnectionEventListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TcpClientHandler extends SimpleChannelInboundHandler<String>  {
+
+    private final static Logger LOG = LoggerFactory.getLogger(TcpClientHandler.class);
 
     private ConnectionEventListener eventListener;
 
@@ -17,6 +21,7 @@ public class TcpClientHandler extends SimpleChannelInboundHandler<String>  {
         eventListener.onIncomingTelegram(result);
     }
 
+
     /**
      * 本方法用于处理异常
      * @param ctx
@@ -25,6 +30,7 @@ public class TcpClientHandler extends SimpleChannelInboundHandler<String>  {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("################TcpClientHandler exception: " + cause.getMessage(), cause);
         // 当出现异常就关闭连接
         cause.printStackTrace();
         ctx.close();

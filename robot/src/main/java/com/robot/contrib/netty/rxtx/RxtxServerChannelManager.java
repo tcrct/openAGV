@@ -95,9 +95,9 @@ public class RxtxServerChannelManager extends AbstractServerChannelManager {
     }
 
     @Override
-    public void send(String key, String message) throws Exception {
-        super.send(key, (Object) message);
-        LOG.info("send to client[{}], message: {}", message, key);
+    public void send(String key, String telegram) throws Exception {
+        super.send(key, (Object) telegram);
+        LOG.info("send to client[{}], telegram: {}", key, telegram);
     }
 }
 

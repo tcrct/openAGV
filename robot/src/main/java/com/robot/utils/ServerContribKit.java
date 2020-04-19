@@ -46,7 +46,7 @@ public class ServerContribKit {
      * @param port
      * @return
      */
-    public static ServerContribKit duang(String host, int port) {
+    public static ServerContribKit instance(String host, int port) {
         synchronized (lock) {
             if (null == CONTRIB_KIT) {
                 CONTRIB_KIT = new ServerContribKit(host, port);
@@ -55,7 +55,7 @@ public class ServerContribKit {
         return CONTRIB_KIT;
     }
 
-    public static ServerContribKit getInstance() {
+    public static ServerContribKit duang() {
         if (null == CONTRIB_KIT) {
             throw new RobotException("服务器网络处理工具为null，请检查！");
         }

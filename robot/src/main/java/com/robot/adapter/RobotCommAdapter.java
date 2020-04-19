@@ -186,7 +186,7 @@ public class RobotCommAdapter
         }
         super.initialize();
         // 初始化车辆渠道管理器
-        contribKit = ServerContribKit.duang(RobotUtil.getServerHost(), RobotUtil.getServerPort());
+        contribKit = ServerContribKit.instance(RobotUtil.getServerHost(), RobotUtil.getServerPort());
         LOG.info("车辆[{}]完成Robot适配器初始化完成", getName());
     }
 

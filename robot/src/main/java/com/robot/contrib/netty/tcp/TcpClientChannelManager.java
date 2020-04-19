@@ -29,8 +29,6 @@ import static java.util.Objects.requireNonNull;
  * class's fully qualified name.
  * </p>
  *
- * @author Martin Grzenia (Fraunhofer IML)
- * @author Stefan Walter (Fraunhofer IML)
  */
 public class TcpClientChannelManager {
 

@@ -74,7 +74,7 @@ public class TelegramSendKit {
      */
     public void send() {
         try {
-            ServerContribKit.getInstance().send(key, telegramMsg);
+            ServerContribKit.duang().send(key, telegramMsg);
         } catch (Exception e) {
             LOG.error("发送报文时出错: "+ e.getMessage(), e);
         }
