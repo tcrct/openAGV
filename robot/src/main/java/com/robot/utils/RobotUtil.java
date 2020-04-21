@@ -901,4 +901,28 @@ public class RobotUtil {
         }
         return locationNameList;
     }
+
+    /**
+     *向量夹角计算
+     * @param vertexPointX -- 角度对应顶点X坐标值
+     * @param vertexPointY -- 角度对应顶点Y坐标值
+     * @param point0X
+     * @param point0Y
+     * @param point1X
+     * @param point1Y
+     * @return
+     */
+    private int getDegree(int vertexPointX, int vertexPointY, int point0X, int point0Y, int point1X, int point1Y) {
+        //向量的点乘
+        int vector = (point0X - vertexPointX) * (point1X - vertexPointX) + (point0Y - vertexPointY) * (point1Y - vertexPointY);
+        //向量的模乘
+        double sqrt = Math.sqrt(
+                (Math.abs((point0X - vertexPointX) * (point0X - vertexPointX)) + Math.abs((point0Y - vertexPointY) * (point0Y - vertexPointY)))
+                        * (Math.abs((point1X - vertexPointX) * (point1X - vertexPointX)) + Math.abs((point1Y - vertexPointY) * (point1Y - vertexPointY)))
+        );
+        //反余弦计算弧度
+        double radian = Math.acos(vector / sqrt);
+        //弧度转角度制
+        return (int) (180 * radian / Math.PI);
+    }
 }
