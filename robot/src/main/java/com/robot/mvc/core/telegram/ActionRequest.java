@@ -32,6 +32,10 @@ public abstract class ActionRequest extends BaseRequest implements IActionComman
      */
     private ActionRequest.ServiceRequestDto serviceRequestDto;
 
+    public ActionRequest() {
+
+    }
+
     public ActionRequest(IProtocol protocol) {
         super(ReqType.ACTION, protocol);
         super.setNeedSend(true);

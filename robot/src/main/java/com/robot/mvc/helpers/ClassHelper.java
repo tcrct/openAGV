@@ -125,7 +125,9 @@ public class ClassHelper {
     public List<Class<?>> getWebSocketClassList() {
         return CLASS_MAP.get(AnnotationType.WEBSOCKET_ANNOTATION.getName());
     }
-
+    public List<Class<?>> getActionItemClassList() {
+        return CLASS_MAP.get(AnnotationType.ACTION_ITEM_ANNOTATION.getName());
+    }
 
     public List<Class<?>> getClassList(String key) {
         return CLASS_MAP.get(key);

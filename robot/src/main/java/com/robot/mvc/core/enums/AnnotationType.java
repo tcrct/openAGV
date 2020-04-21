@@ -14,7 +14,7 @@ public enum AnnotationType {
     JOB_ANNOTATION(Job.class, false, "所有Job类的注解，必须在类添加该注解否则框架忽略扫描"),
     LISTENER_ANNOTATION(Listener.class, true, "所有Listener类的注解，必须在类添加该注解否则框架忽略扫描"),
     WEBSOCKET_ANNOTATION(WebSocket.class, true, "所有Websocket类的注解，必须在类添加该注解否则框架忽略扫描"),
-
+    ACTION_ITEM_ANNOTATION(ActionItem.class, false, "所有ActionItem类的注解，必须在类添加该注解否则框架忽略扫描"),
 
     ;
 

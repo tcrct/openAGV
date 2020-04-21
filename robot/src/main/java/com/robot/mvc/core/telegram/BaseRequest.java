@@ -69,6 +69,10 @@ public class BaseRequest implements IRequest, java.io.Serializable {
         isNeedRepeatSend = true;
     }
 
+    public BaseRequest() {
+
+    }
+
     public void setAdapter(RobotCommAdapter adapter) {
         this.adapter = adapter;
     }

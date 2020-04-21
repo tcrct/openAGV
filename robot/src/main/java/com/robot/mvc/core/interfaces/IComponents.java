@@ -26,4 +26,10 @@ public interface IComponents {
      * @param protocol 协议对象
      */
     IVehicleStatus getVehicleStatus();
+
+    /**
+     * 取工站任务对象
+     * @return
+     */
+    ITaskAction getTaskAction();
 }

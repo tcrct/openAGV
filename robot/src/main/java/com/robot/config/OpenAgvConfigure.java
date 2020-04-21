@@ -38,6 +38,8 @@ public class OpenAgvConfigure {
         System.setProperty("opentcs.home", ".");
         System.setProperty("splash", classesPath + File.separator + "bin" + File.separator + "splash-image.gif");
         System.setProperty("file.encoding", CharsetUtil.UTF_8.name());
+        // 设置DLL文件根路径
+        System.setProperty("jna.library.path", classesPath + File.separator +"dll");
         PropertyConfigurator.configure(classesPath + File.separator + "log4j.properties");
         logger.warn("OpenAgvConfigure init success");
 

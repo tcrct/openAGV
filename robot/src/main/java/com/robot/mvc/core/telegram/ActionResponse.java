@@ -15,6 +15,10 @@ public abstract class ActionResponse implements IActionCommand {
 
     protected IProtocol protocol;
 
+    public ActionResponse(){
+
+    }
+
     public ActionResponse(IProtocol protocol) {
         this.protocol = protocol;
     }

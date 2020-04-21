@@ -13,14 +13,14 @@ public interface IAction {
      * 动作名称，必须保证全局唯一
      * @return
      */
-    String actionKey(String actionKey);
+//    String actionKey(String actionKey);
     /**取动作名称*/
     String actionKey();
 
     /**
      * 车辆ID
      */
-    String vehicleId(String vehicleId);
+//    String vehicleId(String vehicleId);
     /** 取车辆ID */
     String vehicleId();
 
@@ -28,7 +28,7 @@ public interface IAction {
      * 工站设备ID
      * @return
      */
-    String deviceId(String deviceId);
+//    String deviceId(String deviceId);
     /** 取工站/设备ID */
     String deviceId();
 

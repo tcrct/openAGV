@@ -316,6 +316,13 @@ public class RobotUtil {
         if (ToolsKit.isEmpty(operation)) {
             throw new RuntimeException("动作名称不能为空");
         }
+
+        IAction action = RobotContext.getRobotComponents().getTaskAction().getTaskAction(operation);
+        if (null != action) {
+            LOG.info("根据动作名称[{}]查找到自定义编排工站动作对象且不为空，所以返回自定义编排的动作对象处理！", operation);
+            return action;
+        }
+        LOG.info("没有找到与动作名称[{}]对应的自定义编排的动作对象，查看代码是否有编写，如有则执行工站动作！", operation);
         Route route = RouteHelper.getActionRouteMap().get(operation);
         if (ToolsKit.isNotEmpty(route)) {
             Object routeObj = route.getServiceObj();
@@ -399,9 +406,9 @@ public class RobotUtil {
                 continue;
             }
             IAction action = (IAction) obj;
-            String deviceName = action.deviceId("");
-            String vehicleName = action.vehicleId("");
-            String actionName = action.actionKey();
+            String deviceName = ""; //action.deviceId("");
+            String vehicleName = ""; //action.vehicleId("");
+            String actionName = ""; //action.actionKey();
             put2Set(deviceName, vehicleName, deviceName, actionName);
             put2Set(vehicleName, vehicleName, deviceName, actionName);
             put2Set(actionName, vehicleName, deviceName, actionName);

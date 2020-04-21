@@ -30,6 +30,7 @@
         <i18n.version>1.0.0</i18n.version>
         <common.version>3.4</common.version>
         <velocity.version>1.7</velocity.version>
+        <jna.version>5.5.0</jna.version>
     </properties>
 
     <dependencies>
@@ -41,6 +42,14 @@
 <!--            <scope>system</scope>-->
 <!--            <systemPath>${project.basedir}\lib\opentcs-i18n-1.0.0.jar</systemPath>-->
 <!--        </dependency>-->
+        <!-- jna -->
+        <dependency>
+            <groupId>com.sun.jna</groupId>
+            <artifactId>jan-native</artifactId>
+            <version>${jna.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}\lib\jna-5.5.0.jar</systemPath>
+        </dependency>
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>
