@@ -65,7 +65,7 @@ public class RobotConstants {
     // IdEntity里的source字段里的其中一个标识符
     public static final String TERMINAL_FIELD = "terminal";
     // 标识符，是否是业务主动提交的传感器请求
-    public static final String BUSINESS_RPTMT_FIELD = "business_rptmt";
+    public static final String TERMINAL_SUBMIT_RPTMT_FIELD = "terminal_submit_rptmt";
     // BaseActions里用于标识actionKey的关键字
     public static final String ACTION_KEY_FIELD = "robot_action_key";
     // 动作指令集如需要在运行时实时取得参数，则需要在ActionRequest里设置该值作为标识符

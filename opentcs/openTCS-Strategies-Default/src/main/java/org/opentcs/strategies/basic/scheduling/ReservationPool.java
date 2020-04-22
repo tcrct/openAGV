@@ -114,7 +114,7 @@ public class ReservationPool {
     for (TCSResource<?> curRes : resources) {
       ReservationEntry entry = getReservationEntry(curRes);
       if (!entry.isAllocatedBy(client)) {
-        LOG.warn("{}: Freed resource not reserved: {}, entry: {}", client.getId(), curRes, entry);
+        LOG.warn("{}发生死锁了: Freed resource not reserved: {}, entry: {}", client.getId(), curRes, entry);
       }
       else {
         freeableResources.add(curRes);

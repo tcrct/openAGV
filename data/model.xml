@@ -273,14 +273,23 @@
     </location>
     <location name="Smt2Left" xPosition="37000" yPosition="17000" zPosition="0" type="Smt2">
         <link point="51"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B052"/>
+        <property name="port" value="50005"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="Smt2Right" xPosition="37000" yPosition="8000" zPosition="0" type="Smt2">
         <link point="50"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B053"/>
+        <property name="port" value="50006"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="SmtWorkBench" xPosition="24000" yPosition="25000" zPosition="0" type="Smt">
         <link point="123"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B002"/>
+        <property name="port" value="50003"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="Start" xPosition="21500" yPosition="45500" zPosition="0" type="InjectionMolding">
@@ -289,6 +298,9 @@
     </location>
     <location name="StartPoint" xPosition="5500" yPosition="28500" zPosition="0" type="Smt">
         <link point="237"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B002"/>
+        <property name="port" value="50003"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_GENERIC"/>
     </location>
     <location name="UnLoadOne" xPosition="17500" yPosition="-5000" zPosition="0" type="TrafficControl">
@@ -301,10 +313,16 @@
     </location>
     <location name="injectionmoldingIn" xPosition="33500" yPosition="32000" zPosition="0" type="InjectionMolding">
         <link point="707"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B003"/>
+        <property name="port" value="50002"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_ALT_2"/>
     </location>
     <location name="injectionmoldingOut" xPosition="23000" yPosition="33000" zPosition="0" type="InjectionMolding">
         <link point="702"/>
+        <property name="host" value="127.0.0.1"/>
+        <property name="name" value="B003"/>
+        <property name="port" value="50002"/>
         <property name="tcs:defaultLocationSymbol" value="WORKING_ALT_1"/>
     </location>
     <block name="Block-0001" type="SINGLE_VEHICLE_ONLY">
@@ -778,5 +796,5 @@
             <property name="POSITION_Y" value="31750"/>
         </modelLayoutElement>
     </visualLayout>
-    <property name="tcs:modelFileLastModified" value="2020-04-21T08:04:39.700Z"/>
+    <property name="tcs:modelFileLastModified" value="2020-04-22T02:27:16.434Z"/>
 </model>
