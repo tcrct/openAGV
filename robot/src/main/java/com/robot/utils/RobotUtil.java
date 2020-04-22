@@ -557,6 +557,9 @@ public class RobotUtil {
                 LOG.warn("车辆/设备标识符不能为空");
                 continue;
             }
+            if ("B050".equals(key)) {
+                return;
+            }
             ClientEntry client = clientEntries.get(key);
             if (ToolsKit.isEmpty(client)) {
                 LOG.warn("根据车辆/设备标识符[{}]查找不到对应的ClientEntry对象，退出本次访问，请检查！", key);
