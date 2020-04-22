@@ -142,7 +142,6 @@ public class DispatchFactory {
                 //是同一单元的请求响应且需要发送的响应
                 if (response.isResponseTo(request) && response.isNeedSend()) {
                     // 正确的响应才发送到车辆或设备
-//                    request.getAdapter().sendTelegram(response);
                     TelegramSendKit.duang().key(response.getDeviceId()).response(response).send();
                 }
             } else {

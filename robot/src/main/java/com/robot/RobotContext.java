@@ -1,10 +1,8 @@
 package com.robot;
 
 import com.robot.adapter.RobotCommAdapter;
-import com.robot.contrib.netty.comm.NetChannelType;
 import com.robot.mvc.core.exceptions.RobotException;
 import com.robot.mvc.core.interfaces.IComponents;
-import com.robot.utils.RobotUtil;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -41,7 +39,6 @@ public class RobotContext {
      * @param key 车辆标识关键字
      */
     public static RobotCommAdapter getAdapter(String key) {
-        key = NetChannelType.TCP.equals(RobotUtil.getNetChannelType()) ? key : RobotUtil.getVehicleId(key);
         return ADAPTER_MAP.get(key);
     }
 

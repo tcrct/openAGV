@@ -11,7 +11,6 @@ import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -260,7 +259,7 @@ public abstract class AbstractServerChannelManager implements IServiceChannelMan
      * @param key     客户端关键字，须保证唯一
      * @param message 发送的内容
      */
-    public void send(String key, Object message) throws Exception {
+    public synchronized void send(String key, Object message) throws Exception {
         if (!initialized) {
             throw new IllegalArgumentException("服务没有初始化成功");
         }

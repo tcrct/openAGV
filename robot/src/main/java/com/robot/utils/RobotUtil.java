@@ -95,15 +95,6 @@ public class RobotUtil {
         return new ArrayList<>(RobotContext.getAdapterMap().keySet());
     }
 
-    public static String getVehicleId(String key) {
-        try {
-            return RobotUtil.getEntryName(key).getVehicleNameList().get(0);
-        } catch (Exception e) {
-//            LOG.error("可能没有该车辆[{}]对应的业务逻辑服务类，请检查！", key);
-            return key;
-        }
-    }
-
     /**
      * 车辆与移动协议指令关系
      */
@@ -138,7 +129,7 @@ public class RobotUtil {
     }
 
     /**
-     * 根据名称取适配器，
+     * 根据名称取适配器
      *
      * @param name
      * @return
