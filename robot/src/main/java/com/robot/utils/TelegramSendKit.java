@@ -65,7 +65,7 @@ public class TelegramSendKit {
      */
     public TelegramSendKit response(IResponse response) {
         this.telegramMsg = response.getRawContent();
-        LOG.info("需要发送的响应对象ID为：{}，报文内容：{}", response.getId(), telegramMsg);
+//        LOG.info("需要发送的响应对象ID为：{}，报文内容：{}", response.getId(), telegramMsg);
         return this;
     }
 
