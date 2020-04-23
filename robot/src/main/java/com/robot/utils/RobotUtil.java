@@ -539,7 +539,7 @@ public class RobotUtil {
         // 设置通讯通道到客户端对象
         List<IProtocol> protocolList = RobotUtil.toProtocolList(telegramData);
         if (ToolsKit.isEmpty(protocolList)) {
-            LOG.warn("将接收到的报文[{}]转换为List<IProtocol>时，List对象为空！", telegramData);
+            LOG.debug("将接收到的报文[{}]转换为List<IProtocol>时，List对象为空！", telegramData);
             return;
         }
         for (IProtocol protocol : protocolList) {
