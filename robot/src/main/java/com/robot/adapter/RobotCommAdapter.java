@@ -421,12 +421,16 @@ public class RobotCommAdapter
                             if (ToolsKit.isEmpty(location)) {
                                 throw new RobotException("车辆["+getName()+"]执行["+operation+"]指令集动作时，对应的工站不存在，请检查");
                             }
-                            String deviceId = location.getProperty(RobotConstants.NAME_FIELD);
+                            String locationName = location.getProperty(RobotConstants.NAME_FIELD);
+                            if (ToolsKit.isEmpty(locationName)) {
+                                locationName = location.getName();
+                            }
+                            String deviceId = location.getProperty(RobotConstants.DEVICE_ID_FIELD);
                             if (ToolsKit.isEmpty(deviceId)) {
                                 deviceId = location.getName();
                             }
                             // 调用BaseActions里execute方法
-                            action.execute(operation, operation, getName(), deviceId);
+                            action.execute(operation, operation, getName(), deviceId, locationName);
                         } else {
                             LOG.info("根据[{}]查找不到对应的动作指令处理类", operation);
                         }
