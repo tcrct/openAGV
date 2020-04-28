@@ -75,6 +75,7 @@ public class RobotConstants {
     // 动作指令集如需要在运行时实时取得参数，则需要在ActionRequest里设置该值作为标识符
     public static final String DYNAMIC_PARAM_FIELD = "dynamic_param";
 
+    public static final String PRE_STOP_FIELD = "pre_stop";
     // 根据用户名称
     public static String ROOT_FIELD = "root";
     // 管理员用户名称

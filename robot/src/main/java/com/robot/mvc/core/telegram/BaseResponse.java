@@ -9,6 +9,9 @@ import com.robot.mvc.core.interfaces.IRequest;
 import com.robot.mvc.core.interfaces.IResponse;
 import com.robot.utils.ToolsKit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 响应对象基类
  *
@@ -51,6 +54,11 @@ public class BaseResponse implements IResponse {
     private boolean isNeedSend;
     /*** 协议字符串*/
     protected String rawContent;
+
+    /**
+     * 扩展属性
+     */
+    private Map<String,String> params = new HashMap<>();
 
     private RobotStateModel robotStateModel;
 
@@ -206,6 +214,10 @@ public class BaseResponse implements IResponse {
     @Override
     public void setRawContent(String raw) {
         rawContent = raw;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
     }
 
     @Override
