@@ -65,6 +65,9 @@ public class DispatchFactory {
      */
     private static void onIncomingTelegram(IProtocol protocol) {
         String message = RobotUtil.getProtocolMatcher().decode(protocol);
+        if (null == message) {
+            return;
+        }
         LOG.info("onIncomingTelegram: {}", message);
         try {
             BusinessRequest businessRequest = new BusinessRequest(message, protocol);
