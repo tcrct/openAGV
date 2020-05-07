@@ -43,7 +43,22 @@ public class ClassHelper {
                 return isScanClass(aClass);
             }
         });
-        for (Class clazz : classSet) {
+        Set<Class<?>> totalClassSet = new HashSet<>(classSet);
+        String robotPackageName = "com.makerwit.robot";
+        if (!packageName.contains(robotPackageName)) {
+            Set<Class<?>> robotClassSet = ClassUtil.scanPackage(robotPackageName, new Filter<Class<?>>() {
+                @Override
+                public boolean accept(Class<?> aClass) {
+                    return isScanClass(aClass);
+                }
+            });
+
+            if (ToolsKit.isNotEmpty(totalClassSet) && ToolsKit.isNotEmpty(robotClassSet)) {
+                totalClassSet.addAll(robotClassSet);
+            }
+        }
+
+        for (Class clazz : totalClassSet) {
             binder(clazz);
         }
     }

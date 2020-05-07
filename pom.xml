@@ -48,7 +48,9 @@
             <artifactId>jan-native</artifactId>
             <version>${jna.version}</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}\lib\jna-5.5.0.jar</systemPath>
+            <systemPath>C:/workspace/IdeaProjects/openagv/lib/jna-5.5.0.jar</systemPath>
+<!--            <systemPath>${basedir}\lib\jna-5.5.0.jar</systemPath>-->
+<!--            <systemPath>${project.basedir}\lib\jna-5.5.0.jar</systemPath>-->
         </dependency>
         <!-- netty -->
         <dependency>
