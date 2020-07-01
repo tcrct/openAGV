@@ -26,7 +26,7 @@
         <slf4j.version>1.7.28</slf4j.version>
         <netty.version>4.1.42.Final</netty.version>
         <agv.version>1.0-SNAPSHOT</agv.version>
-        <quartz.version>2.3.0</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <i18n.version>1.0.0</i18n.version>
         <common.version>3.4</common.version>
         <velocity.version>1.7</velocity.version>
