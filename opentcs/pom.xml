@@ -113,7 +113,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <junit.version>4.11</junit.version>
         <guice.version>4.2.2</guice.version>
-        <guava.version>25.1-android</guava.version>
+        <guava.version>29.0-android</guava.version>
         <findbugs.version>3.0.1</findbugs.version>
         <mockito.version>2.2.7</mockito.version>
         <db.version>1.0-SNAPSHOT</db.version>
